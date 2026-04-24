@@ -6,8 +6,9 @@
    Structure:
    Layer 1 — Modern reset
    Layer 2 — Design tokens (spacing, typography, color, layout)
-   Layer 3 — Typography classes
-   Layer 4 — Base styles & layout utilities
+   Layer 3 — Typography classes (coming next)
+   Layer 4 — Base styles & layout utilities (coming next)
+   Layer 5 — Component patterns (added per project)
    ============================================================ */
 
 
@@ -318,7 +319,8 @@ table {
   --container-max:    80rem;    /* 1280px — standard content width  */
   --container-narrow: 50rem;    /* 800px  — article / reading width */
   --container-wide:   100rem;   /* 1600px — map / archive pages     */
-  /* Container Gutter — space between content and screen edge */
+  
+  /* Gutter — space between content and screen edge */
   --container-gutter: clamp(1rem, 4vw, 2rem);  /* 16px on mobile → 32px on desktop */
 
   /* Border radius */

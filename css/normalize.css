@@ -1,0 +1,171 @@
+/* ============================================================
+   MODERN RESET
+   
+   Removes browser inconsistencies so every project starts
+   from the same blank slate. Replaces normalize.css (300 lines)
+   with only what modern browsers actually need (~50 lines).
+   ============================================================ */
+
+/* 1. Use border-box everywhere.
+   By default, CSS width doesn't include padding/border,
+   which makes sizing unpredictable. border-box fixes that.
+   The *, *::before, *::after means "every element and every
+   pseudo-element on the page." */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 2. Remove default margins and padding.
+   Browsers add different margins to body, headings, paragraphs,
+   figures, blockquotes, etc. Zeroing them all means YOU control
+   the spacing through your tokens, not the browser. */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* 3. Body defaults.
+   min-height: 100vh ensures the page fills at least the full
+   viewport height (useful for short pages with a sticky footer).
+   line-height: 1.6 is a comfortable default for body text.
+   -webkit-font-smoothing makes fonts render crisper on Mac. */
+body {
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 4. Images, videos, and other media.
+   display: block removes the small gap below images that
+   inline elements create. max-width: 100% prevents images
+   from overflowing their container. */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* 5. Form elements inherit font.
+   By default, buttons, inputs, textareas, and selects use
+   the browser's default font — not your chosen project font.
+   This fixes that. */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* 6. Buttons reset.
+   Remove default button styling so you can style from scratch.
+   cursor: pointer is expected on clickable elements. */
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* 7. Text wrapping.
+   overflow-wrap: break-word prevents very long words (like URLs)
+   from overflowing their containers. */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* 8. List reset.
+   Removes default bullets from lists. Since most UI lists
+   (navs, card grids, tag lists) aren't visually bulleted,
+   this saves you from manually unstyling them.
+   
+   ACCESSIBILITY: Safari stops announcing <ul> as a list when
+   list-style is removed. When you DO want a semantic list,
+   add role="list" to preserve the announcement:
+     <ul role="list" class="w-list-unstyled">
+   
+   For article body text with real bullets, restore them
+   via a .rich-text or .prose component class. */
+ul,
+ol {
+  list-style: none;
+}
+
+/* 9. Anchor reset.
+   Links inherit color from their parent by default in our system.
+   Each project's brand layer sets link styles. */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 10. Table reset.
+   border-collapse removes double borders between cells.
+   This is the same fix that was in normalize.css. */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* 11. Smooth scroll (opt-in).
+   Only applies when user hasn't requested reduced motion.
+   This makes anchor links (#section) scroll smoothly. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* 12. Reduced motion safety.
+   If the user has set "reduce motion" in their OS settings,
+   remove all animations and transitions. This is an
+   accessibility best practice. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   WEBFLOW COMPATIBILITY CLASSES
+   
+   These replicate the handful of auto-applied Webflow classes
+   so exported HTML works without webflow.css.
+   You can remove this section once you fully depart from
+   Webflow exports.
+   ============================================================ */
+
+.w-inline-block {
+  display: inline-block;
+  max-width: 100%;
+}
+
+.w-list-unstyled {
+  padding-left: 0;
+  list-style: none;
+}
+
+.w-embed::before,
+.w-embed::after {
+  content: "";
+  display: table;
+}
+.w-embed::after {
+  clear: both;
+}

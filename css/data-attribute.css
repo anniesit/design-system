@@ -1,0 +1,496 @@
+/* ============================================================
+   Design / Development System
+   A neutral CSS foundation for web projects.
+   Each project adds its own brand layer (fonts, colors, accents).
+   
+   Structure:
+   Layer 1 — Modern reset
+   Layer 2 — Design tokens (spacing, typography, color, layout)
+   Layer 3 — Typography classes
+   Layer 4 — Base styles & layout utilities
+   ============================================================ */
+/* ============================================================
+   Design Tokens and Typography Classes defined in Brand CSS file.
+   ============================================================ */
+
+/* ============================================================
+   LAYER 4 — LAYOUT & LAYOUT UTILITIES
+   
+   Base structural classes (container, section) plus utility
+   attributes for flex, gap, grid, spacing, and display.
+   
+   Data-attribute syntax for values-from-a-scale utilities:
+     <div u-flex="row-left-center" u-gap="md" u-mb="lg">
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   FLEX — data-attribute syntax
+   
+   Pattern: u-flex="<direction>-<justify>-<align>"
+   
+   Direction:  row | column
+   Justify:    left | center | right | between | around
+   Align:      top | center | bottom | stretch
+   
+   Examples:
+     <div u-flex="row-left-center">      horizontal, left-aligned, centered
+     <div u-flex="column-left-top">      vertical stack, top-aligned
+     <div u-flex="row-between-center">   spread horizontally, centered vertically
+   
+   How it works:
+   - [u-flex]            — sets display: flex on any element with the attribute
+   - [u-flex^="row"]     — "starts with" row → flex-direction: row
+   - [u-flex*="-left-"]  — "contains" -left- → justify-content: flex-start
+   - [u-flex$="-top"]    — "ends with" -top → align-items: flex-start
+   
+   The selectors combine: one attribute value triggers three
+   different rules at once.
+   ---------------------------------------------------------- */
+[u-flex] { display: flex; }
+
+/* flex-direction (first word) */
+[u-flex^="row"]    { flex-direction: row; }
+[u-flex^="column"] { flex-direction: column; }
+
+/* justify-content (middle word) */
+[u-flex*="-left-"]    { justify-content: flex-start; }
+[u-flex*="-center-"]  { justify-content: center; }
+[u-flex*="-right-"]   { justify-content: flex-end; }
+[u-flex*="-between-"] { justify-content: space-between; }
+[u-flex*="-around-"]  { justify-content: space-around; }
+
+/* align-items (last word) */
+[u-flex$="-top"]     { align-items: flex-start; }
+[u-flex$="-center"]  { align-items: center; }
+[u-flex$="-bottom"]  { align-items: flex-end; }
+[u-flex$="-stretch"] { align-items: stretch; }
+
+/* flex-wrap modifier (optional, applied in addition to u-flex) */
+[u-flex-wrap="wrap"]   { flex-wrap: wrap; }
+[u-flex-wrap="nowrap"] { flex-wrap: nowrap; }
+
+
+/* ----------------------------------------------------------
+   FLEX CHILD — grow, shrink, basis
+   
+   These apply to flex ITEMS (children of a flex container),
+   not the container. Useful when you need one item to grow
+   while others stay fixed, or vice versa.
+   
+     <div u-flex="row-left-center" u-gap="md">
+       <nav u-flex-grow="0">Sidebar</nav>    — stays its natural width
+       <main u-flex-grow="1">Content</main>  — fills remaining space
+     </div>
+   
+   For common ratios (e.g. "grow to fill, min 16rem"), use
+   inline style: style="flex: 1 1 16rem"
+   ---------------------------------------------------------- */
+[u-flex-grow="0"]   { flex-grow: 0; }
+[u-flex-grow="1"]   { flex-grow: 1; }
+[u-flex-shrink="0"] { flex-shrink: 0; }
+[u-flex-shrink="1"] { flex-shrink: 1; }
+[u-flex-basis="auto"] { flex-basis: auto; }
+[u-flex-basis="0"]    { flex-basis: 0; }
+[u-flex-basis="full"] { flex-basis: 100%; }
+
+
+/* ----------------------------------------------------------
+   GAP — spacing between flex/grid children
+   
+   Uses the spacing scale from Layer 2.
+   
+     <div u-flex="row-left-center" u-gap="md">
+   ---------------------------------------------------------- */
+[u-gap="2xs"]  { gap: var(--space-2xs); }
+[u-gap="xs"]   { gap: var(--space-xs); }
+[u-gap="sm"]   { gap: var(--space-sm); }
+[u-gap="base"] { gap: var(--space-base); }
+[u-gap="md"]   { gap: var(--space-md); }
+[u-gap="lg"]   { gap: var(--space-lg); }
+[u-gap="xl"]   { gap: var(--space-xl); }
+[u-gap="2xl"]  { gap: var(--space-2xl); }
+[u-gap="3xl"]  { gap: var(--space-3xl); }
+
+
+/* ----------------------------------------------------------
+   GRID — data-attribute syntax
+   
+   u-grid="autofit" and u-grid="autofill" use a smart formula
+   that takes THREE variables you can tune per instance:
+   
+     --grid-min    — minimum column width (default 18rem)
+     --grid-max    — ideal maximum column count (default 4)
+     --grid-gap    — the gap between items (default: inherit from u-gap)
+   
+   The formula ensures:
+   1. Columns never narrower than --grid-min
+   2. At most --grid-max columns (even if wider space available)
+   3. Columns shrink to 100% if container is too narrow for even one
+   
+   Override per instance via inline style:
+     <div u-grid="autofit" style="--grid-min: 20rem; --grid-max: 3;">
+   
+   autofit vs autofill:
+   - autofit:  collapses empty tracks (last row stretches)
+   - autofill: preserves empty tracks (last row stays column-sized)
+   
+   Most of the time you want autofit. Use autofill only when
+   you want incomplete rows to keep card-sized columns.
+   ---------------------------------------------------------- */
+[u-grid="autofit"],
+[u-grid="autofill"] {
+  --grid-min: 18rem;
+  --grid-max: 4;
+  --grid-gap: var(--space-md);
+  display: grid;
+  gap: var(--grid-gap);
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(
+      min(
+        max(var(--grid-min), (100% - (var(--grid-max) - 1) * var(--grid-gap)) / var(--grid-max)),
+        100%
+      ),
+      1fr
+    )
+  );
+}
+
+[u-grid="autofill"] {
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(
+      min(
+        max(var(--grid-min), (100% - (var(--grid-max) - 1) * var(--grid-gap)) / var(--grid-max)),
+        100%
+      ),
+      1fr
+    )
+  );
+}
+
+/* Fixed column counts for when you know exactly what you need */
+[u-grid="2col"] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grid-gap, var(--space-md)); }
+[u-grid="3col"] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--grid-gap, var(--space-md)); }
+[u-grid="4col"] { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--grid-gap, var(--space-md)); }
+
+
+/* ----------------------------------------------------------
+   MARGIN & PADDING
+   
+   Use these sparingly — most spacing should happen via gap
+   on a flex/grid parent. These are useful when you need to
+   nudge one specific element.
+   
+     <h2 u-mb="sm">Title with small bottom margin</h2>
+   
+   Available axes:
+     u-mt = margin-top      u-pt = padding-top
+     u-mb = margin-bottom   u-pb = padding-bottom
+     u-mx = margin left+right (horizontal)
+     u-my = margin top+bottom (vertical)
+     u-px = padding left+right
+     u-py = padding top+bottom
+   
+   Values follow the spacing scale: 0, 2xs, xs, sm, base, md, lg, xl, 2xl, 3xl
+   Plus "auto" for margins (useful for centering).
+   ---------------------------------------------------------- */
+
+/* Margin top */
+[u-mt="0"]    { margin-top: 0; }
+[u-mt="2xs"]  { margin-top: var(--space-2xs); }
+[u-mt="xs"]   { margin-top: var(--space-xs); }
+[u-mt="sm"]   { margin-top: var(--space-sm); }
+[u-mt="base"] { margin-top: var(--space-base); }
+[u-mt="md"]   { margin-top: var(--space-md); }
+[u-mt="lg"]   { margin-top: var(--space-lg); }
+[u-mt="xl"]   { margin-top: var(--space-xl); }
+[u-mt="2xl"]  { margin-top: var(--space-2xl); }
+[u-mt="3xl"]  { margin-top: var(--space-3xl); }
+[u-mt="auto"] { margin-top: auto; }
+
+/* Margin bottom */
+[u-mb="0"]    { margin-bottom: 0; }
+[u-mb="2xs"]  { margin-bottom: var(--space-2xs); }
+[u-mb="xs"]   { margin-bottom: var(--space-xs); }
+[u-mb="sm"]   { margin-bottom: var(--space-sm); }
+[u-mb="base"] { margin-bottom: var(--space-base); }
+[u-mb="md"]   { margin-bottom: var(--space-md); }
+[u-mb="lg"]   { margin-bottom: var(--space-lg); }
+[u-mb="xl"]   { margin-bottom: var(--space-xl); }
+[u-mb="2xl"]  { margin-bottom: var(--space-2xl); }
+[u-mb="3xl"]  { margin-bottom: var(--space-3xl); }
+[u-mb="auto"] { margin-bottom: auto; }
+
+/* Margin horizontal (left + right) */
+[u-mx="0"]    { margin-left: 0; margin-right: 0; }
+[u-mx="2xs"]  { margin-left: var(--space-2xs); margin-right: var(--space-2xs); }
+[u-mx="xs"]   { margin-left: var(--space-xs); margin-right: var(--space-xs); }
+[u-mx="sm"]   { margin-left: var(--space-sm); margin-right: var(--space-sm); }
+[u-mx="base"] { margin-left: var(--space-base); margin-right: var(--space-base); }
+[u-mx="md"]   { margin-left: var(--space-md); margin-right: var(--space-md); }
+[u-mx="lg"]   { margin-left: var(--space-lg); margin-right: var(--space-lg); }
+[u-mx="xl"]   { margin-left: var(--space-xl); margin-right: var(--space-xl); }
+[u-mx="2xl"]  { margin-left: var(--space-2xl); margin-right: var(--space-2xl); }
+[u-mx="3xl"]  { margin-left: var(--space-3xl); margin-right: var(--space-3xl); }
+[u-mx="auto"] { margin-left: auto; margin-right: auto; }
+
+/* Margin vertical (top + bottom) */
+[u-my="0"]    { margin-top: 0; margin-bottom: 0; }
+[u-my="2xs"]  { margin-top: var(--space-2xs); margin-bottom: var(--space-2xs); }
+[u-my="xs"]   { margin-top: var(--space-xs); margin-bottom: var(--space-xs); }
+[u-my="sm"]   { margin-top: var(--space-sm); margin-bottom: var(--space-sm); }
+[u-my="base"] { margin-top: var(--space-base); margin-bottom: var(--space-base); }
+[u-my="md"]   { margin-top: var(--space-md); margin-bottom: var(--space-md); }
+[u-my="lg"]   { margin-top: var(--space-lg); margin-bottom: var(--space-lg); }
+[u-my="xl"]   { margin-top: var(--space-xl); margin-bottom: var(--space-xl); }
+[u-my="2xl"]  { margin-top: var(--space-2xl); margin-bottom: var(--space-2xl); }
+[u-my="3xl"]  { margin-top: var(--space-3xl); margin-bottom: var(--space-3xl); }
+[u-my="auto"] { margin-top: auto; margin-bottom: auto; }
+
+/* Padding top */
+[u-pt="0"]    { padding-top: 0; }
+[u-pt="xs"]   { padding-top: var(--space-xs); }
+[u-pt="sm"]   { padding-top: var(--space-sm); }
+[u-pt="base"] { padding-top: var(--space-base); }
+[u-pt="md"]   { padding-top: var(--space-md); }
+[u-pt="lg"]   { padding-top: var(--space-lg); }
+[u-pt="xl"]   { padding-top: var(--space-xl); }
+[u-pt="2xl"]  { padding-top: var(--space-2xl); }
+[u-pt="3xl"]  { padding-top: var(--space-3xl); }
+
+/* Padding bottom */
+[u-pb="0"]    { padding-bottom: 0; }
+[u-pb="xs"]   { padding-bottom: var(--space-xs); }
+[u-pb="sm"]   { padding-bottom: var(--space-sm); }
+[u-pb="base"] { padding-bottom: var(--space-base); }
+[u-pb="md"]   { padding-bottom: var(--space-md); }
+[u-pb="lg"]   { padding-bottom: var(--space-lg); }
+[u-pb="xl"]   { padding-bottom: var(--space-xl); }
+[u-pb="2xl"]  { padding-bottom: var(--space-2xl); }
+[u-pb="3xl"]  { padding-bottom: var(--space-3xl); }
+
+/* Padding horizontal (left + right) */
+[u-px="0"]    { padding-left: 0; padding-right: 0; }
+[u-px="xs"]   { padding-left: var(--space-xs); padding-right: var(--space-xs); }
+[u-px="sm"]   { padding-left: var(--space-sm); padding-right: var(--space-sm); }
+[u-px="base"] { padding-left: var(--space-base); padding-right: var(--space-base); }
+[u-px="md"]   { padding-left: var(--space-md); padding-right: var(--space-md); }
+[u-px="lg"]   { padding-left: var(--space-lg); padding-right: var(--space-lg); }
+[u-px="xl"]   { padding-left: var(--space-xl); padding-right: var(--space-xl); }
+[u-px="2xl"]  { padding-left: var(--space-2xl); padding-right: var(--space-2xl); }
+[u-px="3xl"]  { padding-left: var(--space-3xl); padding-right: var(--space-3xl); }
+
+/* Padding vertical (top + bottom) */
+[u-py="0"]    { padding-top: 0; padding-bottom: 0; }
+[u-py="xs"]   { padding-top: var(--space-xs); padding-bottom: var(--space-xs); }
+[u-py="sm"]   { padding-top: var(--space-sm); padding-bottom: var(--space-sm); }
+[u-py="base"] { padding-top: var(--space-base); padding-bottom: var(--space-base); }
+[u-py="md"]   { padding-top: var(--space-md); padding-bottom: var(--space-md); }
+[u-py="lg"]   { padding-top: var(--space-lg); padding-bottom: var(--space-lg); }
+[u-py="xl"]   { padding-top: var(--space-xl); padding-bottom: var(--space-xl); }
+[u-py="2xl"]  { padding-top: var(--space-2xl); padding-bottom: var(--space-2xl); }
+[u-py="3xl"]  { padding-top: var(--space-3xl); padding-bottom: var(--space-3xl); }
+
+
+/* ----------------------------------------------------------
+   DISPLAY — data-attribute syntax
+   
+   Control element display mode.
+   
+     <div u-d="none">        — hide (visual + accessibility tree)
+     <div u-d="block">
+     <div u-d="flex">        — simple flex (defaults: row, left-start)
+     <div u-d="grid">
+     <div u-d="inline">
+     <div u-d="inline-block">
+   ---------------------------------------------------------- */
+[u-d="none"]         { display: none; }
+[u-d="block"]        { display: block; }
+[u-d="inline"]       { display: inline; }
+[u-d="inline-block"] { display: inline-block; }
+[u-d="flex"]         { display: flex; }
+[u-d="inline-flex"]  { display: inline-flex; }
+[u-d="grid"]         { display: grid; }
+
+
+/* ----------------------------------------------------------
+   SIZE helpers — data-attribute syntax
+   
+   Common width/height patterns.
+   ---------------------------------------------------------- */
+[u-w="full"]   { width: 100%; }
+[u-w="auto"]   { width: auto; }
+[u-h="full"]   { height: 100%; }
+[u-h="screen"] { height: 100vh; }
+[u-min-h="screen"] { min-height: 100vh; }
+
+/* Min-width: useful for flex children that need to shrink
+   below their content width (u-min-w="0") or container-sized
+   minimums (u-min-w="narrow"). */
+[u-min-w="0"]      { min-width: 0; }
+[u-min-w="full"]   { min-width: 100%; }
+[u-min-w="narrow"] { min-width: var(--container-narrow); }
+
+/* Max-width: commonly used on article text for readability,
+   or to cap element width regardless of its container. */
+[u-max-w="full"]   { max-width: 100%; }
+[u-max-w="narrow"] { max-width: var(--container-narrow); }   /* 800px — reading width */
+[u-max-w="max"]    { max-width: var(--container-max); }      /* 1280px — standard    */
+[u-max-w="wide"]   { max-width: var(--container-wide); }     /* 1600px — map/archive */
+
+
+/* ----------------------------------------------------------
+   POSITION helpers — data-attribute syntax
+   ---------------------------------------------------------- */
+[u-pos="relative"] { position: relative; }
+[u-pos="absolute"] { position: absolute; }
+[u-pos="fixed"]    { position: fixed; }
+[u-pos="sticky"]   { position: sticky; }
+
+/* Inset — shorthand for top/right/bottom/left.
+   Most commonly used on absolutely-positioned overlays
+   that should fill their parent:
+     <div u-pos="absolute" u-inset="0"> */
+[u-inset="0"]    { inset: 0; }
+[u-inset="auto"] { inset: auto; }
+
+/* ----------------------------------------------------------
+   Overflow helpers
+   ---------------------------------------------------------- */
+[u-overflow="hidden"] { overflow: hidden; }
+[u-overflow="auto"] { overflow: auto; }
+[u-overflow="clip"] { overflow: clip; }
+
+
+/* ============================================================
+   APPEARANCE UTILITIES
+   
+   Surface styling: border-radius, border, background, 
+   aspect-ratio, z-index, opacity, transition.
+   
+   Added in this batch because they were repeatedly needed
+   when building project components.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   BORDER RADIUS
+   
+   Maps to the --radius-* tokens in Layer 2.
+   
+     <div u-radius="lg">  card corners
+     <div u-radius="full"> pill / circle
+   ---------------------------------------------------------- */
+[u-radius="0"]    { border-radius: 0; }
+[u-radius="sm"]   { border-radius: var(--radius-sm); }
+[u-radius="md"]   { border-radius: var(--radius-md); }
+[u-radius="lg"]   { border-radius: var(--radius-lg); }
+[u-radius="xl"]   { border-radius: var(--radius-xl); }
+[u-radius="full"] { border-radius: var(--radius-full); }
+
+
+/* ----------------------------------------------------------
+   BORDER
+   
+   Applies a 1px solid border using the semantic border tokens.
+   Use these for inputs, cards, dividers. For custom widths
+   or colors, write them in your component CSS.
+   
+     <div u-border="default">  standard border
+     <div u-border="subtle">   lighter divider
+     <div u-border="dark">     emphasized border
+     <div u-border="none">     remove a border (override)
+   ---------------------------------------------------------- */
+[u-border="none"]    { border: none; }
+[u-border="default"] { border: var(--border-width-default) solid var(--color-border); }
+[u-border="subtle"]  { border: var(--border-width-default) solid var(--color-border-subtle); }
+[u-border="dark"]    { border: var(--border-width-default) solid var(--color-border-dark); }
+
+
+/* ----------------------------------------------------------
+   BACKGROUND COLOR
+   
+   Applies semantic background colors. Same role tokens as
+   everywhere else in the system.
+   
+     <div u-bg="bg-subtle">     card surface
+     <div u-bg="accent-subtle"> highlighted section
+   ---------------------------------------------------------- */
+[u-bg="bg"]            { background-color: var(--color-bg); }
+[u-bg="bg-subtle"]     { background-color: var(--color-bg-subtle); }
+[u-bg="bg-muted"]      { background-color: var(--color-bg-muted); }
+[u-bg="accent"]        { background-color: var(--color-accent); }
+[u-bg="accent-subtle"] { background-color: var(--color-accent-subtle); }
+[u-bg="transparent"]   { background-color: transparent; }
+
+
+/* ----------------------------------------------------------
+   ASPECT RATIO
+   
+   Forces an element to maintain a ratio regardless of content.
+   Most commonly used on image wrappers so thumbnails stay
+   consistent across cards.
+   
+     <div u-aspect="16-9">  16:9 (common for thumbnails)
+     <div u-aspect="1-1"> 1:1
+     <div u-aspect="3-2">    3:2 (header images)
+     <div u-aspect="4-3">    4:3 (classic photo)
+   ---------------------------------------------------------- */
+[u-aspect="1-1"] { aspect-ratio: 1 / 1; }
+[u-aspect="16-9"]  { aspect-ratio: 16 / 9; }
+[u-aspect="3-2"]    { aspect-ratio: 3 / 2; }
+[u-aspect="4-3"]    { aspect-ratio: 4 / 3; }
+
+
+/* ----------------------------------------------------------
+   Z-INDEX
+   
+   Maps to the --z-* tokens in Layer 2.
+   See the token definitions for when to use each level.
+   ---------------------------------------------------------- */
+[u-z="base"]    { z-index: var(--z-base); }
+[u-z="above"]   { z-index: var(--z-above); }
+[u-z="nav"]     { z-index: var(--z-nav); }
+[u-z="overlay"] { z-index: var(--z-overlay); }
+[u-z="modal"]   { z-index: var(--z-modal); }
+[u-z="toast"]   { z-index: var(--z-toast); }
+
+
+/* ----------------------------------------------------------
+   OPACITY
+   
+   A small set of common values. For anything else,
+   use inline style.
+   ---------------------------------------------------------- */
+[u-opacity="0"]   { opacity: 0; }
+[u-opacity="25"]  { opacity: 0.25; }
+[u-opacity="50"]  { opacity: 0.5; }
+[u-opacity="75"]  { opacity: 0.75; }
+[u-opacity="100"] { opacity: 1; }
+
+
+/* ----------------------------------------------------------
+   TRANSITION
+   
+   Pairs with the --transition-* tokens. Apply to elements
+   that change on hover/focus/state so the change feels smooth.
+   
+     <a u-transition="fast">Link</a>
+   ---------------------------------------------------------- */
+[u-transition="fast"] { transition: all var(--transition-fast); }
+[u-transition="base"] { transition: all var(--transition-base); }
+[u-transition="slow"] { transition: all var(--transition-slow); }
+
+
+/* ----------------------------------------------------------
+   Cursor
+   ---------------------------------------------------------- */
+[u-cursor="pointer"] { cursor: pointer; }
+[u-cursor="default"] { cursor: default; }
+
+/* ----------------------------------------------------------
+   Pointer events
+   Useful for overlays that shouldn't block clicks behind them.
+   ---------------------------------------------------------- */
+[u-event="none"] { pointer-events: none; }
+[u-event="auto"] { pointer-events: auto; }
