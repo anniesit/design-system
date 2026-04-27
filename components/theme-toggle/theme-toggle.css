@@ -1,0 +1,41 @@
+/* Theme Toggle */
+
+/* Set light/dark theme on HTML */
+:root {
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  /* Reset Webflow injected Lightning CSS Polyfill */
+  --lightningcss-light: ;
+  --lightningcss-dark: initial;
+}
+@media (prefers-color-scheme: light) {
+  /* Reset Webflow injected Lightning CSS Polyfill */
+  --lightningcss-light: initial;
+  --lightningcss-dark: ;
+  /* Canvas modifiers to show the toggle state in Designer */
+  html.wf-design-mode [data-theme-toggle="checkbox"]::before {
+    transform: translateX(1.5em);
+  }
+  html.wf-design-mode [data-theme-toggle="dark-label"] {
+    display: none;
+  }
+  html.wf-design-mode [data-theme-toggle="light-label"] {
+    display: block;
+  }
+}
+/* Toggle switch styling */
+[data-theme-toggle="checkbox"]::before {
+  content: "";
+  position: absolute;
+  width: 1.1em;
+  height: 1.1em;
+  border-radius: 50%;
+  background-color: var(--primary--text);
+  top: 0.2em;
+  left: 0.2em;
+  transition: transform 0.3s ease;
+}
+[data-theme-toggle="checkbox"]:checked::before {
+  transform: translateX(1.5em);
+}

@@ -1,0 +1,29 @@
+/* Marquee */
+
+@keyframes marquee-scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+@keyframes marquee-scroll-right { 0% { transform: translateX(-100%); } 100% { transform: translateX(0); } }
+@keyframes marquee-scroll-up { 0% { transform: translateY(0); } 100% { transform: translateY(-100%); } }
+@keyframes marquee-scroll-down { 0% { transform: translateY(-100%); } 100% { transform: translateY(0); } }
+.marquee-component[data-marquee-pause-on-hover="true"]:hover .marquee-group {
+  animation-play-state: paused;
+}
+.marquee-component[data-marquee-reverse="false"] .marquee-group {
+  animation: marquee-scroll-left var(--marquee-duration) linear infinite;
+}
+.marquee-component[data-marquee-reverse="true"] .marquee-group {
+  animation: marquee-scroll-right var(--marquee-duration) linear infinite;
+}
+.marquee-component[data-wf--marquee--settings-orientation="vertical"][data-marquee-reverse="false"] .marquee-group {
+  animation: marquee-scroll-down var(--marquee-duration) linear infinite;
+}
+.marquee-component[data-wf--marquee--settings-orientation="vertical"][data-marquee-reverse="true"] .marquee-group {
+  animation: marquee-scroll-up var(--marquee-duration) linear infinite;
+}
+.marquee-component:not([data-wf--marquee--settings-orientation="vertical"])[data-marquee-fade-edges="true"] {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+.marquee-component[data-wf--marquee--settings-orientation="vertical"][data-marquee-fade-edges="true"] {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+}

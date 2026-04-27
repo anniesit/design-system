@@ -1,84 +1,79 @@
 # Design System
 
-Centralized CSS and JS for Webflow projects, served via [jsDelivr](https://www.jsdelivr.com/).
+A personal design system based on [MAST](https://github.com/nocodesupplyco/mast) by No-Code Supply Co, organized for use across multiple Webflow projects via jsDelivr CDN.
 
-## File Structure
+## Folder structure
 
 ```
 design-system/
-├── css/
-│   ├── global.css              ← resets, variables, typography, spacing
-│   └── components/
-│       ├── dialog.css
-│       ├── table.css
-│       └── checkbox.css
-├── js/
-│   ├── global.js               ← shared utilities
-│   ├── utils/
-│   │   ├── countup.js
-│   │   └── component-loader.js ← loads shared components (navbar, footer)
-│   └── components/
-│       ├── btn-totop.js
-│       ├── accordion.js
-│       └── modal.js
-└── README.md
+├── README.md
+├── global/                      # Site-wide styles & scripts
+│   ├── canvas-modifiers.css     # Webflow Designer canvas-only styles
+│   ├── global.css               # Site-wide base styles, helpers, modifiers
+│   └── global.js                # Font-size accessibility, footer year
+├── components/                  # One folder per component
+│   ├── theme-toggle/
+│   │   ├── theme-toggle.css
+│   │   └── theme-toggle.js      # placeholder — see file
+│   ├── forms/
+│   │   └── forms.css
+│   ├── icons/
+│   │   └── icons.css            # MAST uses Phosphor Icons via unpkg CDN
+│   ├── marquee/
+│   │   └── marquee.css
+│   ├── accordion/
+│   │   ├── accordion.css
+│   │   └── accordion.js         # placeholder
+│   ├── modal/
+│   │   ├── modal.css
+│   │   └── modal.js             # placeholder
+│   ├── slider/
+│   │   ├── slider.css           # MAST custom CSS (Swiper loaded externally)
+│   │   └── slider.js            # placeholder
+│   ├── inline-video/
+│   │   ├── inline-video.css     # no MAST CSS — file kept for future use
+│   │   └── inline-video.js      # placeholder
+│   ├── tabs/
+│   │   ├── tabs.css
+│   │   └── tabs.js              # placeholder
+│   └── nav/
+│       ├── nav.css              # mobile menu, dropdown, scroll lock
+│       └── nav.js               # skip-link accessibility helper
+└── bundles/                     # Combined files for projects (TBD)
+    ├── all.css
+    └── all.js
 ```
 
-## Usage
+## What's been extracted
 
-### Base URL
+All inline `<style>` and `<script>` blocks from MAST's exported `components.html`
+have been moved into the files above, **without modification**. Each file matches
+the grouping that appears in Webflow's Global Custom Code panel.
 
-```
-https://cdn.jsdelivr.net/gh/anniesit/design-system/{file-path}
-```
+## JS placeholder files
 
-### Linking in Webflow
+The components Theme Toggle, Accordion, Modal, Slider, Inline Video, and Tabs
+have JavaScript that lives on MAST's own jsDelivr CDN — that JS was never
+inline in the HTML. The `.js` files in those component folders are placeholders
+explaining where the source code is and how to populate them if you want to
+fork the JS into your own repo.
 
-**Project-wide** — add in Project Settings → Custom Code:
+You have two options:
 
-```html
-<!-- Head section -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/anniesit/design-system/css/global.css">
+1. **Reference MAST's CDN directly** in your Webflow projects (don't fork the JS).
+   Easier, but you can't modify the JS or pin a version under your control.
+2. **Fork the JS into this repo** by visiting each MAST CDN URL, copying the
+   source, and committing it. More work, but you own and control the code.
 
-<!-- Footer section -->
-<script src="https://cdn.jsdelivr.net/gh/anniesit/design-system/js/global.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/anniesit/design-system/js/utils/component-loader.js"></script>
-```
+## External dependencies (not forked)
 
-**Page-specific** — add on individual pages for components only that page needs:
+These come from third-party CDNs and stay there:
 
-```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/anniesit/design-system/css/components/accordion.css">
-<script src="https://cdn.jsdelivr.net/gh/anniesit/design-system/js/components/accordion.js"></script>
-```
+- **Phosphor Icons** — `https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css`
+- **Swiper CSS** — `https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css`
+- **Swiper JS** — `https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js`
 
-## Handling jsDelivr Cache
+## License & attribution
 
-jsDelivr caches files aggressively. After pushing updates to GitHub, the CDN may still serve the old version. Two ways to handle this:
-
-### 1. Purge the cache (during development)
-
-After pushing changes, swap `cdn` for `purge` in the URL and visit it in your browser:
-
-```
-https://purge.jsdelivr.net/gh/anniesit/design-system/css/global.css
-```
-
-This forces jsDelivr to fetch the latest version from GitHub.
-
-### 2. Pin to a specific commit (for production)
-
-Once your design system is stable and serving live projects, lock to an exact commit hash so updates don't accidentally break things:
-
-```
-https://cdn.jsdelivr.net/gh/anniesit/design-system@COMMIT_HASH/css/global.css
-```
-
-Replace `COMMIT_HASH` with the full or short hash from `git log`.
-
-## Workflow
-
-1. Edit CSS/JS locally
-2. `git add .` →`git commit -m "message"` →`git push`
-3. Purge jsDelivr cache if needed
-4. Webflow picks up the changes
+This system is derived from MAST by No-Code Supply Co. Check MAST's repo for
+licensing terms.

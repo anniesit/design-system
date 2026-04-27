@@ -1,0 +1,45 @@
+/* Slider */
+/* MAST's slider uses Swiper.js as a dependency. */
+/* External Swiper CSS is loaded separately: */
+/* <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"> */
+/* The CSS below is MAST's own additions on top of Swiper. */
+
+.swiper-button-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+[data-slider="component"] {
+  --lg: 3; /* Desktop (992px+) */
+  --md: 2; /* Tablet (768-991px) */
+  --sm: 1; /* Mobile Landscape (480-767px) */
+  --xs: 1; /* Mobile Portrait (0-479px) */
+  --gap: 24px; /* Spacing between slides */
+  --current-slides-per-view: var(--xs); /* Current active slides per view (changes with media queries) */
+}
+@media (min-width: 480px) and (max-width: 767px) {
+  [data-slider="component"] {--current-slides-per-view: var(--sm);}
+}
+@media (min-width: 768px) and (max-width: 991px) {
+  [data-slider="component"] {--current-slides-per-view: var(--md);}
+}
+@media (min-width: 992px) {
+  [data-slider="component"] {--current-slides-per-view: var(--lg);}
+}
+[data-slider="component"] .swiper-slide {
+  width: calc((100% - (var(--current-slides-per-view) - 1) * var(--gap)) / var(--current-slides-per-view)) !important;
+  margin-right: var(--gap);
+}
+[data-slider-overflow="false"] {
+  overflow: hidden;
+}
+[data-slider-overflow="true"] {
+  overflow: visible !important;
+}
+[data-slider="component"] .swiper-wrapper:empty {
+  min-height: 300px;
+}
+[data-slider="component"] .swiper-wrapper .w-dyn-list,
+[data-slider="component"] .swiper-wrapper .w-dyn-items,
+[data-slider="component"] .swiper-wrapper .w-dyn-item {
+  display: contents;
+}

@@ -1,0 +1,34 @@
+/* Modal */
+
+body:has(dialog[open]) {
+  overflow: hidden !important;
+}
+dialog.modal[open] {
+  animation: fadein 400ms ease-out forwards;
+}
+dialog.modal::backdrop {
+  background: color-mix(in srgb, var(--_color---neutral--black) 80%, transparent);
+}
+@keyframes fadein{
+  0%{
+    opacity:0;
+  }
+  100%{
+    opacity:1;
+  }
+}
+dialog::-webkit-scrollbar {
+  width: 10px;
+}            
+dialog::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: transparent;
+}            
+dialog::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  border: 2px solid var(--primary--background);
+  background: var(--primary--text);
+}
+dialog::-webkit-scrollbar-thumb:window-inactive {
+  background: var(--primary--text);
+}

@@ -1,0 +1,97 @@
+/* Global CSS */
+/* Site-wide base styles, typography helpers, layout modifiers */
+
+/* Text Selection Color */
+::selection {
+  background: var(--primary--text);
+  color: var(--primary--background);
+}
+::-moz-selection {
+  background: var(--primary--text);
+  color: var(--primary--background);
+}
+/* Apply font smoothing */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-font-smoothing: antialiased;
+  -o-font-smoothing: antialiased;
+}
+/* Ensure column stack on increased default browser font size (for accessibility) */
+body.font-size-increased .row { 
+  container-type: inline-size; 
+}
+body.font-size-increased {
+  @container (max-width: 40rem) {
+    .col:not([data-wf--grid-column--column-size="shrink"]) {
+      flex: 0 0 100% !important;
+      max-width: 100% !important;
+    }
+  }
+}
+/* Rich text modifiers */
+.w-richtext>:first-child {
+  margin-top: 0;
+}
+/* Line clamp modifiers */
+.u-text-clamp-1 {
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+.u-text-clamp-2 {
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.u-text-clamp-3 {
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+/* Row/col gap modifiers */
+.row.row-gap-0 .col {
+  --_layout---grid--gap-main: 0;
+}
+.row.row-gap-0:has( .col[class*="contain"]) .col {
+  --_layout---grid--gap-main: 1px;
+}
+.row.row-gap-md .col {
+  --_layout---grid--gap-main: var(--_layout---grid--gap-md);
+}
+.row.row-gap-sm .col {
+  --_layout---grid--gap-main: var(--_layout---grid--gap-sm);
+}
+.row.row-gap-button .col {
+  --_layout---grid--gap-main: var(--_layout---grid--gap-button);
+}
+/* Build mode modifiers */
+.slot .button:not([data-slider]) {
+  align-self: flex-start;
+}
+.slot > *:last-child,
+.slot > .heading-component:last-child *,
+.slot > .rich-text-component:last-child .rich-text > *:last-child,
+.rich-text-component.u-mb-0 .rich-text > *:last-child,
+.eyebrow-component.u-mb-0 .eyebrow {
+  margin-bottom: 0;
+}
+.slot.cc-column > .eyebrow-component {
+  align-self: start;
+}
+.card:has(>.u-link-cover:focus-visible) {
+  outline: 2px solid var(--primary--accent);
+  outline-offset: 2px;
+}
+.section:has( > .container > .slot > [data-wf--image--settings-aspect-ratio="background"]),
+.page-wrapper:has( [data-wf--image--settings-aspect-ratio="background"]) {
+  background: transparent !important;
+  z-index: 1;
+}
+.card > .slot > [data-wf--image--settings-aspect-ratio="background"] {
+  z-index: 0;
+}
+.card > .slot > *:not([data-wf--image--settings-aspect-ratio="background"]) {
+  z-index: 1;
+}
+/* Load animation FOUS */
+html:not(.wf-design-mode) [data-animate="stagger-children"] > * {
+  opacity: 0;
+  visibility: hidden;
+}
