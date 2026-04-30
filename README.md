@@ -77,3 +77,35 @@ These come from third-party CDNs and stay there:
 
 This system is derived from MAST by No-Code Supply Co. Check MAST's repo for
 licensing terms.
+
+## Linking the files
+
+```html
+<!-- Head section -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/anniesit/design-system@main/bundles/all.css">
+<script src="https://cdn.jsdelivr.net/gh/anniesit/design-system@main/bundles/all.js" defer></script>
+```
+
+## Handling jsDelivr Cache
+
+jsDelivr caches files aggressively. After pushing updates to GitHub, the CDN may still serve the old version. Two ways to handle this:
+
+### 1. Purge the cache (during development)
+
+After pushing changes, swap `cdn` for `purge` in the URL and visit it in your browser:
+
+```
+https://purge.jsdelivr.net/gh/anniesit/design-system/css/global.css
+```
+
+This forces jsDelivr to fetch the latest version from GitHub.
+
+### 2. Pin to a specific commit (for production)
+
+Once your design system is stable and serving live projects, lock to an exact commit hash so updates don't accidentally break things:
+
+```
+https://cdn.jsdelivr.net/gh/anniesit/design-system@COMMIT_HASH/css/global.css
+```
+
+Replace `COMMIT_HASH` with the full or short hash from `git log`.

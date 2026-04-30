@@ -14,8 +14,16 @@
 /* When a nav dropdown is open.. */
 /* ..Rotate narrow */
 .nav-link.w--open .nav-dropdown_arrow {
-  transform: rotate(180deg)
+  transform: rotate(180deg);
 }
+/* Dropdown open/close transition */
+.nav-dropdown_content {
+    transition: max-height .25s ease, opacity .2s ease, padding .25s ease;
+}
+.nav-dropdown_content.w--open {
+    transition: max-height .25s ease, opacity .2s ease, padding .25s ease;
+}
+
 /* ..Show overlay on desktop */
 @media (min-width: 992px) {
   .nav-menu:has(.nav-link.w--open) .nav-dropdown_overlay {
@@ -23,7 +31,7 @@
   }
 }
 /* Lock body scroll when mobile nav is open */
-body:has( .w-nav-button.w--open) {
+body:has(.w-nav-button.w--open) {
   overflow: hidden;
 }
 /* Nav CTA wrapper mode when nav menu hidden */
