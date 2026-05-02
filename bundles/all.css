@@ -4,9 +4,12 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-02 16:48:42
+ * Built: 2026-05-02 17:00:06
  * ============================================================ */
 
+
+/* ---- @imports from components/icons/icons.css ---- */
+@import url("https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css");
 
 /* ---- global/cjk-setting.css ---- */
 :root {
@@ -255,6 +258,7 @@ html.u-mode-dark select {
 html.u-mode-light select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231d1c1a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
 }
+
 /* ---- components/icons/icons.css ---- */
 /* Icons */
 /* MAST uses Phosphor Icons (regular weight) loaded directly from unpkg. */
@@ -265,7 +269,7 @@ html.u-mode-light select {
 /* loaded from the Phosphor CDN. If you ever add custom icon styles, */
 /* they would go in this file. */
 
-@import url("https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css");
+
 /* ---- components/inline-video/inline-video.css ---- */
 /* Inline Video */
 /* MAST has no custom CSS for Inline Video — only JS. */
@@ -275,6 +279,7 @@ html.u-mode-light select {
     display: none;
   }
 }
+
 /* ---- components/marquee/marquee.css ---- */
 /* Marquee */
 
@@ -313,6 +318,7 @@ html.u-mode-light select {
 .marquee-component:focus-within .marquee-group {
   animation-play-state: paused;
 }
+
 /* ---- components/modal/modal.css ---- */
 /* Modal */
 
@@ -392,6 +398,7 @@ body:has(.w-nav-button.w--open) {
     margin-left: 0;
   }
 }
+
 /* ---- components/slider/slider.css ---- */
 /* Slider */
 /* MAST's slider uses Swiper.js as a dependency. */

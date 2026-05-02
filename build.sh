@@ -41,29 +41,32 @@ cat > bundles/all.css <<EOF
 
 EOF
 
-# Order matters: global first (because it sets variables and resets that
-# components depend on), then components in alphabetical order.
+# CSS @import rules must appear before all other rules per CSS spec.
+# Step 1: collect every @import line from all source files and write them first.
+# Step 2: concatenate all source files with @import lines stripped.
 
-# Add global CSS files
-for file in global/*.css; do
-  if [ -f "$file" ]; then
+ALL_CSS_FILES=()
+for file in global/*.css; do [ -f "$file" ] && ALL_CSS_FILES+=("$file"); done
+for dir in components/*/; do
+  for file in "$dir"*.css; do [ -f "$file" ] && ALL_CSS_FILES+=("$file"); done
+done
+
+# Step 1 — hoist @imports
+for file in "${ALL_CSS_FILES[@]}"; do
+  if grep -q "@import" "$file"; then
     echo "" >> bundles/all.css
-    echo "/* ---- $file ---- */" >> bundles/all.css
-    cat "$file" >> bundles/all.css
-    echo "  + $file"
+    echo "/* ---- @imports from $file ---- */" >> bundles/all.css
+    grep "@import" "$file" >> bundles/all.css
+    echo "  + @imports from $file"
   fi
 done
 
-# Add component CSS files (alphabetical by folder)
-for dir in components/*/; do
-  for file in "$dir"*.css; do
-    if [ -f "$file" ]; then
-      echo "" >> bundles/all.css
-      echo "/* ---- $file ---- */" >> bundles/all.css
-      cat "$file" >> bundles/all.css
-      echo "  + $file"
-    fi
-  done
+# Step 2 — concatenate all CSS, skipping @import lines
+for file in "${ALL_CSS_FILES[@]}"; do
+  echo "" >> bundles/all.css
+  echo "/* ---- $file ---- */" >> bundles/all.css
+  grep -v "@import" "$file" >> bundles/all.css
+  echo "  + $file"
 done
 
 # ============================================================
