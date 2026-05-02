@@ -1,5 +1,8 @@
 /* Inline Video */
 /* MAST has no custom CSS for Inline Video — only JS. */
-/* Original embed: */
-/* <script defer src="https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/inline-video.min.js"></script> */
-/* Add custom styles here if needed in the future. */
+
+@media (prefers-reduced-motion: reduce) {
+  .inline-video_video {
+    display: none;
+  }
+}

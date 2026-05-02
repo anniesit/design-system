@@ -27,9 +27,22 @@
   observer.observe(document.documentElement);
 })();
 
-// ---- Update foot year to current year ----
+  // ---- Update foot year to current year ----
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('[data-footer-year]').forEach(el => {
     el.textContent = new Date().getFullYear();
   });
+
+  // Handle aria-current="page"
+  const currentPath = window.location.pathname;
+  const currentOrigin = window.location.origin;
+
+  // Nav links + footer logo — same pathname logic
+  document.querySelectorAll('nav a[href], .footer-logo_link').forEach(function(link) {
+    const linkPath = new URL(link.href, currentOrigin).pathname;
+    if (linkPath === currentPath) {
+      link.setAttribute('aria-current', 'page');
+    }
+  });
 });
+
