@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-02 15:56:03
+ * Built: 2026-05-02 16:16:08
  * ============================================================ */
 
 
@@ -60,54 +60,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* ---- components/accordion/accordion.js ---- */
 /* Accordion JS */
-/* */
-/* This file is currently a PLACEHOLDER. */
-/* */
-/* MAST's accordion JavaScript lives at: */
-/*   https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/accordion.min.js */
-/* */
-/* Source repo: https://github.com/nocodesupplyco/mast */
-/* */
-/* TO POPULATE THIS FILE: */
-/* 1. Visit the URL above in your browser */
-/* 2. Copy the entire JS source */
-/* 3. Replace this placeholder with the source */
-/* */
-/* OR: keep referencing MAST's CDN directly in your projects and don't fork the JS at all. */
+/* Source: https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/accordion.min.js */
+/* Original: https://github.com/nocodesupplyco/mast/blob/master/accordion.js */
+
+/**
+ * Minified by jsDelivr using Terser v5.39.0.
+ * Original file: /gh/nocodesupplyco/mast@master/accordion.js
+ *
+ * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+ */
+!function(){"use strict";function e(){const e=document.querySelectorAll("details");if(0===e.length)return;const t=document.createElement("style");t.textContent="details[data-accordion-animating]::details-content{content-visibility:visible!important;display:block!important;}",document.head.appendChild(t);let o=!1,i=null;try{i=window.matchMedia("(prefers-reduced-motion: reduce)"),o=i.matches,i.addEventListener("change",(e=>{o=e.matches}))}catch(e){o=!1}document.querySelectorAll("details[open]").forEach((e=>{"true"!==e.getAttribute("data-accordion-start-open")&&e.removeAttribute("open")})),e.forEach((e=>{const t=e.querySelector("summary"),i=e.querySelector("[data-accordion='content']");if(!t||!i)return;"true"!==e.getAttribute("data-accordion-start-open")&&("undefined"!=typeof gsap?gsap.set(i,{height:0,overflow:"clip"}):(i.style.height="0px",i.style.overflow="clip")),t.addEventListener("click",(t=>{if(e.hasAttribute("open"))t.preventDefault(),o?e.removeAttribute("open"):(i.style.height=`${i.scrollHeight}px`,i.offsetHeight,"undefined"!=typeof gsap?(gsap.killTweensOf(i),gsap.to(i,{height:0,duration:.4,ease:"power3.inOut",onComplete:()=>{e.removeAttribute("open")}})):(i.style.transition="height 0.4s ease-in-out",i.style.height="0px",setTimeout((()=>{e.removeAttribute("open"),i.style.transition=""}),400)));else{const t=e.getAttribute("name");if(t&&!o){document.querySelectorAll(`details[name="${t}"][open]`).forEach((t=>{if(t===e)return;const o=t.querySelector("[data-accordion='content']");o&&("undefined"!=typeof gsap&&gsap.killTweensOf(o),o.style.height=`${o.scrollHeight}px`,o.style.overflow="clip",o.style.display="block",t.dataset.accordionAnimating="closing",o.offsetHeight,"undefined"!=typeof gsap?gsap.to(o,{height:0,duration:.4,ease:"power3.inOut",onComplete:()=>{delete t.dataset.accordionAnimating,o.style.height="0px",o.style.display=""}}):(o.style.transition="height 0.4s ease-in-out",o.style.height="0px",setTimeout((()=>{delete t.dataset.accordionAnimating,o.style.transition="",o.style.display=""}),400)))}))}}})),e.addEventListener("toggle",(()=>{if(e.open){const e=i.scrollHeight;o?i.style.height="auto":"undefined"!=typeof gsap?(gsap.killTweensOf(i),gsap.to(i,{height:e,duration:.4,ease:"power3.out",onComplete:()=>{i.style.height="auto"}})):(i.style.transition="height 0.4s ease-out",i.style.height=`${e}px`,setTimeout((()=>{i.style.height="auto",i.style.transition=""}),400))}}))}))}"loading"===document.readyState?document.addEventListener("DOMContentLoaded",e):e()}();
+//# sourceMappingURL=/sm/7163013e4f2798c2e784b05784355973312e6b1f1423cb4480bc854fc3c26d91.map
 
 /* ---- components/inline-video/inline-video.js ---- */
 /* Inline Video JS */
-/* */
-/* This file is currently a PLACEHOLDER. */
-/* */
-/* MAST's inline-video JavaScript lives at: */
-/*   https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/inline-video.min.js */
-/* */
-/* Source repo: https://github.com/nocodesupplyco/mast */
-/* */
-/* TO POPULATE THIS FILE: */
-/* 1. Visit the URL above in your browser */
-/* 2. Copy the entire JS source */
-/* 3. Replace this placeholder with the source */
-/* */
-/* OR: keep referencing MAST's CDN directly in your projects and don't fork the JS at all. */
+/* Source: https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/inline-video.min.js */
+/* Original: https://github.com/nocodesupplyco/mast/blob/master/inline-video.js */
+
+/**
+ * Minified by jsDelivr using Terser v5.39.0.
+ * Original file: /gh/nocodesupplyco/mast@master/inline-video.js
+ *
+ * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+ */
+class VideoLibrary{constructor(e={}){this.options={rootMargin:e.rootMargin||"100px",threshold:e.threshold||0,scrollTriggerThreshold:e.scrollTriggerThreshold||.5,debug:e.debug||!1,...e},this.prefersReducedMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches,this.videoObserver=null,this.scrollObservers=new Map,this.pictureElementCache=new WeakMap,this.eventListeners=new WeakMap,this.resizeHandler=null,this.resizeTimeout=null,this.init()}init(){if(0===document.querySelectorAll("video[data-video]").length)return;this.prefersReducedMotion&&console.log("User prefers reduced motion. Videos will not auto-play."),this.removeDesktopOnlyVideos(),this.setupLazyLoading(),this.setupVideoControls(),this.setupHoverPlay();document.querySelectorAll('video[data-video-desktop-only="true"]').length>0&&(this.resizeHandler=()=>{this.resizeTimeout&&clearTimeout(this.resizeTimeout),this.resizeTimeout=setTimeout((()=>{this.removeDesktopOnlyVideos()}),150)},window.addEventListener("resize",this.resizeHandler))}getComponentContainer(e){return e.closest('[data-video="component"]')||e.parentElement||null}removeDesktopOnlyVideos(){const e=document.querySelectorAll('video[data-video-desktop-only="true"]'),t=window.innerWidth<=991;e.forEach((e=>{const i=this.getComponentContainer(e),r=i?i.querySelector('[data-video-playback="wrapper"]'):null;t?(e.style.display="none",this.showPictureElement(e),r&&(r.style.display="none",r.style.visibility="hidden",r.setAttribute("aria-hidden","true"))):(e.style.display="",this.hidePictureElement(e),r&&(r.style.display="",r.style.visibility="",r.setAttribute("aria-hidden","false")))}))}setupLazyLoading(){const e=document.querySelectorAll("video[data-video]");if(0===e.length)return;const t={root:null,rootMargin:this.options.rootMargin,threshold:this.options.threshold};this.videoObserver=new IntersectionObserver(((e,t)=>{e.forEach((e=>{if(e.isIntersecting){const i=e.target;this.lazyLoadVideo(i).then((()=>t.unobserve(i))).catch(console.error)}}))}),t),e.forEach((e=>{const t="true"===e.getAttribute("data-video-scroll-in-play"),i="true"===e.getAttribute("data-video-hover");this.videoObserver.observe(e),i&&t?this.setupScrollInPlayForHover(e):i||(this.prefersReducedMotion?e.pause():t?this.setupScrollInPlay(e):this.setupAutoplay(e))}))}lazyLoadVideo(e){return new Promise(((t,i)=>{const r=e.querySelector("source[data-src]");r&&!r.src?(r.src=r.getAttribute("data-src"),e.load(),e.addEventListener("canplaythrough",(function i(){e.removeEventListener("canplaythrough",i),t()})),e.addEventListener("error",(function t(){e.removeEventListener("error",t),i(new Error(`Error loading video: ${r.src}`))}))):t()}))}showPictureElement(e){const t=this.findPictureElement(e);t&&(t.style.display="block")}hidePictureElement(e){const t=this.findPictureElement(e);t&&(t.style.display="none")}findPictureElement(e){if(this.pictureElementCache.has(e))return this.pictureElementCache.get(e);let t=null,i=e.previousElementSibling;for(;i;){if("PICTURE"===i.tagName||"IMG"===i.tagName){t=i;break}i=i.previousElementSibling}if(!t){const i=this.getComponentContainer(e);i&&(t=i.querySelector("picture, img"))}return this.pictureElementCache.set(e,t),t}setupVideoControls(){document.querySelectorAll("video[data-video]").forEach((e=>{this.handlePlaybackButtons(e)}))}setupHoverPlay(){document.querySelectorAll('video[data-video-hover="true"]').forEach((e=>{const t=this.getComponentContainer(e),i=t||e;let r=!1;if(i){if(this.showPictureElement(e),t){const e=t.querySelector('[data-video-playback="button"]');e&&(e.setAttribute("aria-hidden","true"),e.setAttribute("tabindex","-1"))}const o=async()=>{if(!this.prefersReducedMotion)try{this.hidePictureElement(e),await this.lazyLoadVideo(e),r||(e.currentTime=0,r=!0),e.play()}catch(e){console.error("Error playing hover video:",e)}},s=()=>{e.pause()};i.addEventListener("mouseenter",o),i.addEventListener("mouseleave",s),this.eventListeners.has(e)||this.eventListeners.set(e,[]),this.eventListeners.get(e).push({element:i,type:"mouseenter",handler:o},{element:i,type:"mouseleave",handler:s})}}))}setupAutoplay(e){e.addEventListener("canplaythrough",(()=>{this.prefersReducedMotion||(this.hidePictureElement(e),e.play().catch(console.error))}))}setupScrollInPlay(e){let t=!1;const i=new IntersectionObserver((i=>{for(const r of i)r.isIntersecting?this.lazyLoadVideo(e).then((()=>{this.prefersReducedMotion||(this.hidePictureElement(e),t||(e.currentTime=0,t=!0),e.play())})).catch(console.error):e.pause()}),{threshold:this.options.scrollTriggerThreshold});i.observe(e),this.scrollObservers.set(e,i)}setupScrollInPlayForHover(e){const t=new IntersectionObserver((t=>{for(const i of t)i.isIntersecting&&this.lazyLoadVideo(e).then((()=>{e.pause(),this.showPictureElement(e)})).catch(console.error)}),{threshold:this.options.scrollTriggerThreshold});t.observe(e),this.scrollObservers.set(e,t)}handlePlaybackButtons(e){const t=this.getComponentContainer(e);if(!t)return;const i=t.querySelector('[data-video-playback="button"]');if(!i)return;const r=i.querySelector('[data-video-playback="play"]'),o=i.querySelector('[data-video-playback="pause"]');if(!r||!o)return;const s=e=>{e?(r.style.display="none",r.style.visibility="hidden",r.setAttribute("aria-hidden","true"),o.style.display="flex",o.style.visibility="visible",o.setAttribute("aria-hidden","false"),i.setAttribute("aria-label","Pause video")):(r.style.display="flex",r.style.visibility="visible",r.setAttribute("aria-hidden","false"),o.style.display="none",o.style.visibility="hidden",o.setAttribute("aria-hidden","true"),i.setAttribute("aria-label","Play video"))};s(!e.paused);const n=async t=>{if(t.stopPropagation(),e.paused)try{await this.lazyLoadVideo(e),this.hidePictureElement(e),e.play(),s(!0)}catch(e){console.error(e)}else e.pause(),s(!1)},l=()=>s(!0),a=()=>s(!1);i.addEventListener("click",n),e.addEventListener("play",l),e.addEventListener("pause",a),this.eventListeners.has(e)||this.eventListeners.set(e,[]),this.eventListeners.get(e).push({element:i,type:"click",handler:n},{element:e,type:"play",handler:l},{element:e,type:"pause",handler:a})}async playVideo(e){const t=document.querySelector(`video[data-video="${e}"]`);if(t)try{await this.lazyLoadVideo(t),this.prefersReducedMotion||(this.hidePictureElement(t),t.currentTime=0,t.play())}catch(t){console.error(`Error playing video ${e}:`,t)}else console.warn(`Video with id "${e}" not found`)}pauseVideo(e){const t=document.querySelector(`video[data-video="${e}"]`);t?t.pause():console.warn(`Video with id "${e}" not found`)}pauseAllVideos(){document.querySelectorAll("video[data-video]").forEach((e=>{e.pause()}))}destroy(){this.videoObserver&&this.videoObserver.disconnect(),this.scrollObservers.forEach((e=>{e.disconnect()})),this.scrollObservers.clear(),this.eventListeners.forEach((e=>{e.forEach((({element:e,type:t,handler:i})=>{e.removeEventListener(t,i)}))})),this.eventListeners=new WeakMap,this.resizeHandler&&(window.removeEventListener("resize",this.resizeHandler),this.resizeHandler=null),this.resizeTimeout&&(clearTimeout(this.resizeTimeout),this.resizeTimeout=null),this.pictureElementCache=new WeakMap}reinitialize(){this.destroy(),this.init()}}function initializeVideoLibrary(){document.querySelectorAll("video[data-video]").length>0?window.videoLibrary=new VideoLibrary:window.VideoLibraryConfig?.debug&&console.log("VideoLibrary: No videos detected, skipping auto-initialization.")}"loading"===document.readyState?document.addEventListener("DOMContentLoaded",initializeVideoLibrary):initializeVideoLibrary(),"undefined"!=typeof module&&module.exports&&(module.exports=VideoLibrary);
+//# sourceMappingURL=/sm/34c618798d13742184781dd5bac8bb21f3db7cdaba0c7260fce4a83de70695e7.map
 
 /* ---- components/modal/modal.js ---- */
 /* Modal JS */
-/* */
-/* This file is currently a PLACEHOLDER. */
-/* */
-/* MAST's modal JavaScript lives at: */
-/*   https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/modal.min.js */
-/* */
-/* Source repo: https://github.com/nocodesupplyco/mast */
-/* */
-/* TO POPULATE THIS FILE: */
-/* 1. Visit the URL above in your browser */
-/* 2. Copy the entire JS source */
-/* 3. Replace this placeholder with the source */
-/* */
-/* OR: keep referencing MAST's CDN directly in your projects and don't fork the JS at all. */
+/* Source: https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/modal.min.js */
+/* Original: https://github.com/nocodesupplyco/mast/blob/master/modal.js */
+
+/**
+ * Minified by jsDelivr using Terser v5.39.0.
+ * Original file: /gh/nocodesupplyco/mast@master/modal.js
+ *
+ * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+ */
+!function(){"use strict";function o(){try{const o=document.querySelectorAll("dialog");if(0===o.length)return;document.addEventListener("click",t),o.forEach(n),o.forEach(e)}catch(o){console.warn("Modal initialization failed:",o)}}function t(o){const t=o.target;if(t.closest("dialog + button")){o.preventDefault();const n=t.previousElementSibling;n&&"DIALOG"===n.tagName&&n.showModal()}else if(t.closest('dialog button.modal_close-button, dialog button[data-modal="close"]')){o.preventDefault();const n=t.closest("dialog");n&&n.close()}else;}function n(o){o.addEventListener("click",(function(t){t.target===o&&o.close()})),o.addEventListener("close",(function(){!function(o){const t=parseInt(o.dataset.modalCooldownDays,10);if(t>0){const n=a(o);n&&function(o,t){try{const n=`modal-cooldown-${o}`,e=Date.now(),a=e+24*t*60*60*1e3;localStorage.setItem(n,a.toString())}catch(o){console.warn("Error storing modal cooldown:",o)}}(n,t)}}(o)}))}function e(o){if(!("true"===o.dataset.modalOpenOnLoad))return;const t=parseInt(o.dataset.modalCooldownDays,10)||0,n=a(o);n&&(t>0&&function(o){try{const t=`modal-cooldown-${o}`,n=localStorage.getItem(t);if(!n)return!1;const e=Date.now();return!(e>parseInt(n,10))||(localStorage.removeItem(t),!1)}catch(o){return console.warn("Error checking modal cooldown:",o),!1}}(n)||o.showModal())}function a(o){const t=o.parentElement;return t&&t.id?t.id:(console.log("Modal component must have ID set for cooldown to work."),null)}document.querySelector("dialog")&&("loading"===document.readyState?document.addEventListener("DOMContentLoaded",o):o())}();
+//# sourceMappingURL=/sm/e5f1655ae42808c2d5b10115c913767fc84901d0f59eb403a9290f695a83e4a8.map
 
 /* ---- components/nav/nav.js ---- */
 /* Nav */
@@ -152,27 +143,18 @@ window.addEventListener('resize', () => {
 });
 /* ---- components/slider/slider.js ---- */
 /* Slider JS */
-/* */
-/* This file is currently a PLACEHOLDER. */
-/* */
-/* MAST's slider has TWO JavaScript dependencies: */
-/* */
-/* 1. Swiper (third-party library, must be loaded first): */
-/*    https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js */
-/* */
-/* 2. MAST's slider wrapper (loads after Swiper): */
-/*    https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/slider.min.js */
-/* */
-/* Source repo: https://github.com/nocodesupplyco/mast */
-/* */
-/* TO POPULATE THIS FILE: */
-/* 1. Visit MAST's slider.min.js URL above in your browser */
-/* 2. Copy the entire JS source */
-/* 3. Replace this placeholder with the source */
-/* */
-/* Note: Swiper itself stays on its own CDN — don't fork it. */
-/* */
-/* OR: keep referencing MAST's CDN directly in your projects. */
+/* Source: https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/slider.min.js */
+/* Original: https://github.com/nocodesupplyco/mast/blob/master/slider.js */
+/* Note: Swiper (peer dependency) is loaded separately — https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js */
+
+/**
+ * Minified by jsDelivr using Terser v5.39.0.
+ * Original file: /gh/nocodesupplyco/mast@master/slider.js
+ *
+ * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+ */
+!function(){"use strict";if("undefined"==typeof Swiper)return;function e(){const e=document.querySelectorAll('[data-slider="slider"]');0!==e.length&&e.forEach(((e,t)=>{i(e,t)}))}let t;"loading"===document.readyState?document.addEventListener("DOMContentLoaded",e):e();let n=window.innerWidth;function i(e,t){try{!function(e){[".w-dyn-list",".w-dyn-items",".w-dyn-item"].forEach((t=>{e.querySelectorAll(t).forEach((e=>{Array.from(e.childNodes).forEach((t=>{e.parentNode.insertBefore(t,e)})),e.remove()}))}))}(e);const t=function(e){const t=getComputedStyle(e),n=parseFloat(t.getPropertyValue("--xs").trim())||1,i=parseFloat(t.getPropertyValue("--sm").trim())||1,r=parseFloat(t.getPropertyValue("--md").trim())||2,o=parseFloat(t.getPropertyValue("--lg").trim())||3,a=parseInt(t.getPropertyValue("--gap").trim())||24,s={breakpoints:{0:{slidesPerView:n,spaceBetween:a},480:{slidesPerView:i,spaceBetween:a},768:{slidesPerView:r,spaceBetween:a},992:{slidesPerView:o,spaceBetween:a}},watchSlidesProgress:!0,simulateTouch:!0,allowTouchMove:!0,keyboard:{enabled:!0,onlyInViewport:!0},a11y:{enabled:!0},watchOverflow:!0,normalizeSlideIndex:!1,roundLengths:!1},l=e.dataset.grabCursor;s.grabCursor="false"!==l;const d=e.closest('[data-slider="component"]'),c=d.querySelector('[data-slider="next"]'),u=d.querySelector('[data-slider="previous"]');c&&u&&(s.navigation={nextEl:c,prevEl:u});const p=d.querySelector('[data-slider="pagination"]');p&&(s.pagination={el:p,clickable:!0,bulletElement:"button",bulletClass:"slider-pagination_button",bulletActiveClass:"cc-active"});if("true"===e.dataset.loop){s.loop=!0,s.loopFillGroupWithBlank=!0;const t=e.dataset.loopAdditionalSlides;t&&!isNaN(t)&&(s.loopAdditionalSlides=parseInt(t))}const w=e.dataset.autoplay;w&&"false"!==w&&!isNaN(w)&&(s.autoplay={delay:parseInt(w),disableOnInteraction:!1,pauseOnMouseEnter:!0});"true"===e.dataset.centered&&(s.centeredSlides=!0,s.centeredSlidesBounds=!0);"fade"===e.dataset.effect&&(s.effect="fade",s.fadeEffect={crossFade:!0});const f=e.dataset.speed;f&&!isNaN(f)&&(s.speed=parseInt(f));return s}(e),n=new Swiper(e,t);e.swiperInstance=n,function(e,t){function n(){const t=e.querySelectorAll(".swiper-slide");if(0===t.length)return;let n=0;t.forEach((e=>{e.style.height="auto";const t=e.offsetHeight;t>n&&(n=t)})),n>0&&(e.style.height=n+"px")}n(),t.on("slideChange",n),t.on("slideChangeTransitionEnd",n),t.on("touchEnd",n),t.on("resize",n)}(e,n)}catch(e){"undefined"!=typeof console&&console.error&&console.error("Swiper initialization failed:",e)}}window.addEventListener("resize",(function(){clearTimeout(t),t=setTimeout((()=>{const e=window.innerWidth;e!==n&&(n=e,window.AttributesSwiper&&window.AttributesSwiper.reinitialize&&window.AttributesSwiper.reinitialize())}),250)})),window.AttributesSwiper={reinitialize:function(){if("undefined"==typeof Swiper)return;const e=document.querySelectorAll('[data-slider="slider"]');e.forEach((e=>{e.swiperInstance&&e.swiperInstance.destroy(!0,!0)})),setTimeout((()=>{e.forEach(((e,t)=>{i(e)}))}),50)},getInstance:function(e){const t=document.querySelectorAll('[data-slider="slider"]');return t[e]&&t[e].swiperInstance?t[e].swiperInstance:null}}}();
+//# sourceMappingURL=/sm/b7ef5b01b25dc3a7fa2de7714fb625d02fa66c6a0a7407c12e472188efe4062e.map
 
 /* ---- components/tabs/tabs.js ---- */
 /**
@@ -589,20 +571,17 @@ window.addEventListener('resize', () => {
 })();
 /* ---- components/theme-toggle/theme-toggle.js ---- */
 /* Theme Toggle JS */
-/* */
-/* This file is currently a PLACEHOLDER. */
-/* */
-/* MAST's theme-toggle JavaScript lives at: */
-/*   https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/theme-toggle.min.js */
-/* */
-/* Source repo: https://github.com/nocodesupplyco/mast */
-/* */
-/* TO POPULATE THIS FILE: */
-/* 1. Visit the URL above in your browser */
-/* 2. Copy the entire JS source */
-/* 3. Replace this placeholder with the source */
-/* */
-/* OR: keep referencing MAST's CDN directly in your projects and don't fork the JS at all. */
+/* Source: https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/theme-toggle.min.js */
+/* Original: https://github.com/nocodesupplyco/mast/blob/master/theme-toggle.js */
+
+/**
+ * Minified by jsDelivr using Terser v5.39.0.
+ * Original file: /gh/nocodesupplyco/mast@master/theme-toggle.js
+ *
+ * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+ */
+!function(){const e=document.documentElement,t=localStorage.getItem("savedTheme"),n=window.matchMedia("(prefers-color-scheme: dark)");function c(t){e.classList.toggle("u-mode-light",t),e.classList.toggle("u-mode-dark",!t)}let o=null!==t?"light"===t:!n.matches;c(o),window.addEventListener("DOMContentLoaded",(function(){const e=document.querySelectorAll('[data-theme-toggle="checkbox"]'),l=Array.from(e).map((function(e){return{checkbox:e,darkLabel:e.parentElement.querySelector('[data-theme-toggle="dark-label"]'),lightLabel:e.parentElement.querySelector('[data-theme-toggle="light-label"]')}}));function a(e){l.forEach((function(t){t.checkbox.checked=e,function(e,t,n){t&&n&&(t.style.display=e?"none":"block",n.style.display=e?"block":"none")}(e,t.darkLabel,t.lightLabel)}))}a(o),l.forEach((function(e){e.checkbox.addEventListener("change",(function(){o=e.checkbox.checked,c(o),localStorage.setItem("savedTheme",o?"light":"dark"),a(o)}))})),null===t&&n.addEventListener("change",(function(e){o=!e.matches,c(o),a(o)}))}))}();
+//# sourceMappingURL=/sm/bdaa62f5eb22247589cebd16f103545baf6a7437d38e0d751b67ee39b1044ed8.map
 
 /* ---- components/utils/component-loader.js ---- */
 async function loadComponent(elementId, componentPath) {

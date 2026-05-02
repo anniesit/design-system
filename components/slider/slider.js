@@ -1,22 +1,13 @@
 /* Slider JS */
-/* */
-/* This file is currently a PLACEHOLDER. */
-/* */
-/* MAST's slider has TWO JavaScript dependencies: */
-/* */
-/* 1. Swiper (third-party library, must be loaded first): */
-/*    https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js */
-/* */
-/* 2. MAST's slider wrapper (loads after Swiper): */
-/*    https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/slider.min.js */
-/* */
-/* Source repo: https://github.com/nocodesupplyco/mast */
-/* */
-/* TO POPULATE THIS FILE: */
-/* 1. Visit MAST's slider.min.js URL above in your browser */
-/* 2. Copy the entire JS source */
-/* 3. Replace this placeholder with the source */
-/* */
-/* Note: Swiper itself stays on its own CDN — don't fork it. */
-/* */
-/* OR: keep referencing MAST's CDN directly in your projects. */
+/* Source: https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/slider.min.js */
+/* Original: https://github.com/nocodesupplyco/mast/blob/master/slider.js */
+/* Note: Swiper (peer dependency) is loaded separately — https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js */
+
+/**
+ * Minified by jsDelivr using Terser v5.39.0.
+ * Original file: /gh/nocodesupplyco/mast@master/slider.js
+ *
+ * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+ */
+!function(){"use strict";if("undefined"==typeof Swiper)return;function e(){const e=document.querySelectorAll('[data-slider="slider"]');0!==e.length&&e.forEach(((e,t)=>{i(e,t)}))}let t;"loading"===document.readyState?document.addEventListener("DOMContentLoaded",e):e();let n=window.innerWidth;function i(e,t){try{!function(e){[".w-dyn-list",".w-dyn-items",".w-dyn-item"].forEach((t=>{e.querySelectorAll(t).forEach((e=>{Array.from(e.childNodes).forEach((t=>{e.parentNode.insertBefore(t,e)})),e.remove()}))}))}(e);const t=function(e){const t=getComputedStyle(e),n=parseFloat(t.getPropertyValue("--xs").trim())||1,i=parseFloat(t.getPropertyValue("--sm").trim())||1,r=parseFloat(t.getPropertyValue("--md").trim())||2,o=parseFloat(t.getPropertyValue("--lg").trim())||3,a=parseInt(t.getPropertyValue("--gap").trim())||24,s={breakpoints:{0:{slidesPerView:n,spaceBetween:a},480:{slidesPerView:i,spaceBetween:a},768:{slidesPerView:r,spaceBetween:a},992:{slidesPerView:o,spaceBetween:a}},watchSlidesProgress:!0,simulateTouch:!0,allowTouchMove:!0,keyboard:{enabled:!0,onlyInViewport:!0},a11y:{enabled:!0},watchOverflow:!0,normalizeSlideIndex:!1,roundLengths:!1},l=e.dataset.grabCursor;s.grabCursor="false"!==l;const d=e.closest('[data-slider="component"]'),c=d.querySelector('[data-slider="next"]'),u=d.querySelector('[data-slider="previous"]');c&&u&&(s.navigation={nextEl:c,prevEl:u});const p=d.querySelector('[data-slider="pagination"]');p&&(s.pagination={el:p,clickable:!0,bulletElement:"button",bulletClass:"slider-pagination_button",bulletActiveClass:"cc-active"});if("true"===e.dataset.loop){s.loop=!0,s.loopFillGroupWithBlank=!0;const t=e.dataset.loopAdditionalSlides;t&&!isNaN(t)&&(s.loopAdditionalSlides=parseInt(t))}const w=e.dataset.autoplay;w&&"false"!==w&&!isNaN(w)&&(s.autoplay={delay:parseInt(w),disableOnInteraction:!1,pauseOnMouseEnter:!0});"true"===e.dataset.centered&&(s.centeredSlides=!0,s.centeredSlidesBounds=!0);"fade"===e.dataset.effect&&(s.effect="fade",s.fadeEffect={crossFade:!0});const f=e.dataset.speed;f&&!isNaN(f)&&(s.speed=parseInt(f));return s}(e),n=new Swiper(e,t);e.swiperInstance=n,function(e,t){function n(){const t=e.querySelectorAll(".swiper-slide");if(0===t.length)return;let n=0;t.forEach((e=>{e.style.height="auto";const t=e.offsetHeight;t>n&&(n=t)})),n>0&&(e.style.height=n+"px")}n(),t.on("slideChange",n),t.on("slideChangeTransitionEnd",n),t.on("touchEnd",n),t.on("resize",n)}(e,n)}catch(e){"undefined"!=typeof console&&console.error&&console.error("Swiper initialization failed:",e)}}window.addEventListener("resize",(function(){clearTimeout(t),t=setTimeout((()=>{const e=window.innerWidth;e!==n&&(n=e,window.AttributesSwiper&&window.AttributesSwiper.reinitialize&&window.AttributesSwiper.reinitialize())}),250)})),window.AttributesSwiper={reinitialize:function(){if("undefined"==typeof Swiper)return;const e=document.querySelectorAll('[data-slider="slider"]');e.forEach((e=>{e.swiperInstance&&e.swiperInstance.destroy(!0,!0)})),setTimeout((()=>{e.forEach(((e,t)=>{i(e)}))}),50)},getInstance:function(e){const t=document.querySelectorAll('[data-slider="slider"]');return t[e]&&t[e].swiperInstance?t[e].swiperInstance:null}}}();
+//# sourceMappingURL=/sm/b7ef5b01b25dc3a7fa2de7714fb625d02fa66c6a0a7407c12e472188efe4062e.map

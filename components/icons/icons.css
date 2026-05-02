@@ -6,3 +6,5 @@
 /* No custom CSS in MAST for this component — the entire icon system is */
 /* loaded from the Phosphor CDN. If you ever add custom icon styles, */
 /* they would go in this file. */
+
+@import url("https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css");
