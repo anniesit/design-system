@@ -6,7 +6,7 @@ link.addEventListener('click', function (e) {
     if (target) {
     const navHeight = document.querySelector('.nav').offsetHeight + 8;
     const tocTrigger = document.querySelector('.toc_trigger');
-    const tocOffset = window.innerWidth < 992 ? tocTrigger.offsetHeight : 0;
+    const tocOffset = window.innerWidth < 992 && tocTrigger ? tocTrigger.offsetHeight : 0;
     setTimeout(() => {
         const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight - tocOffset;
         window.scrollTo({ top: targetPosition, behavior: 'smooth' });

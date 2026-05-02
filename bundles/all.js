@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-02 16:16:08
+ * Built: 2026-05-02 16:48:42
  * ============================================================ */
 
 
@@ -131,16 +131,20 @@ window.initSkipLink = initSkipLink;
 
 /* Reset mobile nav state when crossing the desktop breakpoint */
 // Fixes: layout stays stuck in mobile mode after resizing from <992 back to >=992
-let wasDesktop = window.innerWidth >= 992;
-window.addEventListener('resize', () => {
-  const isDesktop = window.innerWidth >= 992;
-  if (isDesktop !== wasDesktop) {
-    // Crossed the breakpoint — close any open mobile nav
-    const navButton = document.querySelector('.w-nav-button.w--open');
-    if (navButton) navButton.click(); // triggers Webflow's built-in close logic
-    wasDesktop = isDesktop;
-  }
-});
+// Wrapped in IIFE to avoid re-declaring let wasDesktop if the inline Webflow
+// nav script has already declared it in the global lexical scope.
+(function () {
+  let wasDesktop = window.innerWidth >= 992;
+  window.addEventListener('resize', () => {
+    const isDesktop = window.innerWidth >= 992;
+    if (isDesktop !== wasDesktop) {
+      // Crossed the breakpoint — close any open mobile nav
+      const navButton = document.querySelector('.w-nav-button.w--open');
+      if (navButton) navButton.click(); // triggers Webflow's built-in close logic
+      wasDesktop = isDesktop;
+    }
+  });
+})();
 /* ---- components/slider/slider.js ---- */
 /* Slider JS */
 /* Source: https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/slider.min.js */
@@ -672,7 +676,7 @@ link.addEventListener('click', function (e) {
     if (target) {
     const navHeight = document.querySelector('.nav').offsetHeight + 8;
     const tocTrigger = document.querySelector('.toc_trigger');
-    const tocOffset = window.innerWidth < 992 ? tocTrigger.offsetHeight : 0;
+    const tocOffset = window.innerWidth < 992 && tocTrigger ? tocTrigger.offsetHeight : 0;
     setTimeout(() => {
         const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight - tocOffset;
         window.scrollTo({ top: targetPosition, behavior: 'smooth' });
