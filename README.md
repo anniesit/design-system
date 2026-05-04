@@ -166,8 +166,8 @@ git commit -m "your message"
 git push
 
 # 3. Tag the release
-git tag v0.3.0
-git push origin v0.3.0
+git tag -a v1.0.0 -m "First stable release: accessibility audit complete, tested across projects"
+git push origin v1.0.0
 ```
 
 Then in Webflow, update the version number in all CDN links (`@0.2.0` → `@0.3.0`)
