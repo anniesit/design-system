@@ -7,10 +7,12 @@ A personal design system based on [MAST](https://github.com/nocodesupplyco/mast)
 ```
 design-system/
 ├── README.md
-├── global/                      # Site-wide styles & scripts
-│   ├── canvas-modifiers.css     # Webflow Designer canvas-only styles
-│   ├── global.css               # Site-wide base styles, helpers, modifiers
-│   └── global.js                # Font-size accessibility, footer year
+├── cjk-setting.css              # Typography token TEMPLATE — not in bundle.
+│                                # Duplicate this per project and customise
+│                                # (fonts, heading sizes, line heights, etc.)
+├── global/                      # Site-wide styles & scripts — all included in bundle
+│   ├── global.css               # Base styles, helpers, modifiers
+│   └── global.js                # Font-size accessibility, footer year, aria-current
 ├── components/                  # One folder per component
 │   ├── theme-toggle/
 │   │   ├── theme-toggle.css
@@ -121,6 +123,23 @@ without affecting others.
 
 **You only need to set the values that differ from defaults.** Omitted keys fall
 back to the defaults shown above.
+
+## Per-project typography
+
+`cjk-setting.css` at the repo root is a template for typography tokens — fonts,
+heading sizes, line heights, weights, letter spacing. It is **not included in
+the bundle** and must be set up separately for each project:
+
+1. Duplicate `cjk-setting.css` into your project folder
+2. Rename and customise it for that project's typeface and scale
+3. Link it in Webflow **after** `all.css` so its variables take effect:
+
+```html
+<link rel="stylesheet" href="...all.css">
+<link rel="stylesheet" href="[your-project-typography.css]">
+```
+
+Variables in this file override the defaults set in MAST's base CSS.
 
 ## Release workflow
 
