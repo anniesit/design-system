@@ -67,10 +67,21 @@ These come from third-party CDNs and stay there:
 - **Swiper CSS** — `https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css`
 - **Swiper JS** — `https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js`
 
-## License & attribution
+## Attribution & licensing
 
-This system is derived from MAST by No-Code Supply Co. Check MAST's repo for
-licensing terms.
+This system is derived from [MAST](https://www.nocodesupply.co/mast) by
+[No-Code Supply Co.](https://www.nocodesupply.co) © 2022 No-Code Supply Co.
+
+MAST is distributed as a free Webflow cloneable framework and its JavaScript
+is hosted on a public CDN, but **No-Code Supply Co. has not published an explicit
+open-source licence** — there is no LICENSE file in their GitHub repo and their
+terms page only covers trademarks and ownership without specifying permitted use
+of MAST itself.
+
+This repo contains modified MAST source code hosted publicly. If you intend to
+use this design system beyond internal institutional projects, or if you have any
+doubt about permitted use, contact No-Code Supply Co. directly for clarification
+before proceeding.
 
 ## Linking the files
 
