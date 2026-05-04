@@ -39,9 +39,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Nav links + footer logo — same pathname logic
   document.querySelectorAll('nav a[href], .footer-logo_link').forEach(function(link) {
-    const linkPath = new URL(link.href, currentOrigin).pathname;
-    if (linkPath === currentPath) {
-      link.setAttribute('aria-current', 'page');
+    try {
+      const linkPath = new URL(link.href, currentOrigin).pathname;
+      if (linkPath === currentPath) {
+        link.setAttribute('aria-current', 'page');
+      }
+    } catch (e) {
+      // Skip unparseable hrefs (tel:, mailto:, javascript:, etc.)
     }
   });
 });

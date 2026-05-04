@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-04 10:46:55
+ * Built: 2026-05-04 11:34:05
  * ============================================================ */
 
 
@@ -50,9 +50,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Nav links + footer logo — same pathname logic
   document.querySelectorAll('nav a[href], .footer-logo_link').forEach(function(link) {
-    const linkPath = new URL(link.href, currentOrigin).pathname;
-    if (linkPath === currentPath) {
-      link.setAttribute('aria-current', 'page');
+    try {
+      const linkPath = new URL(link.href, currentOrigin).pathname;
+      if (linkPath === currentPath) {
+        link.setAttribute('aria-current', 'page');
+      }
+    } catch (e) {
+      // Skip unparseable hrefs (tel:, mailto:, javascript:, etc.)
     }
   });
 });
@@ -668,14 +672,16 @@ For alternate header and footer,
 name file as headerNAME.html and footerNAME.html, and
 set data-header="NAME" and data-footer="NAME"
 */
-/* ---- components/utils/scroll-to-offset.js ---- */
+/* ---- components/utils/toc-scrollto-offset.js ---- */
 const tocBreakpoint = (window.DS_CONFIG && window.DS_CONFIG.tocBreakpoint) || 992;
 
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
   link.addEventListener('click', function (e) {
     e.preventDefault();
     e.stopPropagation();
-    const target = document.querySelector(this.getAttribute('href'));
+    const selector = this.getAttribute('href');
+    if (!selector || selector === '#') return;
+    const target = document.querySelector(selector);
     if (target) {
       const navEl      = document.querySelector('.nav');
       const navHeight  = navEl ? navEl.offsetHeight + 8 : 0;

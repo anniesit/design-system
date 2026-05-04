@@ -4,7 +4,9 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
   link.addEventListener('click', function (e) {
     e.preventDefault();
     e.stopPropagation();
-    const target = document.querySelector(this.getAttribute('href'));
+    const selector = this.getAttribute('href');
+    if (!selector || selector === '#') return;
+    const target = document.querySelector(selector);
     if (target) {
       const navEl      = document.querySelector('.nav');
       const navHeight  = navEl ? navEl.offsetHeight + 8 : 0;
