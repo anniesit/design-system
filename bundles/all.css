@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-04 13:29:41
+ * Built: 2026-05-04 16:26:10
  * ============================================================ */
 
 
@@ -167,6 +167,254 @@ html.u-mode-dark select {
 html.u-mode-light select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231d1c1a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
 }
+
+/* ---- components/grid/grid.css ---- */
+/* Grid — Breakpointless CSS Grid system */
+/* Modelled after Lumos by Finsweet. Uses data-* attributes set in Webflow's */
+/* Custom Attributes panel to control column count and minimum column width.  */
+/* Works alongside MAST's existing .row/.col flex system — not a replacement. */
+
+
+/* ============================================================
+   VARIABLE BRIDGE
+   Maps MAST's gap tokens into the grid system's gap variable.
+   --_gap---size is used in the auto-fit/auto-fill minmax formula.
+   ============================================================ */
+
+.u-grid,
+.u-grid-autofit,
+.u-grid-autofill,
+.u-grid-breakout {
+  --_gap---size: var(--_layout---grid--gap-main);
+}
+
+
+/* ============================================================
+   CONTAINER WRAPPER
+   Optional. Wrap a grid in this to make it respond to its
+   parent container width rather than the viewport.
+   Without it, the grid responds to viewport width (fine for
+   most cases). With it, the grid adapts inside sidebars,
+   cards, or any constrained layout.
+   ============================================================ */
+
+.u-grid-wrapper {
+  container-type: inline-size;
+  width: 100%;
+}
+
+
+/* ============================================================
+   BASE GRID
+   Fixed column count, equal-width columns.
+   Column count set via data-large-columns attribute.
+   Default: 12 columns (same as MAST's .row baseline).
+   ============================================================ */
+
+.u-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--_column-count---value, 12), minmax(0, 1fr));
+  grid-auto-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+  gap: var(--_gap---size);
+  width: 100%;
+}
+
+
+/* ============================================================
+   AUTO-FIT GRID
+   Breakpointless. Columns wrap naturally when the container
+   gets too narrow to fit them at the minimum width.
+   Empty tracks are collapsed — items stretch to fill the row.
+
+   Two control variables (set via data-* attributes below):
+   --_column-count---value  target column count at full width
+   --min-col-width          minimum width before a column wraps
+
+   Default: 3 columns, 12rem minimum width.
+   ============================================================ */
+
+.u-grid-autofit {
+  --_column-count---value: 3;
+  --min-col-width: 12rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit,
+    minmax(
+      min(
+        max(
+          var(--min-col-width),
+          (100% - ((var(--_column-count---value) - 1) * var(--_gap---size))) / var(--_column-count---value)
+        ),
+        100%
+      ),
+    1fr)
+  );
+  grid-auto-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+  gap: var(--_gap---size);
+  width: 100%;
+}
+
+
+/* ============================================================
+   AUTO-FILL GRID
+   Same as auto-fit but keeps empty column tracks.
+   Items do not stretch to fill a partially filled row.
+   Use for image galleries or grids needing strict alignment.
+   ============================================================ */
+
+.u-grid-autofill {
+  --_column-count---value: 3;
+  --min-col-width: 12rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill,
+    minmax(
+      min(
+        max(
+          var(--min-col-width),
+          (100% - ((var(--_column-count---value) - 1) * var(--_gap---size))) / var(--_column-count---value)
+        ),
+        100%
+      ),
+    1fr)
+  );
+  grid-auto-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+  gap: var(--_gap---size);
+  width: 100%;
+}
+
+
+/* ============================================================
+   BREAKOUT GRID
+   Full-bleed layout with named grid lines.
+   Children can break out of the content area to full width.
+
+   [full-start]    left edge of viewport
+   [content-start] left edge of content column
+   [content-end]   right edge of content column
+   [full-end]      right edge of viewport
+
+   Usage on children:
+     grid-column: content          stays within content
+     grid-column: full             spans full viewport width
+     grid-column: full-start / content-end  left bleed only
+   ============================================================ */
+
+.u-grid-breakout {
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(0, 1fr)
+    [content-start] repeat(var(--_layout---grid--columns, 12), minmax(0, 1fr))
+    [content-end] minmax(0, 1fr)
+    [full-end];
+  gap: var(--_gap---size);
+  width: 100%;
+}
+
+
+/* ============================================================
+   DATA-LARGE-COLUMNS
+   Sets the target column count for .u-grid and .u-grid-autofit
+   / .u-grid-autofill at full (desktop) width.
+
+   In Webflow Custom Attributes panel:
+   Attribute: data-large-columns   Value: 3
+   ============================================================ */
+
+[data-large-columns="1"]  { --_column-count---value: 1; }
+[data-large-columns="2"]  { --_column-count---value: 2; }
+[data-large-columns="3"]  { --_column-count---value: 3; }
+[data-large-columns="4"]  { --_column-count---value: 4; }
+[data-large-columns="5"]  { --_column-count---value: 5; }
+[data-large-columns="6"]  { --_column-count---value: 6; }
+[data-large-columns="7"]  { --_column-count---value: 7; }
+[data-large-columns="8"]  { --_column-count---value: 8; }
+[data-large-columns="9"]  { --_column-count---value: 9; }
+[data-large-columns="10"] { --_column-count---value: 10; }
+[data-large-columns="11"] { --_column-count---value: 11; }
+[data-large-columns="12"] { --_column-count---value: 12; }
+
+
+/* ============================================================
+   DATA-MIN-COL-WIDTH
+   Sets the minimum width a column must be before it wraps.
+   Only affects .u-grid-autofit and .u-grid-autofill.
+   Values are in rem. 1rem = 16px at default browser font size.
+
+   Common values:
+   8   =  128px  tight — cards, tags, small thumbnails
+   10  =  160px
+   12  =  192px  default
+   14  =  224px
+   16  =  256px  medium — standard content cards
+   18  =  288px
+   20  =  320px  wide — article cards, feature tiles
+   24  =  384px  wider
+   28  =  448px
+   32  =  512px  very wide — hero splits, editorial
+
+   In Webflow Custom Attributes panel:
+   Attribute: data-min-col-width   Value: 16
+   ============================================================ */
+
+[data-min-col-width="8"]  { --min-col-width: 8rem; }
+[data-min-col-width="10"] { --min-col-width: 10rem; }
+[data-min-col-width="12"] { --min-col-width: 12rem; }
+[data-min-col-width="14"] { --min-col-width: 14rem; }
+[data-min-col-width="16"] { --min-col-width: 16rem; }
+[data-min-col-width="18"] { --min-col-width: 18rem; }
+[data-min-col-width="20"] { --min-col-width: 20rem; }
+[data-min-col-width="24"] { --min-col-width: 24rem; }
+[data-min-col-width="28"] { --min-col-width: 28rem; }
+[data-min-col-width="32"] { --min-col-width: 32rem; }
+
+
+/* ============================================================
+   DATA-GAP
+   Overrides the gap between grid items.
+   Reuses MAST's existing gap tokens.
+
+   In Webflow Custom Attributes panel:
+   Attribute: data-gap   Value: md
+
+   Values:
+   main  default page gap  (--_layout---grid--gap-main)
+   md    medium gap        (--_layout---grid--gap-md)
+   sm    small gap         (--_layout---grid--gap-sm)
+   button  button-row gap  (--_layout---grid--gap-button)
+   0     no gap
+   ============================================================ */
+
+[data-gap="main"]   { --_gap---size: var(--_layout---grid--gap-main); }
+[data-gap="md"]     { --_gap---size: var(--_layout---grid--gap-md); }
+[data-gap="sm"]     { --_gap---size: var(--_layout---grid--gap-sm); }
+[data-gap="button"] { --_gap---size: var(--_layout---grid--gap-button); }
+[data-gap="0"]      { --_gap---size: 0px; }
+
+
+/* ============================================================
+   COLUMN SPAN UTILITIES
+   Applied to grid children to control how many columns they span.
+   Use alongside any of the grid classes above.
+
+   .u-col-span-full  spans all columns
+   .u-col-span-N     spans N columns
+   ============================================================ */
+
+.u-col-span-full { grid-column: 1 / -1; }
+.u-col-span-1    { grid-column-end: span 1; }
+.u-col-span-2    { grid-column-end: span 2; }
+.u-col-span-3    { grid-column-end: span 3; }
+.u-col-span-4    { grid-column-end: span 4; }
+.u-col-span-5    { grid-column-end: span 5; }
+.u-col-span-6    { grid-column-end: span 6; }
+.u-col-span-7    { grid-column-end: span 7; }
+.u-col-span-8    { grid-column-end: span 8; }
+.u-col-span-9    { grid-column-end: span 9; }
+.u-col-span-10   { grid-column-end: span 10; }
+.u-col-span-11   { grid-column-end: span 11; }
+.u-col-span-12   { grid-column-end: span 12; }
 
 /* ---- components/icons/icons.css ---- */
 /* Icons */
