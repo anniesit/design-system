@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-04 11:34:05
+ * Built: 2026-05-04 13:26:06
  * ============================================================ */
 
 
@@ -675,7 +675,7 @@ set data-header="NAME" and data-footer="NAME"
 /* ---- components/utils/toc-scrollto-offset.js ---- */
 const tocBreakpoint = (window.DS_CONFIG && window.DS_CONFIG.tocBreakpoint) || 992;
 
-document.querySelectorAll('a[href^="#"]').forEach((link) => {
+document.querySelectorAll('.toc_list a[href^="#"]').forEach((link) => {
   link.addEventListener('click', function (e) {
     e.preventDefault();
     e.stopPropagation();

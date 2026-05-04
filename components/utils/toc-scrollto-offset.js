@@ -1,6 +1,6 @@
 const tocBreakpoint = (window.DS_CONFIG && window.DS_CONFIG.tocBreakpoint) || 992;
 
-document.querySelectorAll('a[href^="#"]').forEach((link) => {
+document.querySelectorAll('.toc_list a[href^="#"]').forEach((link) => {
   link.addEventListener('click', function (e) {
     e.preventDefault();
     e.stopPropagation();
