@@ -1,16 +1,19 @@
+const tocBreakpoint = (window.DS_CONFIG && window.DS_CONFIG.tocBreakpoint) || 992;
+
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
-link.addEventListener('click', function (e) {
+  link.addEventListener('click', function (e) {
     e.preventDefault();
     e.stopPropagation();
     const target = document.querySelector(this.getAttribute('href'));
     if (target) {
-    const navHeight = document.querySelector('.nav').offsetHeight + 8;
-    const tocTrigger = document.querySelector('.toc_trigger');
-    const tocOffset = window.innerWidth < 992 && tocTrigger ? tocTrigger.offsetHeight : 0;
-    setTimeout(() => {
+      const navEl      = document.querySelector('.nav');
+      const navHeight  = navEl ? navEl.offsetHeight + 8 : 0;
+      const tocTrigger = document.querySelector('.toc_trigger');
+      const tocOffset  = window.innerWidth < tocBreakpoint && tocTrigger ? tocTrigger.offsetHeight : 0;
+      setTimeout(() => {
         const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight - tocOffset;
         window.scrollTo({ top: targetPosition, behavior: 'smooth' });
-    }, 10);
+      }, 10);
     }
-});
+  });
 });

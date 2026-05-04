@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-02 17:00:06
+ * Built: 2026-05-04 10:46:55
  * ============================================================ */
 
 
@@ -134,9 +134,10 @@ window.initSkipLink = initSkipLink;
 // Wrapped in IIFE to avoid re-declaring let wasDesktop if the inline Webflow
 // nav script has already declared it in the global lexical scope.
 (function () {
-  let wasDesktop = window.innerWidth >= 992;
+  const navBreakpoint = (window.DS_CONFIG && window.DS_CONFIG.navBreakpoint) || 992;
+  let wasDesktop = window.innerWidth >= navBreakpoint;
   window.addEventListener('resize', () => {
-    const isDesktop = window.innerWidth >= 992;
+    const isDesktop = window.innerWidth >= navBreakpoint;
     if (isDesktop !== wasDesktop) {
       // Crossed the breakpoint — close any open mobile nav
       const navButton = document.querySelector('.w-nav-button.w--open');
@@ -584,7 +585,7 @@ window.initSkipLink = initSkipLink;
  *
  * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
  */
-!function(){const e=document.documentElement,t=localStorage.getItem("savedTheme"),n=window.matchMedia("(prefers-color-scheme: dark)");function c(t){e.classList.toggle("u-mode-light",t),e.classList.toggle("u-mode-dark",!t)}let o=null!==t?"light"===t:!n.matches;c(o),window.addEventListener("DOMContentLoaded",(function(){const e=document.querySelectorAll('[data-theme-toggle="checkbox"]'),l=Array.from(e).map((function(e){return{checkbox:e,darkLabel:e.parentElement.querySelector('[data-theme-toggle="dark-label"]'),lightLabel:e.parentElement.querySelector('[data-theme-toggle="light-label"]')}}));function a(e){l.forEach((function(t){t.checkbox.checked=e,function(e,t,n){t&&n&&(t.style.display=e?"none":"block",n.style.display=e?"block":"none")}(e,t.darkLabel,t.lightLabel)}))}a(o),l.forEach((function(e){e.checkbox.addEventListener("change",(function(){o=e.checkbox.checked,c(o),localStorage.setItem("savedTheme",o?"light":"dark"),a(o)}))})),null===t&&n.addEventListener("change",(function(e){o=!e.matches,c(o),a(o)}))}))}();
+!function(){const e=document.documentElement,_key=(window.DS_CONFIG&&window.DS_CONFIG.themeKey)||"savedTheme",t=localStorage.getItem(_key),n=window.matchMedia("(prefers-color-scheme: dark)");function c(t){e.classList.toggle("u-mode-light",t),e.classList.toggle("u-mode-dark",!t)}let o=null!==t?"light"===t:!n.matches;c(o),window.addEventListener("DOMContentLoaded",(function(){const e=document.querySelectorAll('[data-theme-toggle="checkbox"]'),l=Array.from(e).map((function(e){return{checkbox:e,darkLabel:e.parentElement.querySelector('[data-theme-toggle="dark-label"]'),lightLabel:e.parentElement.querySelector('[data-theme-toggle="light-label"]')}}));function a(e){l.forEach((function(t){t.checkbox.checked=e,function(e,t,n){t&&n&&(t.style.display=e?"none":"block",n.style.display=e?"block":"none")}(e,t.darkLabel,t.lightLabel)}))}a(o),l.forEach((function(e){e.checkbox.addEventListener("change",(function(){o=e.checkbox.checked,c(o),localStorage.setItem(_key,o?"light":"dark"),a(o)}))})),null===t&&n.addEventListener("change",(function(e){o=!e.matches,c(o),a(o)}))}))}();
 //# sourceMappingURL=/sm/bdaa62f5eb22247589cebd16f103545baf6a7437d38e0d751b67ee39b1044ed8.map
 
 /* ---- components/utils/component-loader.js ---- */
@@ -668,19 +669,22 @@ name file as headerNAME.html and footerNAME.html, and
 set data-header="NAME" and data-footer="NAME"
 */
 /* ---- components/utils/scroll-to-offset.js ---- */
+const tocBreakpoint = (window.DS_CONFIG && window.DS_CONFIG.tocBreakpoint) || 992;
+
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
-link.addEventListener('click', function (e) {
+  link.addEventListener('click', function (e) {
     e.preventDefault();
     e.stopPropagation();
     const target = document.querySelector(this.getAttribute('href'));
     if (target) {
-    const navHeight = document.querySelector('.nav').offsetHeight + 8;
-    const tocTrigger = document.querySelector('.toc_trigger');
-    const tocOffset = window.innerWidth < 992 && tocTrigger ? tocTrigger.offsetHeight : 0;
-    setTimeout(() => {
+      const navEl      = document.querySelector('.nav');
+      const navHeight  = navEl ? navEl.offsetHeight + 8 : 0;
+      const tocTrigger = document.querySelector('.toc_trigger');
+      const tocOffset  = window.innerWidth < tocBreakpoint && tocTrigger ? tocTrigger.offsetHeight : 0;
+      setTimeout(() => {
         const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight - tocOffset;
         window.scrollTo({ top: targetPosition, behavior: 'smooth' });
-    }, 10);
+      }, 10);
     }
-});
+  });
 });

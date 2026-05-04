@@ -31,9 +31,10 @@ window.initSkipLink = initSkipLink;
 // Wrapped in IIFE to avoid re-declaring let wasDesktop if the inline Webflow
 // nav script has already declared it in the global lexical scope.
 (function () {
-  let wasDesktop = window.innerWidth >= 992;
+  const navBreakpoint = (window.DS_CONFIG && window.DS_CONFIG.navBreakpoint) || 992;
+  let wasDesktop = window.innerWidth >= navBreakpoint;
   window.addEventListener('resize', () => {
-    const isDesktop = window.innerWidth >= 992;
+    const isDesktop = window.innerWidth >= navBreakpoint;
     if (isDesktop !== wasDesktop) {
       // Crossed the breakpoint — close any open mobile nav
       const navButton = document.querySelector('.w-nav-button.w--open');

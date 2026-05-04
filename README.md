@@ -50,20 +50,12 @@ All inline `<style>` and `<script>` blocks from MAST's exported `components.html
 have been moved into the files above, **without modification**. Each file matches
 the grouping that appears in Webflow's Global Custom Code panel.
 
-## JS placeholder files
+## JS source files
 
-The components Theme Toggle, Accordion, Modal, Slider, Inline Video, and Tabs
-have JavaScript that lives on MAST's own jsDelivr CDN — that JS was never
-inline in the HTML. The `.js` files in those component folders are placeholders
-explaining where the source code is and how to populate them if you want to
-fork the JS into your own repo.
-
-You have two options:
-
-1. **Reference MAST's CDN directly** in your Webflow projects (don't fork the JS).
-   Easier, but you can't modify the JS or pin a version under your control.
-2. **Fork the JS into this repo** by visiting each MAST CDN URL, copying the
-   source, and committing it. More work, but you own and control the code.
+All component JS has been extracted from MAST's CDN and committed directly
+into this repo. The source for each component is in its folder alongside the CSS.
+The `tabs.js` file is a custom build with accessibility improvements over the
+original MAST source.
 
 ## External dependencies (not forked)
 
@@ -80,32 +72,73 @@ licensing terms.
 
 ## Linking the files
 
+Always use a version tag, never `@main`. Tagged URLs are permanently cached on
+jsDelivr and never need purging. `@main` can serve stale content for up to 7 days.
+
 ```html
-<!-- Head section -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/anniesit/design-system@main/bundles/all.css">
-<script src="https://cdn.jsdelivr.net/gh/anniesit/design-system@main/bundles/all.js" defer></script>
+<!-- In Webflow Project Settings → Custom Code → Head -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/anniesit/design-system@0.2.0/bundles/all.css">
+
+<!-- In Webflow Project Settings → Custom Code → Before </body> -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/anniesit/design-system@0.2.0/bundles/all.js" defer></script>
 ```
 
-## Handling jsDelivr Cache
+For the Webflow designer to load styles, also add these inside a `w-embed` block
+in the canvas (e.g. inside the `custom-code-component`):
 
-jsDelivr caches files aggressively. After pushing updates to GitHub, the CDN may still serve the old version. Two ways to handle this:
-
-### 1. Purge the cache (during development)
-
-After pushing changes, swap `cdn` for `purge` in the URL and visit it in your browser:
-
-```
-https://purge.jsdelivr.net/gh/anniesit/design-system/css/global.css
+```html
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/anniesit/design-system@0.2.0/bundles/all.css">
 ```
 
-This forces jsDelivr to fetch the latest version from GitHub.
+## Per-project configuration (DS_CONFIG)
 
-### 2. Pin to a specific commit (for production)
+The bundle reads from `window.DS_CONFIG` if it exists. Set this in a `<script>`
+block **before** `all.js` loads to override defaults for a specific project or page.
 
-Once your design system is stable and serving live projects, lock to an exact commit hash so updates don't accidentally break things:
-
+```html
+<script>
+  window.DS_CONFIG = {
+    themeKey:      'my-project-theme',  // localStorage key for dark/light mode
+    navBreakpoint: 992,                 // mobile nav reset breakpoint in px
+    tocBreakpoint: 992                  // breakpoint at which TOC becomes a dropdown
+  };
+</script>
 ```
-https://cdn.jsdelivr.net/gh/anniesit/design-system@COMMIT_HASH/css/global.css
+
+| Option | Default | What it controls |
+|---|---|---|
+| `themeKey` | `'savedTheme'` | localStorage key for the theme toggle. **Must be unique per project on shared domains** to prevent one project's theme setting overriding another's |
+| `navBreakpoint` | `992` | Pixel width at which the mobile nav state resets on window resize |
+| `tocBreakpoint` | `992` | Pixel width below which the TOC becomes a dropdown, adding its height to scroll-to-anchor offset calculations |
+
+**Setting per page in Webflow:** each page has its own Page Settings → Custom Code
+fields. Put the `DS_CONFIG` script there to override settings on specific pages
+without affecting others.
+
+**You only need to set the values that differ from defaults.** Omitted keys fall
+back to the defaults shown above.
+
+## Release workflow
+
+Every time you change source files and want them live:
+
+```bash
+# 1. Rebuild the bundles
+bash build.sh
+
+# 2. Commit source files and bundles together
+git add -A
+git commit -m "your message"
+git push
+
+# 3. Tag the release
+git tag v0.3.0
+git push origin v0.3.0
 ```
 
-Replace `COMMIT_HASH` with the full or short hash from `git log`.
+Then in Webflow, update the version number in all CDN links (`@0.2.0` → `@0.3.0`)
+and republish the site. Each project can be updated independently on its own schedule.
