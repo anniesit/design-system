@@ -141,6 +141,16 @@
   width: 100%;
 }
 
+/* cc-centered: children default to the content column.
+   u-col-span-full still breaks to full width — the explicit
+   child rule is needed to win the specificity contest against > * */
+.u-grid-breakout.cc-centered > * {
+  grid-column: content-start / content-end;
+}
+.u-grid-breakout.cc-centered > .u-col-span-full {
+  grid-column: 1 / -1;
+}
+
 
 /* ============================================================
    DATA-LARGE-COLUMNS

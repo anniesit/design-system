@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-04 16:26:10
+ * Built: 2026-05-05 11:56:39
  * ============================================================ */
 
 
@@ -310,6 +310,16 @@ html.u-mode-light select {
     [full-end];
   gap: var(--_gap---size);
   width: 100%;
+}
+
+/* cc-centered: children default to the content column.
+   u-col-span-full still breaks to full width — the explicit
+   child rule is needed to win the specificity contest against > * */
+.u-grid-breakout.cc-centered > * {
+  grid-column: content-start / content-end;
+}
+.u-grid-breakout.cc-centered > .u-col-span-full {
+  grid-column: 1 / -1;
 }
 
 
