@@ -1,3 +1,6 @@
+// Not to be bundled in all.js — link this separately after Webflow export.
+// Loads header/footer HTML partials at runtime, re-inits Webflow IX2.
+
 // Figure out the base path for components, regardless of which folder we're in
 function getComponentsBase() {
   if (window.location.pathname.includes("/zh/")) {
