@@ -24,12 +24,13 @@ document.querySelectorAll('.toc_list a[href^="#"]').forEach((link) => {
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
   link.addEventListener("click", function (e) {
     e.preventDefault();
-    e.stopPropagation();
     const target = document.querySelector(this.getAttribute("href"));
     if (target) {
-      const navHeight = document.querySelector(".nav").offsetHeight + 8;
+      const navEl = document.querySelector(".nav");
+      if (!navEl) return;
+      const navHeight = navEl.offsetHeight + 8;
       const tocTrigger = document.querySelector(".toc_trigger");
-      const tocOffset = window.innerWidth < 992 ? tocTrigger.offsetHeight : 0;
+      const tocOffset = window.innerWidth < 992 && tocTrigger ? tocTrigger.offsetHeight : 0;
       setTimeout(() => {
         const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight - tocOffset;
         window.scrollTo({ top: targetPosition, behavior: "smooth" });
@@ -41,6 +42,7 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
 (function () {
   const trigger = document.querySelector(".toc_trigger");
   const list = document.querySelector(".toc_list");
+  if (!list || !trigger) return;
   const icon = document.querySelector(".icon_toc_trigger");
   const links = list.querySelectorAll(".link_subnav");
   const BREAKPOINT = 992;
