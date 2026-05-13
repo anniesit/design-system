@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-13 14:58:36
+ * Built: 2026-05-13 17:22:40
  * ============================================================ */
 
 
@@ -183,9 +183,12 @@ samp {
 
 /* 16. Smooth scroll (opt-in).
    Only applies when user hasn't requested reduced motion.
-   This makes anchor links (#section) scroll smoothly. */
+   This makes anchor links (#section) scroll smoothly.
+   Scoped to skip the Webflow designer (.wf-design-mode): the designer
+   re-implements canvas scrolling programmatically, and smooth scroll
+   makes every wheel tick animate, causing severe scroll lag. */
 @media (prefers-reduced-motion: no-preference) {
-  html {
+  html:not(.wf-design-mode) {
     scroll-behavior: smooth;
   }
 }
