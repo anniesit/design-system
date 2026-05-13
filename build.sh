@@ -46,7 +46,9 @@ EOF
 # Step 2: concatenate all source files with @import lines stripped.
 
 ALL_CSS_FILES=()
-for file in global/*.css; do [ -f "$file" ] && ALL_CSS_FILES+=("$file"); done
+# normalized.css must be first — it's the reset that everything else builds on
+[ -f "global/normalized.css" ] && ALL_CSS_FILES+=("global/normalized.css")
+for file in global/*.css; do [ -f "$file" ] && [ "$file" != "global/normalized.css" ] && ALL_CSS_FILES+=("$file"); done
 for dir in components/*/; do
   for file in "$dir"*.css; do [ -f "$file" ] && ALL_CSS_FILES+=("$file"); done
 done

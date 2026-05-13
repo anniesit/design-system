@@ -1,79 +1,100 @@
+// Figure out the base path for components, regardless of which folder we're in
+function getComponentsBase() {
+  if (window.location.pathname.includes("/zh/")) {
+    return "../components/";
+  }
+  return "components/";
+}
+
 async function loadComponent(elementId, componentPath) {
-    try {
-        const response = await fetch(componentPath);
-        if (!response.ok) throw new Error(`Failed to load ${componentPath}`);
-        const html = await response.text();
-        document.getElementById(elementId).innerHTML = html;
-    } catch (error) {
-        console.error('Error loading component:', error);
-    }
+  try {
+    const response = await fetch(componentPath);
+    if (!response.ok) throw new Error(`Failed to load ${componentPath}`);
+    const html = await response.text();
+    document.getElementById(elementId).innerHTML = html;
+  } catch (error) {
+    console.error("Error loading component:", error);
+  }
 }
 
 // Update the language switcher link to point to the same page in the other language
 function updateLanguageSwitcher() {
-    const switchButton = document.querySelector('[data-lang-switch]');
-    if (!switchButton) return;
+  const switchButton = document.querySelector("[data-lang-switch]");
+  if (!switchButton) return;
 
-    const targetLang = switchButton.getAttribute('data-lang-switch');
-    const currentPath = window.location.pathname;
+  const targetLang = switchButton.getAttribute("data-lang-switch");
+  const currentPath = window.location.pathname;
+  const projectBase = "/hkbutimescape"; // <--project subfolder
 
-    let newPath;
-    if (targetLang === 'zh') {
-        // Going from English to Chinese: add /zh/ at the start
-        newPath = '/zh' + currentPath;
-    } else {
-        // Going from Chinese to English: remove /zh/ from the start
-        newPath = currentPath.replace(/^\/zh/, '');
-    }
+  // Strip the project base off the front to get the "inner" path
+  let innerPath = currentPath.replace(projectBase, "");
+  // e.g. '/contribute.html' or '/zh/contribute.html'
 
-    switchButton.setAttribute('href', newPath);
+  let newInnerPath;
+  if (targetLang === "zh") {
+    // English → Chinese: prepend /zh
+    newInnerPath = "/zh" + innerPath;
+  } else {
+    // Chinese → English: strip /zh from the start
+    newInnerPath = innerPath.replace(/^\/zh/, "");
+  }
+
+  // Reassemble the full path with project base + new inner path
+  switchButton.setAttribute("href", projectBase + newInnerPath);
 }
 
-// Initialize mobile navigation
-function initMobileNav() {
-    const openButton = document.querySelector('.navbar_mobile_open');
-    const closeButton = document.querySelector('.navbar_mobile_close');
-    const dialog = document.querySelector('.navbar_mobile_menu');
-    
-    if (openButton && dialog) {
-        openButton.addEventListener('click', () => {
-            dialog.showModal();
-        });
-    }
-    
-    if (closeButton && dialog) {
-        closeButton.addEventListener('click', () => {
-            dialog.close();
-        });
-    }
+// Initialize skip-to-main-content link
+function initSkipLink() {
+  const skipLinkEle = document.getElementById("skip-link");
+  if (!skipLinkEle) return;
+  skipLinkEle.addEventListener("click", handleSkipLink);
+  skipLinkEle.addEventListener("keydown", handleSkipLink);
+}
+
+function handleSkipLink(e) {
+  if (e.type === "keydown" && e.key !== "Enter") return;
+  e.preventDefault();
+  const target = document.querySelector("main");
+  if (!target) return;
+  target.setAttribute("tabindex", "-1");
+  target.focus();
 }
 
 // Auto-load components on page load
-document.addEventListener('DOMContentLoaded', async function() {
-    const headerElement = document.querySelector('[data-header]');
-    if (headerElement) {
-        const headerName = headerElement.getAttribute('data-header');
-        await loadComponent(headerElement.id, `/components/header${headerName}.html`);
-        // Initialize mobile nav after header is loaded
-        initMobileNav();
-        updateLanguageSwitcher();
-        // Re-initialize MAST's nav skip-link after dynamically loaded nav
-        if (window.initSkipLink) window.initSkipLink();
+document.addEventListener("DOMContentLoaded", async function () {
+  const headerElement = document.querySelector("[data-header]");
+  if (headerElement) {
+    const headerName = headerElement.getAttribute("data-header");
+    await loadComponent(headerElement.id, `${getComponentsBase()}header${headerName}.html`);
+    updateLanguageSwitcher();
+    initSkipLink();
+    // Re-initialize MAST's nav skip-link after dynamically loaded nav
+    if (window.Webflow) {
+      window.Webflow.destroy();
+      window.Webflow.ready();
+      const ix2 = window.Webflow.require("ix2");
+      if (ix2) ix2.init();
     }
-    
-    const footerElement = document.querySelector('[data-footer]');
-    if (footerElement) {
-        const footerName = footerElement.getAttribute('data-footer');
-        await loadComponent(footerElement.id, `/components/footer${footerName}.html`);
-    }
+  }
+
+  const footerElement = document.querySelector("[data-footer]");
+  if (footerElement) {
+    const footerName = footerElement.getAttribute("data-footer");
+    await loadComponent(footerElement.id, `${getComponentsBase()}footer${footerName}.html`);
+  }
 });
 
-/* Insert in html
+/* 
+Insert in html
 <div id="header-container" data-header=""></div>
 <div id="footer-container" data-footer=""></div>
-<script src="v2/js/component-loader.js"></script>
+<div id="header-container" data-header="ZH"></div>
+<div id="footer-container" data-footer="ZH"></div>
+<script src="js/component-loader.js"></script>
 
 For alternate header and footer, 
 name file as headerNAME.html and footerNAME.html, and
 set data-header="NAME" and data-footer="NAME"
+
+Update project subfolder (line27)
 */

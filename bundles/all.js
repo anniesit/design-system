@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-05 11:56:39
+ * Built: 2026-05-13 14:00:20
  * ============================================================ */
 
 
@@ -593,104 +593,197 @@ window.initSkipLink = initSkipLink;
 //# sourceMappingURL=/sm/bdaa62f5eb22247589cebd16f103545baf6a7437d38e0d751b67ee39b1044ed8.map
 
 /* ---- components/utils/component-loader.js ---- */
+// Figure out the base path for components, regardless of which folder we're in
+function getComponentsBase() {
+  if (window.location.pathname.includes("/zh/")) {
+    return "../components/";
+  }
+  return "components/";
+}
+
 async function loadComponent(elementId, componentPath) {
-    try {
-        const response = await fetch(componentPath);
-        if (!response.ok) throw new Error(`Failed to load ${componentPath}`);
-        const html = await response.text();
-        document.getElementById(elementId).innerHTML = html;
-    } catch (error) {
-        console.error('Error loading component:', error);
-    }
+  try {
+    const response = await fetch(componentPath);
+    if (!response.ok) throw new Error(`Failed to load ${componentPath}`);
+    const html = await response.text();
+    document.getElementById(elementId).innerHTML = html;
+  } catch (error) {
+    console.error("Error loading component:", error);
+  }
 }
 
 // Update the language switcher link to point to the same page in the other language
 function updateLanguageSwitcher() {
-    const switchButton = document.querySelector('[data-lang-switch]');
-    if (!switchButton) return;
+  const switchButton = document.querySelector("[data-lang-switch]");
+  if (!switchButton) return;
 
-    const targetLang = switchButton.getAttribute('data-lang-switch');
-    const currentPath = window.location.pathname;
+  const targetLang = switchButton.getAttribute("data-lang-switch");
+  const currentPath = window.location.pathname;
+  const projectBase = "/hkbutimescape"; // <--project subfolder
 
-    let newPath;
-    if (targetLang === 'zh') {
-        // Going from English to Chinese: add /zh/ at the start
-        newPath = '/zh' + currentPath;
-    } else {
-        // Going from Chinese to English: remove /zh/ from the start
-        newPath = currentPath.replace(/^\/zh/, '');
-    }
+  // Strip the project base off the front to get the "inner" path
+  let innerPath = currentPath.replace(projectBase, "");
+  // e.g. '/contribute.html' or '/zh/contribute.html'
 
-    switchButton.setAttribute('href', newPath);
+  let newInnerPath;
+  if (targetLang === "zh") {
+    // English → Chinese: prepend /zh
+    newInnerPath = "/zh" + innerPath;
+  } else {
+    // Chinese → English: strip /zh from the start
+    newInnerPath = innerPath.replace(/^\/zh/, "");
+  }
+
+  // Reassemble the full path with project base + new inner path
+  switchButton.setAttribute("href", projectBase + newInnerPath);
 }
 
-// Initialize mobile navigation
-function initMobileNav() {
-    const openButton = document.querySelector('.navbar_mobile_open');
-    const closeButton = document.querySelector('.navbar_mobile_close');
-    const dialog = document.querySelector('.navbar_mobile_menu');
-    
-    if (openButton && dialog) {
-        openButton.addEventListener('click', () => {
-            dialog.showModal();
-        });
-    }
-    
-    if (closeButton && dialog) {
-        closeButton.addEventListener('click', () => {
-            dialog.close();
-        });
-    }
+// Initialize skip-to-main-content link
+function initSkipLink() {
+  const skipLinkEle = document.getElementById("skip-link");
+  if (!skipLinkEle) return;
+  skipLinkEle.addEventListener("click", handleSkipLink);
+  skipLinkEle.addEventListener("keydown", handleSkipLink);
+}
+
+function handleSkipLink(e) {
+  if (e.type === "keydown" && e.key !== "Enter") return;
+  e.preventDefault();
+  const target = document.querySelector("main");
+  if (!target) return;
+  target.setAttribute("tabindex", "-1");
+  target.focus();
 }
 
 // Auto-load components on page load
-document.addEventListener('DOMContentLoaded', async function() {
-    const headerElement = document.querySelector('[data-header]');
-    if (headerElement) {
-        const headerName = headerElement.getAttribute('data-header');
-        await loadComponent(headerElement.id, `/components/header${headerName}.html`);
-        // Initialize mobile nav after header is loaded
-        initMobileNav();
-        updateLanguageSwitcher();
-        // Re-initialize MAST's nav skip-link after dynamically loaded nav
-        if (window.initSkipLink) window.initSkipLink();
+document.addEventListener("DOMContentLoaded", async function () {
+  const headerElement = document.querySelector("[data-header]");
+  if (headerElement) {
+    const headerName = headerElement.getAttribute("data-header");
+    await loadComponent(headerElement.id, `${getComponentsBase()}header${headerName}.html`);
+    updateLanguageSwitcher();
+    initSkipLink();
+    // Re-initialize MAST's nav skip-link after dynamically loaded nav
+    if (window.Webflow) {
+      window.Webflow.destroy();
+      window.Webflow.ready();
+      const ix2 = window.Webflow.require("ix2");
+      if (ix2) ix2.init();
     }
-    
-    const footerElement = document.querySelector('[data-footer]');
-    if (footerElement) {
-        const footerName = footerElement.getAttribute('data-footer');
-        await loadComponent(footerElement.id, `/components/footer${footerName}.html`);
-    }
+  }
+
+  const footerElement = document.querySelector("[data-footer]");
+  if (footerElement) {
+    const footerName = footerElement.getAttribute("data-footer");
+    await loadComponent(footerElement.id, `${getComponentsBase()}footer${footerName}.html`);
+  }
 });
 
-/* Insert in html
+/* 
+Insert in html
 <div id="header-container" data-header=""></div>
 <div id="footer-container" data-footer=""></div>
-<script src="v2/js/component-loader.js"></script>
+<div id="header-container" data-header="ZH"></div>
+<div id="footer-container" data-footer="ZH"></div>
+<script src="js/component-loader.js"></script>
 
 For alternate header and footer, 
 name file as headerNAME.html and footerNAME.html, and
 set data-header="NAME" and data-footer="NAME"
+
+Update project subfolder (line27)
 */
+
 /* ---- components/utils/toc-scrollto-offset.js ---- */
 const tocBreakpoint = (window.DS_CONFIG && window.DS_CONFIG.tocBreakpoint) || 992;
 
 document.querySelectorAll('.toc_list a[href^="#"]').forEach((link) => {
-  link.addEventListener('click', function (e) {
+  link.addEventListener("click", function (e) {
     e.preventDefault();
     e.stopPropagation();
-    const selector = this.getAttribute('href');
-    if (!selector || selector === '#') return;
+    const selector = this.getAttribute("href");
+    if (!selector || selector === "#") return;
     const target = document.querySelector(selector);
     if (target) {
-      const navEl      = document.querySelector('.nav');
-      const navHeight  = navEl ? navEl.offsetHeight + 8 : 0;
-      const tocTrigger = document.querySelector('.toc_trigger');
-      const tocOffset  = window.innerWidth < tocBreakpoint && tocTrigger ? tocTrigger.offsetHeight : 0;
+      const navEl = document.querySelector(".nav");
+      const navHeight = navEl ? navEl.offsetHeight + 8 : 0;
+      const tocTrigger = document.querySelector(".toc_trigger");
+      const tocOffset = window.innerWidth < tocBreakpoint && tocTrigger ? tocTrigger.offsetHeight : 0;
       setTimeout(() => {
         const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight - tocOffset;
-        window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        window.scrollTo({ top: targetPosition, behavior: "smooth" });
       }, 10);
     }
   });
 });
+
+/*Scroll to position offset*/
+document.querySelectorAll('a[href^="#"]').forEach((link) => {
+  link.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const target = document.querySelector(this.getAttribute("href"));
+    if (target) {
+      const navHeight = document.querySelector(".nav").offsetHeight + 8;
+      const tocTrigger = document.querySelector(".toc_trigger");
+      const tocOffset = window.innerWidth < 992 ? tocTrigger.offsetHeight : 0;
+      setTimeout(() => {
+        const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight - tocOffset;
+        window.scrollTo({ top: targetPosition, behavior: "smooth" });
+      }, 10);
+    }
+  });
+});
+/*TOC Interactions*/
+(function () {
+  const trigger = document.querySelector(".toc_trigger");
+  const list = document.querySelector(".toc_list");
+  const icon = document.querySelector(".icon_toc_trigger");
+  const links = list.querySelectorAll(".link_subnav");
+  const BREAKPOINT = 992;
+  let isMobile = window.innerWidth < BREAKPOINT;
+  function close() {
+    list.style.maxHeight = "0";
+    list.style.overflow = "hidden";
+    icon.style.transform = "rotate(0deg)";
+  }
+  function open() {
+    list.style.overflow = "hidden";
+    list.style.maxHeight = list.scrollHeight + "px";
+    icon.style.transform = "rotate(180deg)";
+    list.addEventListener("transitionend", function handler() {
+      if (isOpen()) list.style.overflow = "visible";
+      list.removeEventListener("transitionend", handler);
+    });
+  }
+  function isOpen() {
+    return list.style.maxHeight !== "0px" && list.style.maxHeight !== "0";
+  }
+  // Set initial state
+  if (isMobile) close();
+  // Toggle on trigger click (mobile only)
+  trigger.addEventListener("click", function () {
+    if (!isMobile) return;
+    isOpen() ? close() : open();
+  });
+  // Close on link click (mobile only)
+  links.forEach(function (link) {
+    link.addEventListener("click", function () {
+      if (isMobile) close();
+    });
+  });
+  // Handle resize
+  window.addEventListener("resize", function () {
+    const wasMobile = isMobile;
+    isMobile = window.innerWidth < BREAKPOINT;
+    if (isMobile && !wasMobile) {
+      // Crossed from desktop → mobile: close
+      close();
+    } else if (!isMobile && wasMobile) {
+      // Crossed from mobile → desktop: reset inline styles
+      list.style.maxHeight = "";
+      list.style.overflow = "";
+      icon.style.transform = "";
+    }
+  });
+})();
