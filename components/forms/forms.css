@@ -1,11 +1,14 @@
 /* Forms */
 
 /* Reset apple form styles */
-input, textarea, select { 
-  -webkit-appearance: none; 
-  -moz-appearance: none; 
-  appearance: none; border-radius: 0; 
-  background-image: none; 
+input,
+textarea,
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0;
+  background-image: none;
 }
 /* Adjust input autofill to brand colors */
 input:-webkit-autofill,
@@ -40,4 +43,69 @@ html.u-mode-dark select {
 /* User override: light */
 html.u-mode-light select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231d1c1a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+/* ============================================
+   RADIO COMPONENT
+   ============================================ */
+
+/* --- Structure --- */
+.radio-control::after {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--primary--accent);
+  opacity: 0;
+  transition: opacity 150ms ease-in-out;
+}
+
+/* --- Checked --- */
+.radio-input:checked + .radio-control {
+  border-color: var(--primary--accent-dark);
+}
+.radio-input:checked + .radio-control::after {
+  opacity: 100;
+}
+
+/* --- Hover --- */
+.radio:hover .radio-control {
+  border-color: var(--primary--accent-dark);
+}
+
+.radio:hover .radio-label {
+  color: var(--primary--accent);
+}
+
+/* --- Focus (keyboard) --- */
+.radio-input:focus-visible + .radio-control {
+  outline: 2px solid var(--color-accent, #e85d2f);
+  outline-offset: 3px;
+}
+
+/* --- Disabled --- */
+.radio:has(.radio-input:disabled) {
+  cursor: not-allowed;
+}
+
+.radio:has(.radio-input:disabled) .radio-control,
+.radio:has(.radio-input:disabled) .radio-label {
+  opacity: 0.4;
+}
+
+.radio:has(.radio-input:disabled):hover .radio-control {
+  border-color: currentColor;
+}
+
+.radio:has(.radio-input:disabled):hover .radio-label {
+  color: inherit;
+}
+
+/* --- Error --- */
+.radio.is-error .radio-control {
+  border-color: var(--color-danger, #d93025);
+}
+
+.radio.is-error .radio-label {
+  color: var(--color-danger, #d93025);
 }
