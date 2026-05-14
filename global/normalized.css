@@ -70,6 +70,19 @@ select {
   font: inherit;
 }
 
+fieldset {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+legend {
+  border: 0;
+  /* 1 */
+  padding: 0;
+  /* 2 */
+}
+
 /* 7. Buttons reset.
    Remove default button styling so you can style from scratch.
    cursor: pointer is expected on clickable elements. */

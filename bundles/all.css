@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-14 15:04:31
+ * Built: 2026-05-14 17:36:04
  * ============================================================ */
 
 
@@ -82,6 +82,19 @@ textarea,
 label,
 select {
   font: inherit;
+}
+
+fieldset {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+legend {
+  border: 0;
+  /* 1 */
+  padding: 0;
+  /* 2 */
 }
 
 /* 7. Buttons reset.
@@ -427,7 +440,7 @@ summary::-webkit-details-marker {
    
      <div u-flex="row-left-center" u-gap="md">
    ---------------------------------------------------------- */
-[u-gap^="0"]  { row-gap: 0; }
+[u-gap^="0"]    { row-gap: 0; }
 [u-gap^="2xs"]  { row-gap: var(--_layout---spacing--2xs); }
 [u-gap^="xs"]   { row-gap: var(--_layout---spacing--xs); }
 [u-gap^="sm"]   { row-gap: var(--_layout---spacing--sm); }
@@ -438,7 +451,7 @@ summary::-webkit-details-marker {
 [u-gap^="2xl"]  { row-gap: var(--_layout---spacing--2xl); }
 [u-gap^="3xl"]  { row-gap: var(--_layout---spacing--3xl); }
 
-[u-gap$="0"]  { column-gap: 0; }
+[u-gap$="0"]     { column-gap: 0; }
 [u-gap$="-2xs"]  { column-gap: var(--_layout---spacing--2xs); }
 [u-gap$="-xs"]   { column-gap: var(--_layout---spacing--xs); }
 [u-gap$="-sm"]   { column-gap: var(--_layout---spacing--sm); }
@@ -643,8 +656,8 @@ html.u-mode-light select {
 /* --- Structure --- */
 .radio-control::after {
   content: "";
-  width: 0.55rem;
-  height: 0.55rem;
+  width: 55%;
+  height: 55%;
   border-radius: 50%;
   background: var(--primary--accent);
   opacity: 0;
@@ -670,7 +683,7 @@ html.u-mode-light select {
 
 /* --- Focus (keyboard) --- */
 .radio-input:focus-visible + .radio-control {
-  outline: 2px solid var(--color-accent, #e85d2f);
+  outline: 2px solid var(--primary--accent, #e85d2f);
   outline-offset: 3px;
 }
 
@@ -699,6 +712,68 @@ html.u-mode-light select {
 
 .radio.is-error .radio-label {
   color: var(--color-danger, #d93025);
+}
+
+/* ============================================
+   CHECKBOX COMPONENT
+   ============================================ */
+
+   /* --- Checked --- */
+.checkbox-input:checked + .checkbox-control {
+  background-color: var(--primary--accent-dark);
+  border-color: var(--primary--accent-dark);
+}
+.checkbox-input:checked + .checkbox-control .checkbox-icon-check {
+  opacity: 1;
+}
+
+/* --- Hovered --- */
+.checkbox-input:checked + .checkbox-control .checkbox-icon {
+  opacity: 1;
+}
+
+.checkbox:hover .checkbox-control {
+  border-color: var(--primary--accent-dark);
+}
+.checkbox:hover .checkbox-label {
+  color: var(--primary--accent);
+}
+
+/* --- Focus (keyboard) --- */
+.checkbox-input:focus-visible + .checkbox-control {
+  outline: 2px solid var(--primary--accent;
+  outline-offset: 3px;
+}
+
+/* --- Disabled --- */
+.checkbox:has(.checkbox-input:disabled) {
+  cursor: not-allowed;
+}
+.checkbox:has(.checkbox-input:disabled) .checkbox-control,
+.checkbox:has(.checkbox-input:disabled) .checkbox-label {
+  opacity: 0.4;
+}
+.checkbox:has(.checkbox-input:disabled):hover .checkbox-control {
+  border-color: currentColor;
+}
+.checkbox:has(.checkbox-input:disabled):hover .checkbox-label {
+  color: inherit;
+}
+/* --- Error --- */
+.checkbox.is-error .checkbox-control {
+  border-color: var(--color-danger, #d93025);
+}
+.checkbox.is-error .checkbox-label {
+  color: var(--color-danger, #d93025);
+
+  /* Indeterminate → fill background AND show dash */
+.checkbox-input:indeterminate + .checkbox-control {
+  background-color: var(--color-accent, #e85d2f);
+  border-color: var(--color-accent, #e85d2f);
+}
+
+.checkbox-input:indeterminate + .checkbox-control .checkbox-icon-dash {
+  opacity: 1;
 }
 
 /* ---- components/grid/grid.css ---- */
