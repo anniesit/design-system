@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-14 17:46:42
+ * Built: 2026-05-14 17:54:54
  * ============================================================ */
 
 
@@ -728,10 +728,6 @@ html.u-mode-light select {
 }
 
 /* --- Hovered --- */
-.checkbox-input:checked + .checkbox-control .checkbox-icon {
-  opacity: 1;
-}
-
 .checkbox:hover .checkbox-control {
   border-color: var(--primary--accent-dark);
 }
@@ -741,7 +737,7 @@ html.u-mode-light select {
 
 /* --- Focus (keyboard) --- */
 .checkbox-input:focus-visible + .checkbox-control {
-  outline: 2px solid var(--primary--accent;
+  outline: 2px solid var(--primary--accent);
   outline-offset: 3px;
 }
 
