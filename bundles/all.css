@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-14 17:36:04
+ * Built: 2026-05-14 17:46:42
  * ============================================================ */
 
 
@@ -718,7 +718,7 @@ html.u-mode-light select {
    CHECKBOX COMPONENT
    ============================================ */
 
-   /* --- Checked --- */
+/* --- Checked --- */
 .checkbox-input:checked + .checkbox-control {
   background-color: var(--primary--accent-dark);
   border-color: var(--primary--accent-dark);
@@ -765,8 +765,9 @@ html.u-mode-light select {
 }
 .checkbox.is-error .checkbox-label {
   color: var(--color-danger, #d93025);
+}
 
-  /* Indeterminate → fill background AND show dash */
+/* Indeterminate → fill background AND show dash */
 .checkbox-input:indeterminate + .checkbox-control {
   background-color: var(--color-accent, #e85d2f);
   border-color: var(--color-accent, #e85d2f);
