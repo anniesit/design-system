@@ -1,0 +1,226 @@
+/* ----------------------------------------------------------
+   FLEX — data-attribute syntax
+   
+   Pattern: u-flex="<direction>-<justify>-<align>"
+   
+   Direction:  row | column
+   Justify:    left | center | right | between | around
+   Align:      top | center | bottom | stretch
+   
+   Examples:
+     <div u-flex="row-left-center">      horizontal, left-aligned, centered
+     <div u-flex="column-left-top">      vertical stack, top-aligned
+     <div u-flex="row-between-center">   spread horizontally, centered vertically
+   
+   How it works:
+   - [u-flex]            — sets display: flex on any element with the attribute
+   - [u-flex^="row"]     — "starts with" row → flex-direction: row
+   - [u-flex*="-left-"]  — "contains" -left- → justify-content: flex-start
+   - [u-flex$="-top"]    — "ends with" -top → align-items: flex-start
+   
+   The selectors combine: one attribute value triggers three
+   different rules at once.
+   ---------------------------------------------------------- */
+[u-flex] { display: flex; }
+
+/* flex-direction (first word) */
+[u-flex^="row"]    { flex-direction: row; }
+[u-flex^="column"] { flex-direction: column; }
+
+/* justify-content (middle word) */
+[u-flex*="-left-"]    { justify-content: flex-start; }
+[u-flex*="-center-"]  { justify-content: center; }
+[u-flex*="-right-"]   { justify-content: flex-end; }
+[u-flex*="-between-"] { justify-content: space-between; }
+[u-flex*="-around-"]  { justify-content: space-around; }
+
+/* align-items (last word) */
+[u-flex$="-top"]     { align-items: flex-start; }
+[u-flex$="-center"]  { align-items: center; }
+[u-flex$="-bottom"]  { align-items: flex-end; }
+[u-flex$="-stretch"] { align-items: stretch; }
+
+/* flex-wrap modifier (optional, applied in addition to u-flex) */
+[u-flex-wrap="wrap"]   { flex-wrap: wrap; }
+[u-flex-wrap="nowrap"] { flex-wrap: nowrap; }
+
+
+/* ----------------------------------------------------------
+   FLEX CHILD — grow, shrink, basis
+   
+   These apply to flex ITEMS (children of a flex container),
+   not the container. Useful when you need one item to grow
+   while others stay fixed, or vice versa.
+   
+     <div u-flex="row-left-center" u-gap="md">
+       <nav u-flex-grow="0">Sidebar</nav>    — stays its natural width
+       <main u-flex-grow="1">Content</main>  — fills remaining space
+     </div>
+   
+   For common ratios (e.g. "grow to fill, min 16rem"), use
+   inline style: style="flex: 1 1 16rem"
+   ---------------------------------------------------------- */
+[u-flex-grow="0"]   { flex-grow: 0; }
+[u-flex-grow="1"]   { flex-grow: 1; }
+[u-flex-shrink="0"] { flex-shrink: 0; }
+[u-flex-shrink="1"] { flex-shrink: 1; }
+[u-flex-basis="auto"] { flex-basis: auto; }
+[u-flex-basis="0"]    { flex-basis: 0; }
+[u-flex-basis="full"] { flex-basis: 100%; }
+
+
+/* ----------------------------------------------------------
+   GAP — spacing between flex/grid children
+   
+   Uses the spacing scale from Layer 2.
+   
+     <div u-flex="row-left-center" u-gap="md">
+   ---------------------------------------------------------- */
+[u-gap="2xs"]  { gap: var(--_layout---spacing--2xs); }
+[u-gap="xs"]   { gap: var(--_layout---spacing--xs); }
+[u-gap="sm"]   { gap: var(--_layout---spacing--sm); }
+[u-gap="md"]   { gap: var(--_layout---spacing--md); }
+[u-gap="base"] { gap: var(--_layout---spacing--base); }
+[u-gap="lg"]   { gap: var(--_layout---spacing--lg); }
+[u-gap="xl"]   { gap: var(--_layout---spacing--xl); }
+[u-gap="2xl"]  { gap: var(--_layout---spacing--2xl); }
+[u-gap="3xl"]  { gap: var(--_layout---spacing--3xl); }
+
+
+/* ----------------------------------------------------------
+   MARGIN & PADDING
+   
+   Use these sparingly — most spacing should happen via gap
+   on a flex/grid parent. These are useful when you need to
+   nudge one specific element.
+   
+     <h2 u-mb="sm">Title with small bottom margin</h2>
+   
+   Available axes:
+     u-mt = margin-top      u-pt = padding-top
+     u-mb = margin-bottom   u-pb = padding-bottom
+     u-mx = margin left+right (horizontal)
+     u-my = margin top+bottom (vertical)
+     u-px = padding left+right
+     u-py = padding top+bottom
+   
+   Values follow the spacing scale: 0, 2xs, xs, sm, base, md, lg, xl, 2xl, 3xl
+   Plus "auto" for margins (useful for centering).
+   ---------------------------------------------------------- */
+
+/* Margin top */
+[u-mt="0"]    { margin-top: 0; }
+[u-mt="2xs"]  { margin-top: var(--_layout---spacing--2xs); }
+[u-mt="xs"]   { margin-top: var(--_layout---spacing--xs); }
+[u-mt="sm"]   { margin-top: var(--_layout---spacing--sm); }
+[u-mt="base"] { margin-top: var(--_layout---spacing--base); }
+[u-mt="md"]   { margin-top: var(--_layout---spacing--md); }
+[u-mt="lg"]   { margin-top: var(--_layout---spacing--lg); }
+[u-mt="xl"]   { margin-top: var(--_layout---spacing--xl); }
+[u-mt="2xl"]  { margin-top: var(--_layout---spacing--2xl); }
+[u-mt="3xl"]  { margin-top: var(--_layout---spacing--3xl); }
+[u-mt="auto"] { margin-top: auto; }
+
+/* Margin bottom */
+[u-mb="0"]    { margin-bottom: 0; }
+[u-mb="2xs"]  { margin-bottom: var(--_layout---spacing--2xs); }
+[u-mb="xs"]   { margin-bottom: var(--_layout---spacing--xs); }
+[u-mb="sm"]   { margin-bottom: var(--_layout---spacing--sm); }
+[u-mb="base"] { margin-bottom: var(--_layout---spacing--base); }
+[u-mb="md"]   { margin-bottom: var(--_layout---spacing--md); }
+[u-mb="lg"]   { margin-bottom: var(--_layout---spacing--lg); }
+[u-mb="xl"]   { margin-bottom: var(--_layout---spacing--xl); }
+[u-mb="2xl"]  { margin-bottom: var(--_layout---spacing--2xl); }
+[u-mb="3xl"]  { margin-bottom: var(--_layout---spacing--3xl); }
+[u-mb="auto"] { margin-bottom: auto; }
+
+/* Margin horizontal (left + right) */
+[u-mx="0"]    { margin-left: 0; margin-right: 0; }
+[u-mx="2xs"]  { margin-left: var(--_layout---spacing--2xs); margin-right: var(--_layout---spacing--2xs); }
+[u-mx="xs"]   { margin-left: var(--_layout---spacing--xs); margin-right: var(--_layout---spacing--xs); }
+[u-mx="sm"]   { margin-left: var(--_layout---spacing--sm); margin-right: var(--_layout---spacing--sm); }
+[u-mx="base"] { margin-left: var(--_layout---spacing--base); margin-right: var(--_layout---spacing--base); }
+[u-mx="md"]   { margin-left: var(--_layout---spacing--md); margin-right: var(--_layout---spacing--md); }
+[u-mx="lg"]   { margin-left: var(--_layout---spacing--lg); margin-right: var(--_layout---spacing--lg); }
+[u-mx="xl"]   { margin-left: var(--_layout---spacing--xl); margin-right: var(--_layout---spacing--xl); }
+[u-mx="2xl"]  { margin-left: var(--_layout---spacing--2xl); margin-right: var(--_layout---spacing--2xl); }
+[u-mx="3xl"]  { margin-left: var(--_layout---spacing--3xl); margin-right: var(--_layout---spacing--3xl); }
+[u-mx="auto"] { margin-left: auto; margin-right: auto; }
+
+/* Margin vertical (top + bottom) */
+[u-my="0"]    { margin-top: 0; margin-bottom: 0; }
+[u-my="2xs"]  { margin-top: var(--_layout---spacing--2xs); margin-bottom: var(--_layout---spacing--2xs); }
+[u-my="xs"]   { margin-top: var(--_layout---spacing--xs); margin-bottom: var(--_layout---spacing--xs); }
+[u-my="sm"]   { margin-top: var(--_layout---spacing--sm); margin-bottom: var(--_layout---spacing--sm); }
+[u-my="base"] { margin-top: var(--_layout---spacing--base); margin-bottom: var(--_layout---spacing--base); }
+[u-my="md"]   { margin-top: var(--_layout---spacing--md); margin-bottom: var(--_layout---spacing--md); }
+[u-my="lg"]   { margin-top: var(--_layout---spacing--lg); margin-bottom: var(--_layout---spacing--lg); }
+[u-my="xl"]   { margin-top: var(--_layout---spacing--xl); margin-bottom: var(--_layout---spacing--xl); }
+[u-my="2xl"]  { margin-top: var(--_layout---spacing--2xl); margin-bottom: var(--_layout---spacing--2xl); }
+[u-my="3xl"]  { margin-top: var(--_layout---spacing--3xl); margin-bottom: var(--_layout---spacing--3xl); }
+[u-my="auto"] { margin-top: auto; margin-bottom: auto; }
+
+/* Padding top */
+[u-pt="0"]    { padding-top: 0; }
+[u-pt="xs"]   { padding-top: var(--_layout---spacing--xs); }
+[u-pt="sm"]   { padding-top: var(--_layout---spacing--sm); }
+[u-pt="base"] { padding-top: var(--_layout---spacing--base); }
+[u-pt="md"]   { padding-top: var(--_layout---spacing--md); }
+[u-pt="lg"]   { padding-top: var(--_layout---spacing--lg); }
+[u-pt="xl"]   { padding-top: var(--_layout---spacing--xl); }
+[u-pt="2xl"]  { padding-top: var(--_layout---spacing--2xl); }
+[u-pt="3xl"]  { padding-top: var(--_layout---spacing--3xl); }
+
+/* Padding bottom */
+[u-pb="0"]    { padding-bottom: 0; }
+[u-pb="xs"]   { padding-bottom: var(--_layout---spacing--xs); }
+[u-pb="sm"]   { padding-bottom: var(--_layout---spacing--sm); }
+[u-pb="base"] { padding-bottom: var(--_layout---spacing--base); }
+[u-pb="md"]   { padding-bottom: var(--_layout---spacing--md); }
+[u-pb="lg"]   { padding-bottom: var(--_layout---spacing--lg); }
+[u-pb="xl"]   { padding-bottom: var(--_layout---spacing--xl); }
+[u-pb="2xl"]  { padding-bottom: var(--_layout---spacing--2xl); }
+[u-pb="3xl"]  { padding-bottom: var(--_layout---spacing--3xl); }
+
+/* Padding horizontal (left + right) */
+[u-px="0"]    { padding-left: 0; padding-right: 0; }
+[u-px="xs"]   { padding-left: var(--_layout---spacing--xs); padding-right: var(--_layout---spacing--xs); }
+[u-px="sm"]   { padding-left: var(--_layout---spacing--sm); padding-right: var(--_layout---spacing--sm); }
+[u-px="base"] { padding-left: var(--_layout---spacing--base); padding-right: var(--_layout---spacing--base); }
+[u-px="md"]   { padding-left: var(--_layout---spacing--md); padding-right: var(--_layout---spacing--md); }
+[u-px="lg"]   { padding-left: var(--_layout---spacing--lg); padding-right: var(--_layout---spacing--lg); }
+[u-px="xl"]   { padding-left: var(--_layout---spacing--xl); padding-right: var(--_layout---spacing--xl); }
+[u-px="2xl"]  { padding-left: var(--_layout---spacing--2xl); padding-right: var(--_layout---spacing--2xl); }
+[u-px="3xl"]  { padding-left: var(--_layout---spacing--3xl); padding-right: var(--_layout---spacing--3xl); }
+
+/* Padding vertical (top + bottom) */
+[u-py="0"]    { padding-top: 0; padding-bottom: 0; }
+[u-py="xs"]   { padding-top: var(--_layout---spacing--xs); padding-bottom: var(--_layout---spacing--xs); }
+[u-py="sm"]   { padding-top: var(--_layout---spacing--sm); padding-bottom: var(--_layout---spacing--sm); }
+[u-py="base"] { padding-top: var(--_layout---spacing--base); padding-bottom: var(--_layout---spacing--base); }
+[u-py="md"]   { padding-top: var(--_layout---spacing--md); padding-bottom: var(--_layout---spacing--md); }
+[u-py="lg"]   { padding-top: var(--_layout---spacing--lg); padding-bottom: var(--_layout---spacing--lg); }
+[u-py="xl"]   { padding-top: var(--_layout---spacing--xl); padding-bottom: var(--_layout---spacing--xl); }
+[u-py="2xl"]  { padding-top: var(--_layout---spacing--2xl); padding-bottom: var(--_layout---spacing--2xl); }
+[u-py="3xl"]  { padding-top: var(--_layout---spacing--3xl); padding-bottom: var(--_layout---spacing--3xl); }
+
+
+/* ----------------------------------------------------------
+   DISPLAY — data-attribute syntax
+   
+   Control element display mode.
+   
+     <div u-d="none">        — hide (visual + accessibility tree)
+     <div u-d="block">
+     <div u-d="flex">        — simple flex (defaults: row, left-start)
+     <div u-d="grid">
+     <div u-d="inline">
+     <div u-d="inline-block">
+   ---------------------------------------------------------- */
+[u-d="none"]         { display: none; }
+[u-d="block"]        { display: block; }
+[u-d="inline"]       { display: inline; }
+[u-d="inline-block"] { display: inline-block; }
+[u-d="flex"]         { display: flex; }
+[u-d="inline-flex"]  { display: inline-flex; }
+[u-d="grid"]         { display: grid; }
