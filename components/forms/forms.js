@@ -105,6 +105,16 @@ function initDropdown(dropdown) {
     }
   });
 
+  // Accessibility - Open from the trigger
+  trigger.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      open();
+      const selected = options.find((o) => o.getAttribute("aria-selected") === "true");
+      (selected || options[0]).focus();
+    }
+  });
+
   // === Initial state ===
   // If a `<li aria-selected="true">` exists in the HTML, sync trigger to match
   const preSelected = options.find((o) => o.getAttribute("aria-selected") === "true");

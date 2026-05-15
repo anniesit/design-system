@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-15 14:29:07
+ * Built: 2026-05-15 17:47:10
  * ============================================================ */
 
 
@@ -181,6 +181,16 @@ function initDropdown(dropdown) {
     if (event.key === "Escape" && dropdown.classList.contains("is-open")) {
       close();
       trigger.focus();
+    }
+  });
+
+  // Accessibility - Open from the trigger
+  trigger.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      open();
+      const selected = options.find((o) => o.getAttribute("aria-selected") === "true");
+      (selected || options[0]).focus();
     }
   });
 
