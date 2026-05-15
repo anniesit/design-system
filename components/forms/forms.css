@@ -79,8 +79,8 @@ html.u-mode-light select {
 
 /* --- Focus (keyboard) --- */
 .radio-input:focus-visible + .radio-control {
-  outline: 2px solid var(--primary--accent, #e85d2f);
-  outline-offset: 3px;
+  outline: 2px solid var(--primary--accent);
+  outline-offset: 2px;
 }
 
 /* --- Disabled --- */
@@ -134,7 +134,7 @@ html.u-mode-light select {
 /* --- Focus (keyboard) --- */
 .checkbox-input:focus-visible + .checkbox-control {
   outline: 2px solid var(--primary--accent);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 
 /* --- Disabled --- */
@@ -161,10 +161,45 @@ html.u-mode-light select {
 
 /* Indeterminate → fill background AND show dash */
 .checkbox-input:indeterminate + .checkbox-control {
-  background-color: var(--color-accent, #e85d2f);
-  border-color: var(--color-accent, #e85d2f);
+  background-color: var(--primary--accent);
+  border-color: var(--primary--accent);
 }
 
 .checkbox-input:indeterminate + .checkbox-control .checkbox-icon-dash {
   opacity: 1;
+}
+
+/* ============================================
+   DROPDOWN (SINGLE SELECT)
+   ============================================ */
+
+/* --- Open state --- */
+.dropdown.is-open .dropdown-list {
+  opacity: 1;
+  max-height: 320px;
+  overflow: auto;
+  pointer-events: auto;
+}
+/* Chevron flips when open */
+.dropdown.is-open .dropdown-trigger-icon {
+  transform: rotate(180deg);
+}
+/* When open, keep the accent border */
+.dropdown.is-open .dropdown-trigger {
+  border-color: var(--primary--accent, #e85d2f);
+}
+
+/* Selected — show the checkmark */
+.dropdown-option[aria-selected="true"] .dropdown-option-check {
+  opacity: 1;
+  color: var(--primary--accent, #e85d2f);
+}
+
+/* === DISABLED === */
+.dropdown.is-disabled .dropdown-trigger {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.dropdown.is-disabled .dropdown-trigger:hover {
+  border-color: var(--primary--border);
 }
