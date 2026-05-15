@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-15 12:10:06
+ * Built: 2026-05-15 14:29:07
  * ============================================================ */
 
 
@@ -780,7 +780,7 @@ html.u-mode-light select {
 /* --- Open state --- */
 .dropdown.is-open .dropdown-list {
   opacity: 1;
-  max-height: 320px;
+  max-height: 10rem;
   overflow: auto;
   pointer-events: auto;
 }
@@ -790,13 +790,13 @@ html.u-mode-light select {
 }
 /* When open, keep the accent border */
 .dropdown.is-open .dropdown-trigger {
-  border-color: var(--primary--accent, #e85d2f);
+  border-color: var(--primary--accent);
 }
 
 /* Selected — show the checkmark */
 .dropdown-option[aria-selected="true"] .dropdown-option-check {
   opacity: 1;
-  color: var(--primary--accent, #e85d2f);
+  color: var(--primary--accent);
 }
 
 /* === DISABLED === */

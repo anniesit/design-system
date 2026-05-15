@@ -176,7 +176,7 @@ html.u-mode-light select {
 /* --- Open state --- */
 .dropdown.is-open .dropdown-list {
   opacity: 1;
-  max-height: 320px;
+  max-height: 10rem;
   overflow: auto;
   pointer-events: auto;
 }
@@ -186,13 +186,13 @@ html.u-mode-light select {
 }
 /* When open, keep the accent border */
 .dropdown.is-open .dropdown-trigger {
-  border-color: var(--primary--accent, #e85d2f);
+  border-color: var(--primary--accent);
 }
 
 /* Selected — show the checkmark */
 .dropdown-option[aria-selected="true"] .dropdown-option-check {
   opacity: 1;
-  color: var(--primary--accent, #e85d2f);
+  color: var(--primary--accent);
 }
 
 /* === DISABLED === */
