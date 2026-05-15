@@ -80,6 +80,12 @@ function initDropdown(dropdown) {
     close();
   }
 
+  // === Focus ===
+  function focusOption(index) {
+    const wrapped = (index + options.length) % options.length;
+    options[wrapped].focus();
+  }
+
   // === Wire up events ===
 
   // Trigger click → toggle open/close
@@ -113,6 +119,24 @@ function initDropdown(dropdown) {
       const selected = options.find((o) => o.getAttribute("aria-selected") === "true");
       (selected || options[0]).focus();
     }
+  });
+  // Keydown on each option
+  options.forEach((option, index) => {
+    option.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        focusOption(index + 1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        focusOption(index - 1);
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        focusOption(0);
+      } else if (e.key === "End") {
+        e.preventDefault();
+        focusOption(options.length - 1);
+      }
+    });
   });
 
   // === Initial state ===
