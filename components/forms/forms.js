@@ -33,10 +33,13 @@ function setupSelectAll(parent, children) {
   updateParent();
 }
 
-// Use it like this:
-const parent = document.querySelector("[data-select-all]");
-const children = document.querySelectorAll("[data-select-all-child]");
-setupSelectAll(parent, Array.from(children));
+document.querySelectorAll("[data-select-all-group]").forEach((group) => {
+  const parent = group.querySelector("[data-select-all]");
+  const children = Array.from(group.querySelectorAll("[data-select-all-child]"));
+  if (parent && children.length) {
+    setupSelectAll(parent, children);
+  }
+});
 
 /* ============================================
    DROPDOWN (SINGLE SELECT)
