@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-18 12:07:03
+ * Built: 2026-05-18 14:47:03
  * ============================================================ */
 
 
@@ -245,17 +245,11 @@ function initMultiSelect(dropdown) {
   // === Element references ===
   const trigger = dropdown.querySelector("[data-dropdown-trigger]");
   const valueDisplay = dropdown.querySelector("[data-dropdown-value]");
-
-  // All real data checkboxes (skip the select-all UI checkbox)
   const checkboxes = Array.from(dropdown.querySelectorAll('input[type="checkbox"]:not([data-select-all])'));
-
-  // Select-all checkbox (might not exist on every multi-select)
   const selectAll = dropdown.querySelector("[data-select-all]");
-
-  // Remember the initial trigger text — used as the "0 selected" placeholder
   const placeholder = valueDisplay.textContent;
 
-  // === Open / close ===
+  // === Helper functions ===
   function open() {
     dropdown.classList.add("is-open");
     trigger.setAttribute("aria-expanded", "true");
@@ -270,17 +264,28 @@ function initMultiSelect(dropdown) {
     dropdown.classList.contains("is-open") ? close() : open();
   }
 
-  // === Wire up events ===
+  function updateTriggerDisplay() {
+    const checked = checkboxes.filter((cb) => cb.checked);
 
-  // Trigger click → toggle
+    if (checked.length === 0) {
+      valueDisplay.textContent = placeholder;
+    } else if (checked.length === checkboxes.length && checkboxes.length > 1) {
+      valueDisplay.textContent = `All (${checked.length})`;
+    } else if (checked.length === 1) {
+      const label = checked[0].closest(".checkbox").querySelector(".checkbox-label").textContent;
+      valueDisplay.textContent = label;
+    } else {
+      valueDisplay.textContent = `${checked.length} selected`;
+    }
+  }
+
+  // === Event wiring ===
   trigger.addEventListener("click", toggle);
 
-  // Click outside → close
   document.addEventListener("click", (event) => {
     if (!dropdown.contains(event.target)) close();
   });
 
-  // Escape → close, return focus to trigger
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && dropdown.classList.contains("is-open")) {
       close();
@@ -288,16 +293,35 @@ function initMultiSelect(dropdown) {
     }
   });
 
-  // Open from trigger via keyboard
   trigger.addEventListener("keydown", (event) => {
     if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       open();
-      // Focus the first focusable element inside (select-all or first option)
       const firstFocusable = selectAll || checkboxes[0];
       if (firstFocusable) firstFocusable.focus();
     }
   });
+
+  // === Initial state ===
+
+  // 1. Apply default-all if attribute is present
+  if (dropdown.hasAttribute("data-default-all")) {
+    checkboxes.forEach((cb) => (cb.checked = true));
+  }
+
+  // 2. Wire select-all (its internal syncParent runs at the end of setup)
+  if (selectAll) {
+    setupSelectAll(selectAll, checkboxes);
+  }
+
+  // 3. Wire trigger-display listeners on every checkbox
+  const allBoxes = selectAll ? [selectAll, ...checkboxes] : checkboxes;
+  allBoxes.forEach((cb) => {
+    cb.addEventListener("change", updateTriggerDisplay);
+  });
+
+  // 4. Initial trigger render
+  updateTriggerDisplay();
 }
 
 // Initialise every multi-select on the page
