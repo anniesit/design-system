@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-18 15:46:08
+ * Built: 2026-05-18 15:54:21
  * ============================================================ */
 
 
@@ -256,6 +256,7 @@ function initMultiSelect(dropdown) {
   }
 
   function close() {
+    console.log("close() called from:", new Error().stack);
     dropdown.classList.remove("is-open");
     trigger.setAttribute("aria-expanded", "false");
   }
