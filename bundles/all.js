@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-18 15:54:21
+ * Built: 2026-05-18 16:05:06
  * ============================================================ */
 
 
@@ -334,8 +334,18 @@ function initMultiSelect(dropdown) {
   });
 
   // === Close when keyboard focus leaves the dropdown ===
+  let mouseInside = false;
+
+  dropdown.addEventListener("mousedown", () => {
+    mouseInside = true;
+  });
+
   dropdown.addEventListener("focusout", () => {
     setTimeout(() => {
+      if (mouseInside) {
+        mouseInside = false;
+        return;
+      }
       if (!dropdown.contains(document.activeElement)) {
         close();
       }

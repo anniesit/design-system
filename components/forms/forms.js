@@ -255,8 +255,18 @@ function initMultiSelect(dropdown) {
   });
 
   // === Close when keyboard focus leaves the dropdown ===
+  let mouseInside = false;
+
+  dropdown.addEventListener("mousedown", () => {
+    mouseInside = true;
+  });
+
   dropdown.addEventListener("focusout", () => {
     setTimeout(() => {
+      if (mouseInside) {
+        mouseInside = false;
+        return;
+      }
       if (!dropdown.contains(document.activeElement)) {
         close();
       }
