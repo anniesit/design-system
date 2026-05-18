@@ -177,7 +177,6 @@ function initMultiSelect(dropdown) {
   }
 
   function close() {
-    console.log("close() called from:", new Error().stack);
     dropdown.classList.remove("is-open");
     trigger.setAttribute("aria-expanded", "false");
   }
