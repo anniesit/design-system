@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-18 09:23:10
+ * Built: 2026-05-18 10:52:29
  * ============================================================ */
 
 
@@ -121,6 +121,8 @@ h6 {
 }
 
 /* 9. List reset.
+   Comment because handled by .w-list-unstyled.
+
    Removes default bullets from lists. Since most UI lists
    (navs, card grids, tag lists) aren't visually bulleted,
    this saves you from manually unstyling them.
@@ -131,11 +133,11 @@ h6 {
      <ul role="list" class="w-list-unstyled">
 
    For article body text with real bullets, restore them
-   via a .rich-text or .prose component class. */
+   via a .rich-text or .prose component class. 
 ul,
 ol {
   list-style: none;
-}
+}*/
 
 /* 10. Anchor reset.
    Links inherit color from their parent by default in our system.
