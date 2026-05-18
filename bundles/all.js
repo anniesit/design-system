@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-18 10:52:29
+ * Built: 2026-05-18 11:51:52
  * ============================================================ */
 
 
@@ -233,6 +233,72 @@ function initDropdown(dropdown) {
 
 // Initialise every dropdown on the page
 document.querySelectorAll("[data-dropdown]").forEach(initDropdown);
+
+/* ============================================
+   DROPDOWN (MULTI SELECT)
+   ============================================ */
+
+function initMultiSelect(dropdown) {
+  // === Element references ===
+  const trigger = dropdown.querySelector("[data-dropdown-trigger]");
+  const valueDisplay = dropdown.querySelector("[data-dropdown-value]");
+
+  // All real data checkboxes (skip the select-all UI checkbox)
+  const checkboxes = Array.from(dropdown.querySelectorAll('input[type="checkbox"]:not([data-select-all])'));
+
+  // Select-all checkbox (might not exist on every multi-select)
+  const selectAll = dropdown.querySelector("[data-select-all]");
+
+  // Remember the initial trigger text — used as the "0 selected" placeholder
+  const placeholder = valueDisplay.textContent;
+
+  // === Open / close ===
+  function open() {
+    dropdown.classList.add("is-open");
+    trigger.setAttribute("aria-expanded", "true");
+  }
+
+  function close() {
+    dropdown.classList.remove("is-open");
+    trigger.setAttribute("aria-expanded", "false");
+  }
+
+  function toggle() {
+    dropdown.classList.contains("is-open") ? close() : open();
+  }
+
+  // === Wire up events ===
+
+  // Trigger click → toggle
+  trigger.addEventListener("click", toggle);
+
+  // Click outside → close
+  document.addEventListener("click", (event) => {
+    if (!dropdown.contains(event.target)) close();
+  });
+
+  // Escape → close, return focus to trigger
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && dropdown.classList.contains("is-open")) {
+      close();
+      trigger.focus();
+    }
+  });
+
+  // Open from trigger via keyboard
+  trigger.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      open();
+      // Focus the first focusable element inside (select-all or first option)
+      const firstFocusable = selectAll || checkboxes[0];
+      if (firstFocusable) firstFocusable.focus();
+    }
+  });
+}
+
+// Initialise every multi-select on the page
+document.querySelectorAll("[data-dropdown-multi]").forEach(initMultiSelect);
 
 /* ---- components/inline-video/inline-video.js ---- */
 /* Inline Video JS */
