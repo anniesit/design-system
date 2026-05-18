@@ -69,15 +69,14 @@ function initDropdown(dropdown) {
     // Mark only this option as selected
     options.forEach((o) => o.setAttribute("aria-selected", "false"));
     option.setAttribute("aria-selected", "true");
-
     // Update the trigger's visible text
     const label = option.querySelector(".dropdown-option-label").textContent;
     valueDisplay.textContent = label;
-
     // Update the hidden input that submits with the form
     hiddenInput.value = option.dataset.value;
 
     close();
+    trigger.focus();
   }
 
   // === Focus ===
@@ -135,6 +134,11 @@ function initDropdown(dropdown) {
       } else if (e.key === "End") {
         e.preventDefault();
         focusOption(options.length - 1);
+      } else if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        selectOption(option);
+      } else if (e.key === "Tab") {
+        close();
       }
     });
   });
