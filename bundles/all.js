@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-18 14:47:03
+ * Built: 2026-05-18 15:06:38
  * ============================================================ */
 
 
@@ -299,6 +299,43 @@ function initMultiSelect(dropdown) {
       open();
       const firstFocusable = selectAll || checkboxes[0];
       if (firstFocusable) firstFocusable.focus();
+    }
+  });
+
+  // === Keyboard navigation inside the list ===
+  const focusableItems = selectAll ? [selectAll, ...checkboxes] : checkboxes;
+
+  function focusItem(index) {
+    const wrapped = (index + focusableItems.length) % focusableItems.length;
+    focusableItems[wrapped].focus();
+  }
+
+  focusableItems.forEach((item, index) => {
+    item.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        focusItem(index + 1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        focusItem(index - 1);
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        focusItem(0);
+      } else if (e.key === "End") {
+        e.preventDefault();
+        focusItem(focusableItems.length - 1);
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        item.checked = !item.checked;
+        item.dispatchEvent(new Event("change"));
+      }
+    });
+  });
+
+  // === Close when keyboard focus leaves the dropdown ===
+  dropdown.addEventListener("focusout", (e) => {
+    if (!dropdown.contains(e.relatedTarget)) {
+      close();
     }
   });
 
