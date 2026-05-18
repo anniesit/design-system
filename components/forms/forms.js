@@ -254,10 +254,12 @@ function initMultiSelect(dropdown) {
   });
 
   // === Close when keyboard focus leaves the dropdown ===
-  dropdown.addEventListener("focusout", (e) => {
-    if (!dropdown.contains(e.relatedTarget)) {
-      close();
-    }
+  dropdown.addEventListener("focusout", () => {
+    setTimeout(() => {
+      if (!dropdown.contains(document.activeElement)) {
+        close();
+      }
+    }, 0);
   });
 
   // === Initial state ===
