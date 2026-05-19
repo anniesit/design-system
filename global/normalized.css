@@ -130,7 +130,6 @@ ol {
    Each project's brand layer sets link styles. */
 a {
   color: inherit;
-  text-decoration: none;
 }
 
 /* 11. Table reset.
