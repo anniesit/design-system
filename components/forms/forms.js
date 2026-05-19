@@ -296,3 +296,20 @@ function initMultiSelect(dropdown) {
 
 // Initialise every multi-select on the page
 document.querySelectorAll("[data-dropdown-multi]").forEach(initMultiSelect);
+
+/* ============================================
+   CLEAR ALL
+   ============================================ */
+
+document.querySelectorAll("form").forEach((form) => {
+  const clearBtn = form.querySelector("[data-clear-all]");
+  if (!clearBtn) return;
+
+  form.addEventListener("input", () => {
+    clearBtn.hidden = false;
+  });
+
+  form.addEventListener("reset", () => {
+    clearBtn.hidden = true;
+  });
+});

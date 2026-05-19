@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-19 15:17:42
+ * Built: 2026-05-19 16:58:00
  * ============================================================ */
 
 
@@ -375,6 +375,23 @@ function initMultiSelect(dropdown) {
 
 // Initialise every multi-select on the page
 document.querySelectorAll("[data-dropdown-multi]").forEach(initMultiSelect);
+
+/* ============================================
+   CLEAR ALL
+   ============================================ */
+
+document.querySelectorAll("form").forEach((form) => {
+  const clearBtn = form.querySelector("[data-clear-all]");
+  if (!clearBtn) return;
+
+  form.addEventListener("input", () => {
+    clearBtn.hidden = false;
+  });
+
+  form.addEventListener("reset", () => {
+    clearBtn.hidden = true;
+  });
+});
 
 /* ---- components/inline-video/inline-video.js ---- */
 /* Inline Video JS */
