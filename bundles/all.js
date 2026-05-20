@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-20 10:18:36
+ * Built: 2026-05-20 10:34:00
  * ============================================================ */
 
 
@@ -164,6 +164,7 @@ function initDropdown(dropdown) {
     valueDisplay.textContent = label;
     // Update the hidden input that submits with the form
     hiddenInput.value = option.dataset.value;
+    hiddenInput.dispatchEvent(new Event("input", { bubbles: true }));
 
     close();
     trigger.focus();
@@ -382,7 +383,10 @@ function initMultiSelect(dropdown) {
 
   // 1. Apply default-all if attribute is present
   if (dropdown.hasAttribute("data-default-all")) {
-    checkboxes.forEach((cb) => (cb.checked = true));
+    checkboxes.forEach((cb) => {
+      cb.checked = true;
+      cb.setAttribute("checked", "");
+    });
   }
 
   // 2. Wire select-all (its internal syncParent runs at the end of setup)
