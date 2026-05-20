@@ -29,6 +29,14 @@ function setupSelectAll(parent, children) {
     }
   }
 
+  // 4. Re-sync on form reset
+  const form = parent.closest("form");
+  if (form) {
+    form.addEventListener("reset", () => {
+      setTimeout(updateParent, 0);
+    });
+  }
+
   // Run once on load to set initial state
   updateParent();
 }
@@ -146,12 +154,31 @@ function initDropdown(dropdown) {
     });
   });
 
-  // === Initial state ===
-  // If a `<li aria-selected="true">` exists in the HTML, sync trigger to match
-  const preSelected = options.find((o) => o.getAttribute("aria-selected") === "true");
-  if (preSelected) {
-    valueDisplay.textContent = preSelected.querySelector(".dropdown-option-label").textContent;
-    hiddenInput.value = preSelected.dataset.value;
+  // === Initial state & reset handling ===
+  const initialPlaceholder = valueDisplay.textContent;
+  const initiallySelected = options.find((o) => o.getAttribute("aria-selected") === "true");
+
+  function syncToInitial() {
+    options.forEach((o) => {
+      o.setAttribute("aria-selected", o === initiallySelected ? "true" : "false");
+    });
+    if (initiallySelected) {
+      valueDisplay.textContent = initiallySelected.querySelector(".dropdown-option-label").textContent;
+      hiddenInput.value = initiallySelected.dataset.value;
+    } else {
+      valueDisplay.textContent = initialPlaceholder;
+      hiddenInput.value = "";
+    }
+  }
+  // Run once on load
+  syncToInitial();
+
+  // Re-sync on form reset
+  const form = dropdown.closest("form");
+  if (form) {
+    form.addEventListener("reset", () => {
+      setTimeout(syncToInitial, 0);
+    });
   }
 }
 
@@ -292,6 +319,14 @@ function initMultiSelect(dropdown) {
 
   // 4. Initial trigger render
   updateTriggerDisplay();
+
+  // 5. Re-sync trigger on form reset
+  const form = dropdown.closest("form");
+  if (form) {
+    form.addEventListener("reset", () => {
+      setTimeout(updateTriggerDisplay, 0);
+    });
+  }
 }
 
 // Initialise every multi-select on the page
