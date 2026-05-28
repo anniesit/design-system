@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-28 10:20:35
+ * Built: 2026-05-28 17:27:01
  * ============================================================ */
 
 
@@ -129,15 +129,52 @@ document.querySelectorAll("[data-select-all-group]").forEach((group) => {
 });
 
 /* ============================================
+   SHARED DROPDOWN BEHAVIOUR (single + multi)
+   ============================================
+   One outside-click handler + one Escape handler for EVERY dropdown on the
+   page, registered once. Previously each dropdown registered its own pair of
+   document listeners; with dynamically added/removed rows (component #9) that
+   leaked a listener per row. These shared handlers look up whatever dropdown
+   is open at event time, so new rows add nothing and removed rows leave
+   nothing behind. */
+
+function closeDropdownEl(dropdown) {
+  dropdown.classList.remove("is-open");
+  const trigger = dropdown.querySelector("[data-dropdown-trigger]");
+  if (trigger) trigger.setAttribute("aria-expanded", "false");
+}
+
+// Outside click → close any open dropdown that wasn't clicked inside
+document.addEventListener("click", (event) => {
+  document.querySelectorAll("[data-dropdown].is-open, [data-dropdown-multi].is-open").forEach((dropdown) => {
+    if (!dropdown.contains(event.target)) closeDropdownEl(dropdown);
+  });
+});
+
+// Escape → close every open dropdown and return focus to its trigger
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  document.querySelectorAll("[data-dropdown].is-open, [data-dropdown-multi].is-open").forEach((dropdown) => {
+    closeDropdownEl(dropdown);
+    dropdown.querySelector("[data-dropdown-trigger]")?.focus();
+  });
+});
+
+/* ============================================
    DROPDOWN (SINGLE SELECT)
    ============================================ */
 
 function initDropdown(dropdown) {
+  // Guard: safe to call twice on the same element. The anchor row in
+  // component #9 is reached by both the load-time sweep and initKeywordFields.
+  if (dropdown.dataset.dropdownInit) return;
+  dropdown.dataset.dropdownInit = "true";
+
   // === Element references ===
   const trigger = dropdown.querySelector("[data-dropdown-trigger]");
   const valueDisplay = dropdown.querySelector("[data-dropdown-value]");
   const hiddenInput = dropdown.querySelector('input[type="hidden"]');
-  const options = Array.from(dropdown.querySelectorAll(".dropdown-option"));
+  const options = Array.from(dropdown.querySelectorAll("[data-dropdown-option]"));
 
   // === Open / close ===
   function open() {
@@ -160,7 +197,7 @@ function initDropdown(dropdown) {
     options.forEach((o) => o.setAttribute("aria-selected", "false"));
     option.setAttribute("aria-selected", "true");
     // Update the trigger's visible text
-    const label = option.querySelector(".dropdown-option-label").textContent;
+    const label = option.querySelector("[data-dropdown-option-label]").textContent;
     valueDisplay.textContent = label;
     // Update the hidden input that submits with the form
     hiddenInput.value = option.dataset.value;
@@ -186,20 +223,7 @@ function initDropdown(dropdown) {
     option.addEventListener("click", () => selectOption(option));
   });
 
-  // Click outside → close
-  document.addEventListener("click", (event) => {
-    if (!dropdown.contains(event.target)) {
-      close();
-    }
-  });
-
-  // Escape key → close (and return focus to trigger)
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && dropdown.classList.contains("is-open")) {
-      close();
-      trigger.focus();
-    }
-  });
+  // NOTE: outside-click + Escape are handled by the shared handlers above.
 
   // Accessibility - Open from the trigger
   trigger.addEventListener("keydown", (e) => {
@@ -243,7 +267,7 @@ function initDropdown(dropdown) {
       o.setAttribute("aria-selected", o === initiallySelected ? "true" : "false");
     });
     if (initiallySelected) {
-      valueDisplay.textContent = initiallySelected.querySelector(".dropdown-option-label").textContent;
+      valueDisplay.textContent = initiallySelected.querySelector("[data-dropdown-option-label]").textContent;
       hiddenInput.value = initiallySelected.dataset.value;
     } else {
       valueDisplay.textContent = initialPlaceholder;
@@ -262,7 +286,8 @@ function initDropdown(dropdown) {
   }
 }
 
-// Initialise every dropdown on the page
+// Initialise every dropdown present at load.
+// (Dropdowns inside dynamically-added #9 rows are initialised by initKeywordFields.)
 document.querySelectorAll("[data-dropdown]").forEach(initDropdown);
 
 /* ============================================
@@ -310,16 +335,7 @@ function initMultiSelect(dropdown) {
   // === Event wiring ===
   trigger.addEventListener("click", toggle);
 
-  document.addEventListener("click", (event) => {
-    if (!dropdown.contains(event.target)) close();
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && dropdown.classList.contains("is-open")) {
-      close();
-      trigger.focus();
-    }
-  });
+  // NOTE: outside-click + Escape are handled by the shared handlers above.
 
   trigger.addEventListener("keydown", (event) => {
     if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
@@ -361,6 +377,8 @@ function initMultiSelect(dropdown) {
   });
 
   // === Close when keyboard focus leaves the dropdown ===
+  // (Separate from outside-click: handles Tab-out. macOS dumps focus on
+  // document.body when clicking a checkbox, so track mouseInside too.)
   let mouseInside = false;
 
   dropdown.addEventListener("mousedown", () => {
@@ -417,16 +435,29 @@ document.querySelectorAll("[data-dropdown-multi]").forEach(initMultiSelect);
 
 /* ============================================
    CLEAR ALL
-   ============================================ */
+   ============================================
+   The reset button's visibility mode is set by the value of data-clear-all:
+
+     data-clear-all                 → show-on-input (default): the button starts
+     data-clear-all="show-on-input"   hidden, appears on first input, hides on reset.
+     data-clear-all="always"        → always visible: JS never touches visibility
+                                      (markup controls it).
+
+   Default (bare attribute) preserves the original show-on-input behaviour, so
+   existing projects keep working when this file is re-copied in. */
 
 document.querySelectorAll("form").forEach((form) => {
   const clearBtn = form.querySelector("[data-clear-all]");
   if (!clearBtn) return;
 
+  // "always" → leave visibility alone
+  if (clearBtn.dataset.clearAll === "always") return;
+
+  // show-on-input
+  clearBtn.hidden = true; // start hidden (no need for `hidden` in markup)
   form.addEventListener("input", () => {
     clearBtn.hidden = false;
   });
-
   form.addEventListener("reset", () => {
     clearBtn.hidden = true;
   });
@@ -479,6 +510,123 @@ function initDateRange(container) {
 }
 
 document.querySelectorAll("[data-date-range]").forEach(initDateRange);
+
+/* ============================================
+   KEYWORD FIELDS (Component #9 — Add field)
+   ============================================
+   A repeatable query-row builder for the keyword search section.
+
+   Structure (see markup file):
+     [data-keyword-fields]                 container / scoping marker
+       data-min-fields / data-max-fields   row limits (default 2 / 5)
+       [data-keyword-row]                   row 1 — STATIC ANCHOR (field + input,
+                                            no operator, no +/- buttons)
+       <template data-keyword-row-template> source for rows 2–5
+         [data-keyword-row]                 operator + field + input + add/remove
+
+   Submission naming: every submitting field carries a base name in data-name
+   (operator / field / keyword). On every change JS rewrites the real `name` to
+   an indexed form — keyword_1, then operator_2/field_2/keyword_2, … — so the
+   backend receives positionally-grouped, gap-free rows. (Row 1 has no operator,
+   which is exactly why indexed names beat parallel arrays.)
+
+   Reset: native form.reset() restores values but does NOT remove JS-added rows,
+   so the reset handler tears the DOM back down to the default count. */
+
+function initKeywordFields(container) {
+  const template = container.querySelector("[data-keyword-row-template]");
+  if (!template) return;
+
+  const min = parseInt(container.dataset.minFields, 10) || 2;
+  const max = parseInt(container.dataset.maxFields, 10) || 5;
+
+  const rows = () => Array.from(container.querySelectorAll("[data-keyword-row]"));
+
+  // Re-index submitting names + refresh add/remove disabled states.
+  // Runs after any add/delete so indices stay contiguous (1-based).
+  function renumber() {
+    const all = rows();
+    all.forEach((row, i) => {
+      const index = i + 1;
+      row.querySelectorAll("[data-name]").forEach((field) => {
+        field.name = `${field.dataset.name}_${index}`;
+      });
+    });
+    const count = all.length;
+    all.forEach((row) => {
+      const add = row.querySelector("[data-keyword-add]");
+      const remove = row.querySelector("[data-keyword-remove]");
+      if (add) add.disabled = count >= max;
+      if (remove) remove.disabled = count <= min;
+    });
+  }
+
+  // Clone one repeatable row from the template and wire its dropdowns.
+  // `after` = the row to insert behind (defaults to the last row).
+  // `focus` = move focus to the new row's keyword input (skip on load).
+  function insertRow({ after = null, focus = true } = {}) {
+    if (rows().length >= max) return null;
+
+    const row = template.content.firstElementChild.cloneNode(true);
+    (after || rows()[rows().length - 1]).after(row);
+
+    // Reuse the existing single-select component for the new row's dropdowns.
+    row.querySelectorAll("[data-dropdown]").forEach(initDropdown);
+
+    renumber();
+    if (focus) row.querySelector("[data-name='keyword']")?.focus();
+    return row;
+  }
+
+  function removeRow(row) {
+    if (rows().length <= min) return;
+    // Move focus off the row before it's removed (keyboard accessibility).
+    const prev = row.previousElementSibling;
+    row.remove();
+    renumber();
+    (prev?.querySelector("[data-name='keyword']") || container.querySelector("[data-name='keyword']"))?.focus();
+  }
+
+  // === Event delegation ===
+  // One listener on the stable container handles +/- for current AND future
+  // rows. (Disabled buttons don't fire clicks, so limits are enforced for free;
+  // the guards in insert/removeRow are belt-and-suspenders.)
+  container.addEventListener("click", (event) => {
+    const addBtn = event.target.closest("[data-keyword-add]");
+    if (addBtn) {
+      insertRow({ after: addBtn.closest("[data-keyword-row]") });
+      return;
+    }
+    const removeBtn = event.target.closest("[data-keyword-remove]");
+    if (removeBtn) {
+      removeRow(removeBtn.closest("[data-keyword-row]"));
+    }
+  });
+
+  // === Initial state ===
+  // Wire dropdowns already in the markup (the anchor row), top up to the
+  // minimum row count from the template, then index everything.
+  container.querySelectorAll("[data-keyword-row] [data-dropdown]").forEach(initDropdown);
+  while (rows().length < min) insertRow({ focus: false });
+  renumber();
+
+  // === Reset: tear extra rows back down to the default count ===
+  const form = container.closest("form");
+  if (form) {
+    form.addEventListener("reset", () => {
+      setTimeout(() => {
+        rows()
+          .slice(min)
+          .forEach((row) => row.remove()); // drop rows beyond min
+        renumber();
+        // Kept rows' values + dropdowns re-sync via native reset and each
+        // dropdown's own reset listener.
+      }, 0);
+    });
+  }
+}
+
+document.querySelectorAll("[data-keyword-fields]").forEach(initKeywordFields);
 
 /* ---- components/inline-video/inline-video.js ---- */
 /* Inline Video JS */
