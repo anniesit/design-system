@@ -352,3 +352,51 @@ document.querySelectorAll("form").forEach((form) => {
     clearBtn.hidden = true;
   });
 });
+
+/* ============================================
+   DATE RANGE
+   ============================================ */
+
+function initDateRange(container) {
+  const startInput = container.querySelector("[data-date-start]");
+  const endInput = container.querySelector("[data-date-end]");
+  if (!startInput || !endInput) return;
+
+  // Snapshot the initial min/max so we can restore them on reset
+  const initialStartMin = startInput.min;
+  const initialStartMax = startInput.max;
+  const initialEndMin = endInput.min;
+  const initialEndMax = endInput.max;
+
+  // Keep start ≤ end by linking the two inputs' min/max
+  function syncConstraints() {
+    // The end can't be before the start
+    endInput.min = startInput.value || initialEndMin;
+    // The start can't be after the end
+    startInput.max = endInput.value || initialStartMax;
+  }
+
+  function resetConstraints() {
+    startInput.min = initialStartMin;
+    startInput.max = initialStartMax;
+    endInput.min = initialEndMin;
+    endInput.max = initialEndMax;
+  }
+
+  // Wire change listeners
+  startInput.addEventListener("change", syncConstraints);
+  endInput.addEventListener("change", syncConstraints);
+
+  // Reset handling
+  const form = container.closest("form");
+  if (form) {
+    form.addEventListener("reset", () => {
+      setTimeout(resetConstraints, 0);
+    });
+  }
+
+  // Run once on load so any pre-filled values constrain each other
+  syncConstraints();
+}
+
+document.querySelectorAll("[data-date-range]").forEach(initDateRange);
