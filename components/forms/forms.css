@@ -203,3 +203,16 @@ html.u-mode-light select {
 .dropdown.is-disabled .dropdown-trigger:hover {
   border-color: var(--primary--border);
 }
+
+/* ============================================
+   ADD FIELD
+   ============================================ */
+
+.keyword-addbtn:not(:disabled):hover {
+  background-color: color-mix(in hsl, var(--primary--accent) 10%, transparent 90%);
+}
+
+.keyword-addbtn:disabled {
+  cursor: not-allowed;
+  opacity: 50%;
+}

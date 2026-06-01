@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-05-28 17:27:01
+ * Built: 2026-06-01 16:53:36
  * ============================================================ */
 
 
@@ -807,6 +807,19 @@ html.u-mode-light select {
 }
 .dropdown.is-disabled .dropdown-trigger:hover {
   border-color: var(--primary--border);
+}
+
+/* ============================================
+   ADD FIELD
+   ============================================ */
+
+.keyword-addbtn:not(:disabled):hover {
+  background-color: color-mix(in hsl, var(--primary--accent) 10%, transparent 90%);
+}
+
+.keyword-addbtn:disabled {
+  cursor: not-allowed;
+  opacity: 50%;
 }
 
 /* ---- components/grid/grid.css ---- */
