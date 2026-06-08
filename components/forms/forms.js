@@ -67,18 +67,22 @@ function closeDropdownEl(dropdown) {
 
 // Outside click → close any open dropdown that wasn't clicked inside
 document.addEventListener("click", (event) => {
-  document.querySelectorAll("[data-dropdown].is-open, [data-dropdown-multi].is-open").forEach((dropdown) => {
-    if (!dropdown.contains(event.target)) closeDropdownEl(dropdown);
-  });
+  document
+    .querySelectorAll("[data-dropdown].is-open, [data-dropdown-multi].is-open")
+    .forEach((dropdown) => {
+      if (!dropdown.contains(event.target)) closeDropdownEl(dropdown);
+    });
 });
 
 // Escape → close every open dropdown and return focus to its trigger
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
-  document.querySelectorAll("[data-dropdown].is-open, [data-dropdown-multi].is-open").forEach((dropdown) => {
-    closeDropdownEl(dropdown);
-    dropdown.querySelector("[data-dropdown-trigger]")?.focus();
-  });
+  document
+    .querySelectorAll("[data-dropdown].is-open, [data-dropdown-multi].is-open")
+    .forEach((dropdown) => {
+      closeDropdownEl(dropdown);
+      dropdown.querySelector("[data-dropdown-trigger]")?.focus();
+    });
 });
 
 /* ============================================
@@ -95,7 +99,7 @@ function initDropdown(dropdown) {
   const trigger = dropdown.querySelector("[data-dropdown-trigger]");
   const valueDisplay = dropdown.querySelector("[data-dropdown-value]");
   const hiddenInput = dropdown.querySelector('input[type="hidden"]');
-  const options = Array.from(dropdown.querySelectorAll("[data-dropdown-option]"));
+  const options = Array.from(dropdown.querySelectorAll(".dropdown-option"));
 
   // === Open / close ===
   function open() {
@@ -118,7 +122,7 @@ function initDropdown(dropdown) {
     options.forEach((o) => o.setAttribute("aria-selected", "false"));
     option.setAttribute("aria-selected", "true");
     // Update the trigger's visible text
-    const label = option.querySelector("[data-dropdown-option-label]").textContent;
+    const label = option.querySelector(".dropdown-option-label").textContent;
     valueDisplay.textContent = label;
     // Update the hidden input that submits with the form
     hiddenInput.value = option.dataset.value;
@@ -188,7 +192,7 @@ function initDropdown(dropdown) {
       o.setAttribute("aria-selected", o === initiallySelected ? "true" : "false");
     });
     if (initiallySelected) {
-      valueDisplay.textContent = initiallySelected.querySelector("[data-dropdown-option-label]").textContent;
+      valueDisplay.textContent = initiallySelected.querySelector(".dropdown-option-label").textContent;
       hiddenInput.value = initiallySelected.dataset.value;
     } else {
       valueDisplay.textContent = initialPlaceholder;
@@ -433,6 +437,86 @@ function initDateRange(container) {
 document.querySelectorAll("[data-date-range]").forEach(initDateRange);
 
 /* ============================================
+   INPUT CLEAR (Component #10 — × button inside a text input)
+   ============================================
+   Pairs with any text input via a wrapper containing the input + the button.
+   Button shows when the input has a value, hides when empty. Click clears the
+   input, dispatches `input` (so form-level listeners like clear-all see the
+   change) and refocuses the input. Idempotent — safe to wire twice (e.g. by
+   the load-time sweep AND by initKeywordFields on a freshly cloned row). */
+
+function initInputClear(button) {
+  if (button.dataset.inputClearInit) return;
+  button.dataset.inputClearInit = "true";
+
+  const input = button.parentElement?.querySelector("input");
+  if (!input) return;
+
+  function sync() {
+    button.hidden = input.value === "";
+  }
+
+  input.addEventListener("input", sync);
+
+  button.addEventListener("click", () => {
+    input.value = "";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.focus();
+  });
+
+  const form = input.closest("form");
+  if (form) {
+    form.addEventListener("reset", () => setTimeout(sync, 0));
+  }
+
+  sync(); // initial state
+}
+
+document.querySelectorAll("[data-input-clear]").forEach(initInputClear);
+
+/* ============================================
+   FILTERABLE CHECKBOXES (Component #11)
+   ============================================
+   Adds a text input inside a checkbox fieldset that hides/shows checkbox
+   options by substring match (case-insensitive, Unicode-safe — CJK works).
+   The select-all checkbox (if present) is never hidden. Hidden-but-checked
+   items still submit normally. The select-all parent's logic is unchanged:
+   it still toggles ALL children regardless of visibility — by design, so a
+   checked-then-hidden selection survives further filtering. */
+
+function initFilterableCheckboxes(container) {
+  const filterInput = container.querySelector("[data-checkbox-filter]");
+  if (!filterInput) return;
+
+  // Filterable items = all .checkbox wrappers except the one containing
+  // the select-all checkbox (so the All toggle is always visible).
+  const filterable = Array.from(container.querySelectorAll(".checkbox"))
+    .filter((cb) => !cb.querySelector("[data-select-all]"));
+
+  function applyFilter() {
+    const query = filterInput.value.trim().toLowerCase();
+    filterable.forEach((cb) => {
+      const label = cb.querySelector(".checkbox-label")?.textContent.toLowerCase() ?? "";
+      cb.hidden = query !== "" && !label.includes(query);
+    });
+  }
+
+  filterInput.addEventListener("input", applyFilter);
+
+  const form = container.closest("form");
+  if (form) {
+    form.addEventListener("reset", () => {
+      setTimeout(() => {
+        filterInput.value = "";
+        applyFilter();
+      }, 0);
+    });
+  }
+}
+
+document.querySelectorAll("[data-filterable-checkboxes]").forEach(initFilterableCheckboxes);
+
+/* ============================================
    KEYWORD FIELDS (Component #9 — Add field)
    ============================================
    A repeatable query-row builder for the keyword search section.
@@ -491,8 +575,10 @@ function initKeywordFields(container) {
     const row = template.content.firstElementChild.cloneNode(true);
     (after || rows()[rows().length - 1]).after(row);
 
-    // Reuse the existing single-select component for the new row's dropdowns.
+    // Reuse the existing single-select component for the new row's dropdowns,
+    // and wire the row's input-clear button (if present).
     row.querySelectorAll("[data-dropdown]").forEach(initDropdown);
+    row.querySelectorAll("[data-input-clear]").forEach(initInputClear);
 
     renumber();
     if (focus) row.querySelector("[data-name='keyword']")?.focus();
@@ -505,7 +591,8 @@ function initKeywordFields(container) {
     const prev = row.previousElementSibling;
     row.remove();
     renumber();
-    (prev?.querySelector("[data-name='keyword']") || container.querySelector("[data-name='keyword']"))?.focus();
+    (prev?.querySelector("[data-name='keyword']") ||
+      container.querySelector("[data-name='keyword']"))?.focus();
   }
 
   // === Event delegation ===
@@ -536,9 +623,7 @@ function initKeywordFields(container) {
   if (form) {
     form.addEventListener("reset", () => {
       setTimeout(() => {
-        rows()
-          .slice(min)
-          .forEach((row) => row.remove()); // drop rows beyond min
+        rows().slice(min).forEach((row) => row.remove()); // drop rows beyond min
         renumber();
         // Kept rows' values + dropdowns re-sync via native reset and each
         // dropdown's own reset listener.
