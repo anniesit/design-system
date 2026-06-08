@@ -112,6 +112,7 @@ Custom listbox-pattern dropdown. Submits via a hidden input.
 - The option with `aria-selected="true"` is the default; the hidden input gets that option's `data-value` on load.
 - Keyboard: Arrow keys, Home/End, Enter/Space to select, Escape to close, Tab to commit and leave.
 - Outside click and Escape close every open dropdown on the page (one shared handler).
+- **If you add a filter input** (component #11, variant B), it integrates into keyboard nav automatically: opening the dropdown lands focus on the filter so the user can type to narrow; Arrow Down/Up bridge from the filter into the options and skip any hidden by the filter; Enter on the filter is intercepted so it doesn't submit the form.
 
 ### 5. Multi-select dropdown
 
@@ -133,6 +134,7 @@ Same shell as single-select, but the list contains real checkboxes. Submits mult
 - Trigger label reflects current state: placeholder / single label / `N selected` / `All (N)`.
 - Optional `data-default-all` on the container: every option starts checked.
 - Optional `[data-select-all]` checkbox inside the list for an indeterminate "All" toggle.
+- **If you add a filter input** (component #11, variant A), it integrates into keyboard nav automatically: opening the dropdown lands focus on the filter; Arrow Down/Up bridge from the filter into select-all and the option checkboxes and skip any hidden by the filter; Enter on the filter is intercepted so it doesn't submit the form.
 
 ### 6. Search (submit) button
 
@@ -226,9 +228,11 @@ Pairs with any text input. The button appears when the input has a value, disapp
 - Works inside #9 rows automatically — `initKeywordFields` calls `initInputClear` on each cloned row's button.
 - Clearing dispatches an `input` event that bubbles to the form, so the form-level clear-all (in show-on-input mode) sees the change.
 
-### 11. Filterable checkboxes
+### 11. Filterable lists
 
-Adds a text input inside a checkbox fieldset that hides/shows options by substring match. For long lists (100+) — case-insensitive, CJK-safe.
+A text input that hides/shows items in a list by substring match (case-insensitive, CJK-safe). Two variants share one engine — pick the markers that match your list type. For long lists (100+ items).
+
+**Variant A — checkbox lists** (fieldsets and multi-select dropdowns):
 
 ```html
 <fieldset data-select-all-group data-filterable-checkboxes class="field-group">
@@ -238,14 +242,14 @@ Adds a text input inside a checkbox fieldset that hides/shows options by substri
          placeholder="輸入篩選…" aria-label="Filter">
 
   <!-- Select-all (never hidden by the filter) -->
-  <label class="checkbox is-w-full">
+  <label class="checkbox">
     <input type="checkbox" data-select-all class="checkbox-input">
     <span class="checkbox-control">…</span>
     <span class="checkbox-label">Select All</span>
   </label>
 
   <!-- Options (typically injected by the backend) -->
-  <label class="checkbox is-w-full">
+  <label class="checkbox">
     <input type="checkbox" name="author" data-select-all-child class="checkbox-input" value="…">
     <span class="checkbox-control">…</span>
     <span class="checkbox-label">陳豪賢</span>
@@ -254,11 +258,29 @@ Adds a text input inside a checkbox fieldset that hides/shows options by substri
 </fieldset>
 ```
 
-- Marker `data-filterable-checkboxes` on the fieldset. Coexists with `data-select-all-group` — the two are orthogonal.
-- The filter operates on the `.checkbox-label` text. The select-all wrapper is never hidden.
+Same pattern works inside a multi-select dropdown — add `data-filterable-checkboxes` to the `[data-dropdown-multi]` container and put the filter input as the first child of `<ul data-dropdown-list>`.
+
+**Variant B — single-select dropdown option lists:**
+
+```html
+<div data-dropdown data-filterable-options class="dropdown">
+  <button data-dropdown-trigger …>…</button>
+  <ul role="listbox" data-dropdown-list class="dropdown-list">
+    <input type="search" data-options-filter class="dropdown-filter-input"
+           placeholder="輸入篩選…" aria-label="Filter">
+    <li role="option" data-dropdown-option class="dropdown-option">…</li>
+    …
+  </ul>
+</div>
+```
+
+**Shared behavior:**
+
+- The filter operates on the label text — `.checkbox-label` for checkbox lists, `.dropdown-option-label` for option lists.
 - Hidden-but-checked items still submit. Users can filter, check, filter again — earlier selections persist.
-- Reset on form `reset`: filter input clears, all options reappear.
+- Reset on form `reset`: filter input clears, all items reappear.
 - Select-all behavior is **unchanged** — it still toggles ALL children, including currently-hidden ones. This is deliberate so a checked selection survives filter changes. If you find users want "select all visible only," that's a future extension, not the default.
+- When the filter sits inside a dropdown (#4 or #5), the dropdown's keyboard navigation adapts automatically — see those component sections for details.
 - Optional: wrap the filter input itself in `.input-clear-wrapper` to give it a × clear button (component #10).
 
 ---

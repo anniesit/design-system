@@ -133,9 +133,26 @@ function initDropdown(dropdown) {
   }
 
   // === Focus ===
-  function focusOption(index) {
-    const wrapped = (index + options.length) % options.length;
-    options[wrapped].focus();
+  // Filter input (if present, via component #11's [data-options-filter])
+  // becomes the first focusable item, ahead of the options. Open-via-trigger
+  // lands focus on the filter so the user can type to narrow; Arrow Down/Up
+  // bridge from filter into the options and skip any hidden by the filter.
+  const filterInput = dropdown.querySelector("[data-options-filter]");
+  const focusables = [
+    ...(filterInput ? [filterInput] : []),
+    ...options,
+  ];
+
+  function focusFromIndex(currentIndex, direction) {
+    const n = focusables.length;
+    for (let step = 1; step <= n; step++) {
+      const idx = (currentIndex + direction * step + n) % n;
+      const item = focusables[idx];
+      if (!item.hidden) {
+        item.focus();
+        return;
+      }
+    }
   }
 
   // === Wire up events ===
@@ -150,33 +167,43 @@ function initDropdown(dropdown) {
 
   // NOTE: outside-click + Escape are handled by the shared handlers above.
 
-  // Accessibility - Open from the trigger
+  // Trigger keyboard open — focus filter if present, else the selected option
   trigger.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       open();
-      const selected = options.find((o) => o.getAttribute("aria-selected") === "true");
-      (selected || options[0]).focus();
+      if (filterInput) {
+        filterInput.focus();
+      } else {
+        const selected = options.find((o) => o.getAttribute("aria-selected") === "true");
+        (selected || options[0]).focus();
+      }
     }
   });
-  // Keydown on each option
-  options.forEach((option, index) => {
-    option.addEventListener("keydown", (e) => {
+
+  // Keydown on each focusable (filter input + options)
+  focusables.forEach((item, index) => {
+    item.addEventListener("keydown", (e) => {
+      const isOption = item.matches(".dropdown-option");
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        focusOption(index + 1);
+        focusFromIndex(index, 1);
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        focusOption(index - 1);
-      } else if (e.key === "Home") {
+        focusFromIndex(index, -1);
+      } else if (e.key === "Home" && isOption) {
         e.preventDefault();
-        focusOption(0);
-      } else if (e.key === "End") {
+        focusFromIndex(-1, 1);
+      } else if (e.key === "End" && isOption) {
         e.preventDefault();
-        focusOption(options.length - 1);
+        focusFromIndex(focusables.length, -1);
       } else if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        selectOption(option);
+        if (isOption) {
+          e.preventDefault();
+          selectOption(item);
+        } else {
+          e.preventDefault(); // filter input: don't submit form
+        }
       } else if (e.key === "Tab") {
         close();
       }
@@ -266,37 +293,59 @@ function initMultiSelect(dropdown) {
     if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       open();
-      const firstFocusable = selectAll || checkboxes[0];
-      if (firstFocusable) firstFocusable.focus();
+      focusableItems[0]?.focus();
     }
   });
 
   // === Keyboard navigation inside the list ===
-  const focusableItems = selectAll ? [selectAll, ...checkboxes] : checkboxes;
+  // Filter input (if present, via component #11's [data-checkbox-filter])
+  // becomes the first focusable item, ahead of select-all and the option
+  // checkboxes. Open-via-trigger lands focus here. Arrow Down/Up skip any
+  // option hidden by the filter.
+  const filterInput = dropdown.querySelector("[data-checkbox-filter]");
+  const focusableItems = [
+    ...(filterInput ? [filterInput] : []),
+    ...(selectAll ? [selectAll] : []),
+    ...checkboxes,
+  ];
 
-  function focusItem(index) {
-    const wrapped = (index + focusableItems.length) % focusableItems.length;
-    focusableItems[wrapped].focus();
+  function focusFromIndex(currentIndex, direction) {
+    const n = focusableItems.length;
+    for (let step = 1; step <= n; step++) {
+      const idx = (currentIndex + direction * step + n) % n;
+      const item = focusableItems[idx];
+      // Filter input has no .checkbox wrapper, so it's never considered hidden.
+      const wrapper = item.closest(".checkbox");
+      if (!(wrapper && wrapper.hidden)) {
+        item.focus();
+        return;
+      }
+    }
   }
 
   focusableItems.forEach((item, index) => {
     item.addEventListener("keydown", (e) => {
+      const isCheckbox = item.type === "checkbox";
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        focusItem(index + 1);
+        focusFromIndex(index, 1);
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        focusItem(index - 1);
-      } else if (e.key === "Home") {
+        focusFromIndex(index, -1);
+      } else if (e.key === "Home" && isCheckbox) {
         e.preventDefault();
-        focusItem(0);
-      } else if (e.key === "End") {
+        focusFromIndex(-1, 1);
+      } else if (e.key === "End" && isCheckbox) {
         e.preventDefault();
-        focusItem(focusableItems.length - 1);
+        focusFromIndex(focusableItems.length, -1);
       } else if (e.key === "Enter") {
-        e.preventDefault();
-        item.checked = !item.checked;
-        item.dispatchEvent(new Event("change"));
+        if (isCheckbox) {
+          e.preventDefault();
+          item.checked = !item.checked;
+          item.dispatchEvent(new Event("change"));
+        } else {
+          e.preventDefault(); // filter input: don't submit form
+        }
       }
     });
   });
@@ -475,29 +524,33 @@ function initInputClear(button) {
 document.querySelectorAll("[data-input-clear]").forEach(initInputClear);
 
 /* ============================================
-   FILTERABLE CHECKBOXES (Component #11)
+   FILTERABLE LISTS (Component #11)
    ============================================
-   Adds a text input inside a checkbox fieldset that hides/shows checkbox
-   options by substring match (case-insensitive, Unicode-safe — CJK works).
-   The select-all checkbox (if present) is never hidden. Hidden-but-checked
-   items still submit normally. The select-all parent's logic is unchanged:
-   it still toggles ALL children regardless of visibility — by design, so a
-   checked-then-hidden selection survives further filtering. */
+   Hide/show items inside a container based on substring match against a label
+   text (case-insensitive, Unicode/CJK-safe). Two variants share one engine:
 
-function initFilterableCheckboxes(container) {
-  const filterInput = container.querySelector("[data-checkbox-filter]");
+     [data-filterable-checkboxes] + [data-checkbox-filter] → checkbox lists
+       (fieldsets and multi-select dropdowns). Select-all is never hidden.
+     [data-filterable-options]    + [data-options-filter]  → single-select
+       dropdown option lists.
+
+   Hidden-but-checked items still submit. The select-all parent's logic is
+   unchanged — it still toggles ALL children regardless of visibility, by
+   design, so a checked-then-hidden selection survives further filtering. */
+
+function setupFilter(container, opts) {
+  const filterInput = container.querySelector(opts.filterInputSelector);
   if (!filterInput) return;
 
-  // Filterable items = all .checkbox wrappers except the one containing
-  // the select-all checkbox (so the All toggle is always visible).
-  const filterable = Array.from(container.querySelectorAll(".checkbox"))
-    .filter((cb) => !cb.querySelector("[data-select-all]"));
+  // Items to filter, optionally narrowed (e.g. exclude the select-all wrapper).
+  const items = Array.from(container.querySelectorAll(opts.itemSelector))
+    .filter(opts.itemFilter || (() => true));
 
   function applyFilter() {
     const query = filterInput.value.trim().toLowerCase();
-    filterable.forEach((cb) => {
-      const label = cb.querySelector(".checkbox-label")?.textContent.toLowerCase() ?? "";
-      cb.hidden = query !== "" && !label.includes(query);
+    items.forEach((item) => {
+      const label = item.querySelector(opts.labelSelector)?.textContent.toLowerCase() ?? "";
+      item.hidden = query !== "" && !label.includes(query);
     });
   }
 
@@ -514,7 +567,24 @@ function initFilterableCheckboxes(container) {
   }
 }
 
-document.querySelectorAll("[data-filterable-checkboxes]").forEach(initFilterableCheckboxes);
+// Checkbox lists (fieldsets and multi-select dropdowns). Select-all excluded.
+document.querySelectorAll("[data-filterable-checkboxes]").forEach((c) =>
+  setupFilter(c, {
+    filterInputSelector: "[data-checkbox-filter]",
+    itemSelector: ".checkbox",
+    labelSelector: ".checkbox-label",
+    itemFilter: (cb) => !cb.querySelector("[data-select-all]"),
+  })
+);
+
+// Single-select dropdown option lists.
+document.querySelectorAll("[data-filterable-options]").forEach((c) =>
+  setupFilter(c, {
+    filterInputSelector: "[data-options-filter]",
+    itemSelector: ".dropdown-option",
+    labelSelector: ".dropdown-option-label",
+  })
+);
 
 /* ============================================
    KEYWORD FIELDS (Component #9 — Add field)
