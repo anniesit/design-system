@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-06-15 15:48:28
+ * Built: 2026-06-15 16:34:00
  * ============================================================ */
 
 
@@ -124,6 +124,12 @@ document.querySelectorAll("[data-select-all-group]").forEach((group) => {
   const parent = group.querySelector("[data-select-all]");
   const children = Array.from(group.querySelectorAll("[data-select-all-child]"));
   if (parent && children.length) {
+    if (group.hasAttribute("data-default-all")) {
+      children.forEach((cb) => {
+        cb.checked = true;
+        cb.setAttribute("checked", "");
+      });
+    }
     setupSelectAll(parent, children);
   }
 });

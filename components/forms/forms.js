@@ -45,6 +45,12 @@ document.querySelectorAll("[data-select-all-group]").forEach((group) => {
   const parent = group.querySelector("[data-select-all]");
   const children = Array.from(group.querySelectorAll("[data-select-all-child]"));
   if (parent && children.length) {
+    if (group.hasAttribute("data-default-all")) {
+      children.forEach((cb) => {
+        cb.checked = true;
+        cb.setAttribute("checked", "");
+      });
+    }
     setupSelectAll(parent, children);
   }
 });
