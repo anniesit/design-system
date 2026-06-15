@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-06-15 16:34:00
+ * Built: 2026-06-15 17:04:38
  * ============================================================ */
 
 
@@ -77,34 +77,60 @@ document.addEventListener('DOMContentLoaded', function() {
 //# sourceMappingURL=/sm/7163013e4f2798c2e784b05784355973312e6b1f1423cb4480bc854fc3c26d91.map
 
 /* ---- components/forms/forms.js ---- */
-/* === Checkbox Indetermined State === */
+/* === Checkbox Indeterminate State (supports nested select-all groups) === */
 
 function setupSelectAll(parent, children) {
-  // 1. Parent click → set all children
+  // Guards re-entry while propagating up (updateParent dispatches change on
+  // the parent) and down (parent's handler dispatches change on each child).
+  // Local to this group's closure, so nested groups each have their own flag.
+  let propagating = false;
+
+  // 1. Parent click → set all children, cascading into nested groups
   parent.addEventListener("change", () => {
+    if (propagating) return;
     parent.indeterminate = false; // clicking always clears indeterminate
+    propagating = true;
     children.forEach((child) => {
       child.checked = parent.checked;
+      child.dispatchEvent(new Event("change")); // wakes nested groups
     });
+    propagating = false;
   });
 
   // 2. Any child change → recompute parent
   children.forEach((child) => {
-    child.addEventListener("change", updateParent);
+    child.addEventListener("change", () => {
+      if (propagating) return;
+      updateParent();
+    });
   });
 
-  // 3. Compute parent's correct state from children
+  // 3. Compute parent's state from children. Indeterminate children count as
+  // "partial" so a nested sub-parent in mixed state pushes the outer parent to
+  // indeterminate too. Dispatches change on actual state shift so a containing
+  // group's listener (if any) sees this group's new state.
   function updateParent() {
-    const checked = children.filter((c) => c.checked).length;
-    if (checked === 0) {
-      parent.checked = false;
-      parent.indeterminate = false;
-    } else if (checked === children.length) {
-      parent.checked = true;
-      parent.indeterminate = false;
+    const checkedCount = children.filter((c) => c.checked).length;
+    const indeterminateCount = children.filter((c) => c.indeterminate).length;
+    const wasChecked = parent.checked;
+    const wasIndeterminate = parent.indeterminate;
+    let nextChecked, nextIndeterminate;
+    if (checkedCount === 0 && indeterminateCount === 0) {
+      nextChecked = false;
+      nextIndeterminate = false;
+    } else if (checkedCount === children.length) {
+      nextChecked = true;
+      nextIndeterminate = false;
     } else {
-      parent.checked = false;
-      parent.indeterminate = true;
+      nextChecked = false;
+      nextIndeterminate = true;
+    }
+    parent.checked = nextChecked;
+    parent.indeterminate = nextIndeterminate;
+    if (nextChecked !== wasChecked || nextIndeterminate !== wasIndeterminate) {
+      propagating = true;
+      parent.dispatchEvent(new Event("change"));
+      propagating = false;
     }
   }
 
@@ -120,19 +146,64 @@ function setupSelectAll(parent, children) {
   updateParent();
 }
 
-document.querySelectorAll("[data-select-all-group]").forEach((group) => {
-  const parent = group.querySelector("[data-select-all]");
-  const children = Array.from(group.querySelectorAll("[data-select-all-child]"));
-  if (parent && children.length) {
-    if (group.hasAttribute("data-default-all")) {
-      children.forEach((cb) => {
-        cb.checked = true;
-        cb.setAttribute("checked", "");
-      });
+// === Scoped discovery for nested [data-select-all-group] ===
+// A group's parent is the [data-select-all] whose closest group ancestor is
+// the group itself. A group's children are [data-select-all-child] in the
+// group minus those inside nested groups — except a nested group's own parent
+// (carrying both attributes) counts as a single child of the outer.
+
+function findGroupParent(group) {
+  return Array.from(group.querySelectorAll("[data-select-all]"))
+    .find((el) => el.closest("[data-select-all-group]") === group);
+}
+
+function findGroupChildren(group) {
+  const groupParent = findGroupParent(group);
+  return Array.from(group.querySelectorAll("[data-select-all-child]")).filter((child) => {
+    if (child === groupParent) return false; // a group's own parent isn't its child
+    const nearestGroup = child.closest("[data-select-all-group]");
+    if (nearestGroup === group) return true;
+    // Child lives in a nested group: include only if it's that nested group's
+    // parent AND the nested group is a direct descendant of this one.
+    if (
+      child.matches("[data-select-all]") &&
+      findGroupParent(nearestGroup) === child
+    ) {
+      return nearestGroup.parentElement?.closest("[data-select-all-group]") === group;
     }
-    setupSelectAll(parent, children);
-  }
+    return false;
+  });
+}
+
+// Pre-check data-default-all everywhere first, so nested groups also start
+// fully checked before any setupSelectAll reads initial state.
+document.querySelectorAll("[data-select-all-group][data-default-all]").forEach((group) => {
+  group.querySelectorAll("[data-select-all-child]").forEach((cb) => {
+    cb.checked = true;
+    cb.setAttribute("checked", "");
+  });
 });
+
+// Initialise innermost groups first so each outer updateParent reads a settled
+// inner state on load.
+Array.from(document.querySelectorAll("[data-select-all-group]"))
+  .map((group) => {
+    let depth = 0;
+    let cur = group.parentElement;
+    while (cur) {
+      if (cur.matches?.("[data-select-all-group]")) depth++;
+      cur = cur.parentElement;
+    }
+    return { group, depth };
+  })
+  .sort((a, b) => b.depth - a.depth)
+  .forEach(({ group }) => {
+    const parent = findGroupParent(group);
+    const children = findGroupChildren(group);
+    if (parent && children.length) {
+      setupSelectAll(parent, children);
+    }
+  });
 
 /* ============================================
    SHARED DROPDOWN BEHAVIOUR (single + multi)
