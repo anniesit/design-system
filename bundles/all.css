@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-06-11 14:50:19
+ * Built: 2026-06-15 15:48:28
  * ============================================================ */
 
 
@@ -357,6 +357,9 @@ html:not(.wf-design-mode) [data-animate="stagger-children"] > * {
 }
 details[open] .accordion-icon{
   transform: rotate(45deg);
+}
+details[open] .accordion-icon.is-caret{
+  transform: rotate(-90deg);
 }
 summary::-webkit-details-marker {
   display: none; /* Hide older Safari's default disclosure arrow */
