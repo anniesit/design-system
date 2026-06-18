@@ -623,12 +623,19 @@ function setupFilter(container, opts) {
   const items = Array.from(container.querySelectorAll(opts.itemSelector))
     .filter(opts.itemFilter || (() => true));
 
+  // Decorative elements (e.g. group dividers) that carry no label: hide them
+  // whenever a query is active, restore them when the input is cleared.
+  const decorations = opts.decorationSelector
+    ? Array.from(container.querySelectorAll(opts.decorationSelector))
+    : [];
+
   function applyFilter() {
     const query = filterInput.value.trim().toLowerCase();
     items.forEach((item) => {
       const label = item.querySelector(opts.labelSelector)?.textContent.toLowerCase() ?? "";
       item.hidden = query !== "" && !label.includes(query);
     });
+    decorations.forEach((el) => { el.hidden = query !== ""; });
   }
 
   filterInput.addEventListener("input", applyFilter);
@@ -651,6 +658,7 @@ document.querySelectorAll("[data-filterable-checkboxes]").forEach((c) =>
     itemSelector: ".checkbox",
     labelSelector: ".checkbox-label",
     itemFilter: (cb) => !cb.querySelector("[data-select-all]"),
+    decorationSelector: "[data-filter-decor]",
   })
 );
 

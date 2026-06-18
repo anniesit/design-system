@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-06-15 17:04:38
+ * Built: 2026-06-18 12:03:27
  * ============================================================ */
 
 
@@ -702,12 +702,19 @@ function setupFilter(container, opts) {
   const items = Array.from(container.querySelectorAll(opts.itemSelector))
     .filter(opts.itemFilter || (() => true));
 
+  // Decorative elements (e.g. group dividers) that carry no label: hide them
+  // whenever a query is active, restore them when the input is cleared.
+  const decorations = opts.decorationSelector
+    ? Array.from(container.querySelectorAll(opts.decorationSelector))
+    : [];
+
   function applyFilter() {
     const query = filterInput.value.trim().toLowerCase();
     items.forEach((item) => {
       const label = item.querySelector(opts.labelSelector)?.textContent.toLowerCase() ?? "";
       item.hidden = query !== "" && !label.includes(query);
     });
+    decorations.forEach((el) => { el.hidden = query !== ""; });
   }
 
   filterInput.addEventListener("input", applyFilter);
@@ -730,6 +737,7 @@ document.querySelectorAll("[data-filterable-checkboxes]").forEach((c) =>
     itemSelector: ".checkbox",
     labelSelector: ".checkbox-label",
     itemFilter: (cb) => !cb.querySelector("[data-select-all]"),
+    decorationSelector: "[data-filter-decor]",
   })
 );
 
