@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-06-22 16:10:20
+ * Built: 2026-06-23 10:29:39
  * ============================================================ */
 
 
@@ -81,6 +81,94 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 !function(){"use strict";function e(){const e=document.querySelectorAll("details");if(0===e.length)return;window.matchMedia("(max-width: 991px)").matches&&e.forEach((e=>{"true"===e.getAttribute("data-accordion-tablet-close")&&e.setAttribute("data-accordion-start-open","false")}));const t=document.createElement("style");t.textContent="details[data-accordion-animating]::details-content{content-visibility:visible!important;display:block!important;}",document.head.appendChild(t);let o=!1,i=null;try{i=window.matchMedia("(prefers-reduced-motion: reduce)"),o=i.matches,i.addEventListener("change",(e=>{o=e.matches}))}catch(e){o=!1}document.querySelectorAll("details[open]").forEach((e=>{"true"!==e.getAttribute("data-accordion-start-open")&&e.removeAttribute("open")})),e.forEach((e=>{const t=e.querySelector("summary"),i=e.querySelector("[data-accordion='content']");if(!t||!i)return;"true"!==e.getAttribute("data-accordion-start-open")&&("undefined"!=typeof gsap?gsap.set(i,{height:0,overflow:"clip"}):(i.style.height="0px",i.style.overflow="clip")),t.addEventListener("click",(t=>{if(e.hasAttribute("open"))t.preventDefault(),o?e.removeAttribute("open"):(i.style.height=`${i.scrollHeight}px`,i.offsetHeight,"undefined"!=typeof gsap?(gsap.killTweensOf(i),gsap.to(i,{height:0,duration:.4,ease:"power3.inOut",onComplete:()=>{e.removeAttribute("open")}})):(i.style.transition="height 0.4s ease-in-out",i.style.height="0px",setTimeout((()=>{e.removeAttribute("open"),i.style.transition=""}),400)));else{const t=e.getAttribute("name");if(t&&!o){document.querySelectorAll(`details[name="${t}"][open]`).forEach((t=>{if(t===e)return;const o=t.querySelector("[data-accordion='content']");o&&("undefined"!=typeof gsap&&gsap.killTweensOf(o),o.style.height=`${o.scrollHeight}px`,o.style.overflow="clip",o.style.display="block",t.dataset.accordionAnimating="closing",o.offsetHeight,"undefined"!=typeof gsap?gsap.to(o,{height:0,duration:.4,ease:"power3.inOut",onComplete:()=>{delete t.dataset.accordionAnimating,o.style.height="0px",o.style.display=""}}):(o.style.transition="height 0.4s ease-in-out",o.style.height="0px",setTimeout((()=>{delete t.dataset.accordionAnimating,o.style.transition="",o.style.display=""}),400)))}))}}})),e.addEventListener("toggle",(()=>{if(e.open){const e=i.scrollHeight;o?i.style.height="auto":"undefined"!=typeof gsap?(gsap.killTweensOf(i),gsap.to(i,{height:e,duration:.4,ease:"power3.out",onComplete:()=>{i.style.height="auto"}})):(i.style.transition="height 0.4s ease-out",i.style.height=`${e}px`,setTimeout((()=>{i.style.height="auto",i.style.transition=""}),400))}}))}))}"loading"===document.readyState?document.addEventListener("DOMContentLoaded",e):e()}();
 //# sourceMappingURL=/sm/7163013e4f2798c2e784b05784355973312e6b1f1423cb4480bc854fc3c26d91.map
+
+/* ---- components/btn-totop/btn-totop.js ---- */
+/* Back-to-top Button */
+/* Scroll-to-top button with an optional SVG scroll-progress ring. */
+
+/*
+ * Markup (data attributes — no IDs/classes required):
+ *
+ *   <a href="#" data-totop>
+ *     <svg viewBox="0 0 36 36">
+ *       <path data-totop="track"    d="..."/>   <!-- optional static track -->
+ *       <path data-totop="progress" d="..."/>   <!-- optional progress ring -->
+ *     </svg>
+ *   </a>
+ *
+ * - [data-totop]            the clickable element (scrolls to top on click)
+ * - [data-totop="progress"] the SVG <path> drawn as you scroll (optional)
+ *
+ * Visibility is exposed via the [data-totop-visible] attribute so it can be
+ * styled/animated in CSS (see btn-totop.css). The button is shown once the
+ * page is scrolled past the threshold.
+ *
+ * Config (optional, set before this script runs):
+ *   window.DS_CONFIG = { totopThreshold: 0.1 } // 0–1 fraction of page scrolled
+ */
+(function () {
+  "use strict";
+
+  function initBtnToTop() {
+    const btn = document.querySelector("[data-totop]");
+    if (!btn) return;
+
+    const threshold =
+      (window.DS_CONFIG && window.DS_CONFIG.totopThreshold) || 0.1;
+
+    // Optional progress ring — component still works without it.
+    const progressBar = btn.querySelector('[data-totop="progress"]');
+    let pathLength = 0;
+    if (progressBar && typeof progressBar.getTotalLength === "function") {
+      pathLength = progressBar.getTotalLength();
+      progressBar.style.strokeDasharray = pathLength;
+      progressBar.style.strokeDashoffset = pathLength;
+    }
+
+    function getScrollPercentage() {
+      const scrollTop =
+        document.documentElement.scrollTop + document.body.scrollTop;
+      const scrollHeight =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight;
+      return scrollHeight > 0 ? scrollTop / scrollHeight : 0;
+    }
+
+    function onScroll() {
+      const scrollPercentage = getScrollPercentage();
+
+      if (progressBar && pathLength) {
+        progressBar.style.strokeDashoffset =
+          pathLength - pathLength * scrollPercentage;
+      }
+
+      btn.setAttribute(
+        "data-totop-visible",
+        scrollPercentage > threshold ? "true" : "false"
+      );
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll(); // set initial state
+
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+      window.scrollTo({
+        top: 0,
+        behavior: reduceMotion ? "auto" : "smooth",
+      });
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initBtnToTop);
+  } else {
+    initBtnToTop();
+  }
+})();
 
 /* ---- components/forms/forms.js ---- */
 /* === Checkbox Indeterminate State (supports nested select-all groups) === */
