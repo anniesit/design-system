@@ -41,22 +41,22 @@
   display: block;
 }
 
-/* Static track ring behind the progress ring */
+/* Static track ring behind the progress ring.
+   Color follows the button's `color` (set it in Webflow). */
 [data-totop="track"] {
   fill: none;
-  /*stroke: var(--primary--text);
+  stroke: currentColor;
   stroke-width: 2;
-  opacity: 0.2;*/
+  opacity: 0.2;
 }
 
-/* Progress ring — stroke-dasharray/offset are set by btn-totop.js */
+/* Progress ring — stroke-dasharray/offset are set by btn-totop.js.
+   Path starts at top center (M18 2), so no rotation is needed. */
 [data-totop="progress"] {
   fill: none;
-  /*stroke: var(--primary--text);
-  stroke-width: 2;*/
+  stroke: currentColor;
+  stroke-width: 2;
   stroke-linecap: round;
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
   transition: stroke-dashoffset 0.1s linear;
 }
 

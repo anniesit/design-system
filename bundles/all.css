@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-06-23 10:29:39
+ * Built: 2026-06-23 11:02:38
  * ============================================================ */
 
 
@@ -381,21 +381,12 @@ summary::-webkit-details-marker {
 
 [data-totop] {
   position: fixed;
-  right: var(--_layout---spacing--md, 1.5rem);
-  bottom: var(--_layout---spacing--md, 1.5rem);
-  z-index: 100;
-
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3rem;
-
-  padding: 0;
-  border: none;
   border-radius: 50%;
-  background-color: var(--primary--background);
-  color: var(--primary--text);
+  /*background-color: var(--primary--background);
+  color: var(--primary--text);*/
   cursor: pointer;
 
   /* Hidden by default — JS reveals it past the scroll threshold */
@@ -418,23 +409,22 @@ summary::-webkit-details-marker {
   display: block;
 }
 
-/* Static track ring behind the progress ring */
+/* Static track ring behind the progress ring.
+   Color follows the button's `color` (set it in Webflow). */
 [data-totop="track"] {
   fill: none;
-  stroke: var(--primary--text);
+  stroke: currentColor;
   stroke-width: 2;
   opacity: 0.2;
 }
 
-/* Progress ring — stroke-dasharray/offset are set by btn-totop.js */
+/* Progress ring — stroke-dasharray/offset are set by btn-totop.js.
+   Path starts at top center (M18 2), so no rotation is needed. */
 [data-totop="progress"] {
   fill: none;
-  stroke: var(--primary--text);
+  stroke: currentColor;
   stroke-width: 2;
   stroke-linecap: round;
-  /* Start the ring at 12 o'clock instead of 3 o'clock */
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
   transition: stroke-dashoffset 0.1s linear;
 }
 
