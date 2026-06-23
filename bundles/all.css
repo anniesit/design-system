@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-06-23 11:02:38
+ * Built: 2026-06-23 11:58:34
  * ============================================================ */
 
 
@@ -363,77 +363,6 @@ details[open] .accordion-icon.is-caret{
 }
 summary::-webkit-details-marker {
   display: none; /* Hide older Safari's default disclosure arrow */
-}
-
-/* ---- components/btn-totop/btn-totop.css ---- */
-/* Back-to-top Button */
-
-/* ----------------------------------------------------------
-   Fixed scroll-to-top button with an optional progress ring.
-
-   Markup driven by data attributes (no IDs/classes needed):
-     [data-totop]            — the clickable button (fixed, bottom-right)
-     [data-totop="progress"] — SVG <path> drawn as you scroll (optional)
-     [data-totop="track"]    — SVG <path> static background ring (optional)
-
-   JS toggles [data-totop-visible="true|false"]; CSS fades/scales it in.
-   ---------------------------------------------------------- */
-
-[data-totop] {
-  position: fixed;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  /*background-color: var(--primary--background);
-  color: var(--primary--text);*/
-  cursor: pointer;
-
-  /* Hidden by default — JS reveals it past the scroll threshold */
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(0.5rem);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-[data-totop][data-totop-visible="true"] {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-/* SVG fills the button */
-[data-totop] svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* Static track ring behind the progress ring.
-   Color follows the button's `color` (set it in Webflow). */
-[data-totop="track"] {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  opacity: 0.2;
-}
-
-/* Progress ring — stroke-dasharray/offset are set by btn-totop.js.
-   Path starts at top center (M18 2), so no rotation is needed. */
-[data-totop="progress"] {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.1s linear;
-}
-
-/* Respect reduced-motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  [data-totop],
-  [data-totop="progress"] {
-    transition: none;
-  }
 }
 
 /* ---- components/data-attribute/data-attribute.css ---- */
