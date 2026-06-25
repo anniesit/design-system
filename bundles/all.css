@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-06-23 11:58:34
+ * Built: 2026-06-25 17:08:35
  * ============================================================ */
 
 
@@ -797,7 +797,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /* --- Open state --- */
 .dropdown.is-open .dropdown-list {
   opacity: 1;
-  max-height: 10rem;
+  max-height: max(70svh, 14rem);
   overflow: auto;
   pointer-events: auto;
 }

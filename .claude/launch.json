@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "filmtv-chart",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "/Users/libdir/Documents/Projects/Design System/project-sandbox/filmtv/serve.py",
+        "8753"
+      ],
+      "port": 8753
+    }
+  ]
+}
