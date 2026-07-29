@@ -38,9 +38,12 @@ design-system/
 │   ├── tabs/
 │   │   ├── tabs.css
 │   │   └── tabs.js              # placeholder
-│   └── nav/
-│       ├── nav.css              # mobile menu, dropdown, scroll lock
-│       └── nav.js               # skip-link accessibility helper
+│   ├── nav/
+│   │   ├── nav.css              # mobile menu, dropdown, scroll lock
+│   │   └── nav.js               # skip-link accessibility helper
+│   └── toc-scrollto/
+│       └── toc-scroll-to.js     # table of contents: offset scroll, scroll-spy,
+│                                # mobile dropdown (CSS lives in the project)
 └── bundles/                     # Combined files for projects (TBD)
     ├── all.css
     └── all.js
@@ -117,7 +120,8 @@ block **before** `all.js` loads to override defaults for a specific project or p
   window.DS_CONFIG = {
     themeKey:      'my-project-theme',  // localStorage key for dark/light mode
     navBreakpoint: 992,                 // mobile nav reset breakpoint in px
-    tocBreakpoint: 992                  // breakpoint at which TOC becomes a dropdown
+    tocBreakpoint: 992,                 // breakpoint at which TOC becomes a dropdown
+    tocScrollGap:  8                    // px gap between the nav and a scroll target
   };
 </script>
 ```
@@ -127,6 +131,40 @@ block **before** `all.js` loads to override defaults for a specific project or p
 | `themeKey` | `'savedTheme'` | localStorage key for the theme toggle. **Must be unique per project on shared domains** to prevent one project's theme setting overriding another's |
 | `navBreakpoint` | `992` | Pixel width at which the mobile nav state resets on window resize |
 | `tocBreakpoint` | `992` | Pixel width below which the TOC becomes a dropdown, adding its height to scroll-to-anchor offset calculations |
+| `tocScrollGap` | `8` | Pixel breathing room left between the sticky nav and the top of a scroll-to-anchor target |
+
+## Table of contents (toc-scrollto)
+
+`toc-scroll-to.js` owns the whole TOC pattern — offset scrolling for **every**
+in-page hash link, scroll-spy highlighting, and the mobile dropdown. It replaces
+the old `utils/toc-scrollto-offset.js` plus the per-page scroll-spy snippets that
+used to live in page footer code; those ran as competing handlers and needed
+`stopPropagation` hacks to stop double-scrolling.
+
+Markup (classes shown are the defaults — `data-toc`, `data-toc-trigger`,
+`data-toc-list` and `data-toc-icon` work as overrides):
+
+```html
+<nav class="toc-wrap" aria-label="On this page">
+  <button class="toc-trigger">Table of Contents <i class="ph ph-caret-down"></i></button>
+  <ul class="toc is-closed">
+    <li class="toc-item"><a href="#section-id" class="toc-link">Section</a></li>
+  </ul>
+</nav>
+```
+
+The CSS stays in the project (Webflow), and the script expects three rules:
+
+| Class | Desktop | At/below `tocBreakpoint` |
+|---|---|---|
+| `.toc-trigger` | `display: none` | `display: flex` |
+| `.toc` | — | `overflow: hidden` + a transition on `height` |
+| `.toc.is-closed` | — (inert) | `height: 0` |
+
+`.is-closed` stays on the list at all sizes; above the breakpoint it has no rule
+attached, so the TOC just renders normally. The script animates `max-height`
+instead of `height` if that's what your transition declares, so older stylesheets
+work unchanged.
 
 **Setting per page in Webflow:** each page has its own Page Settings → Custom Code
 fields. Put the `DS_CONFIG` script there to override settings on specific pages
