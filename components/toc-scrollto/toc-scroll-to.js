@@ -7,6 +7,8 @@
  *   2. Scroll-spy     — highlights the TOC link for the section you're in.
  *   3. Mobile dropdown — below `tocBreakpoint` the TOC collapses behind a
  *                       trigger button, animated via the `.is-closed` class.
+ *   4. Live label     — the collapsed trigger shows the section you're reading
+ *                       instead of a static "Table of Contents".
  *
  * Replaces components/utils/toc-scrollto-offset.js and the per-page footer
  * scroll-spy snippets. Those ran as separate handlers and fought each other:
@@ -14,10 +16,44 @@
  * global hash handler from firing a second, un-offset scroll. Here a single
  * delegated handler owns every hash click, so no suppression is needed.
  *
- * Expected markup (classes are the defaults; see SELECTORS to override):
+ * ---------------------------------------------------------------------------
+ * HOOKS
+ * ---------------------------------------------------------------------------
+ * Every element resolves data-attribute first, class second — use either. Prefer
+ * data-* for behaviour and leave classes for styling: a class rename in
+ * Webflow's Style panel then can't silently break the JS. Legacy class names
+ * (.toc_list etc.) are kept so older projects work unchanged.
+ *
+ *   Element         data-* hook         class fallback           Needed for
+ *   -------------------------------------------------------------------------
+ *   sticky nav      data-toc-nav        .nav                     scroll offset
+ *   TOC root        data-toc            .toc-wrap                everything
+ *   trigger button  data-toc-trigger    .toc-trigger             dropdown
+ *                                       .toc_trigger
+ *   the list        data-toc-list       .toc / .toc_list         dropdown
+ *   TOC links       data-toc-link       a.toc-link               spy + label
+ *                                       a.link_subnav
+ *   caret icon      data-toc-icon       .icon_toc_trigger        caret rotation
+ *                                       [class*="caret"]
+ *   trigger label   data-toc-label      .toc-trigger-label       live label
+ *
+ * All are optional except the TOC root — the script degrades feature by feature.
+ * No nav found means a zero offset; no trigger/list means a plain static TOC;
+ * no links means no spy. Offset scrolling for loose hash links works even on
+ * pages with no TOC at all.
+ *
+ * The label is auto-detected (first child of the trigger that isn't the caret,
+ * or a bare text node), so `data-toc-label` is only needed for more complex
+ * trigger markup. Its markup text is the resting label, restored above the
+ * first section.
+ *
+ * Expected markup:
  *
  *   <nav class="toc-wrap" aria-label="On this page">
- *     <button class="toc-trigger">Table of Contents <i class="ph ph-caret-down"></i></button>
+ *     <button class="toc-trigger">
+ *       <div>Table of Contents</div>          <- becomes the live label
+ *       <i class="ph ph-caret-down"></i>
+ *     </button>
  *     <ul class="toc is-closed">
  *       <li class="toc-item"><a href="#section-id" class="toc-link">Section</a></li>
  *     </ul>
@@ -43,15 +79,16 @@
 
   var CLOSED = "is-closed";
 
-  // Legacy names (.toc_list etc.) are kept as fallbacks so older projects
-  // built before the current naming can adopt this file unchanged.
+  // See the HOOKS table at the top of this file. Data-attribute first, class
+  // second; the trailing legacy names let pre-rename projects work unchanged.
   var SELECTORS = {
-    nav: ".nav",
+    nav: "[data-toc-nav], .nav",
     wrap: "[data-toc], .toc-wrap",
     trigger: "[data-toc-trigger], .toc-trigger, .toc_trigger",
     list: "[data-toc-list], .toc, .toc_list",
-    link: "a.toc-link, a.link_subnav",
-    icon: "[data-toc-icon], .icon_toc_trigger, [class*='caret']"
+    link: "[data-toc-link], a.toc-link, a.link_subnav",
+    icon: "[data-toc-icon], .icon_toc_trigger, [class*='caret']",
+    label: "[data-toc-label], .toc-trigger-label"
   };
 
   var reduceMotion = window.matchMedia
@@ -121,8 +158,49 @@
     this.trigger = wrap.querySelector(SELECTORS.trigger);
     this.list = wrap.querySelector(SELECTORS.list);
     this.icon = this.trigger && this.trigger.querySelector(SELECTORS.icon);
+    this.label = this.findLabel();
+    // Whatever the label says in the markup ("Table of Contents") becomes the
+    // resting state, shown above the first section and at the top of the page.
+    this.defaultLabel = this.label ? this.label.textContent.trim() : "";
     this.timer = null;
   }
+
+  // The label is the text node holder inside the trigger. Prefer an explicit
+  // hook; otherwise take the first child that isn't the caret, so the common
+  // `<button><div>Table of Contents</div><i class="ph ph-caret-down"></i></button>`
+  // works with no extra markup.
+  Dropdown.prototype.findLabel = function () {
+    if (!this.trigger) return null;
+
+    var explicit = this.trigger.querySelector(SELECTORS.label);
+    if (explicit) return explicit;
+
+    var children = this.trigger.children;
+    for (var i = 0; i < children.length; i++) {
+      var child = children[i];
+      if (child === this.icon) continue;
+      if (this.icon && child.contains(this.icon)) continue;
+      return child;
+    }
+
+    // No element wrapper — the label is a bare text node sitting next to the
+    // caret. Text nodes support textContent too, so setLabel works unchanged
+    // and the caret beside it survives.
+    var nodes = this.trigger.childNodes;
+    for (var j = 0; j < nodes.length; j++) {
+      if (nodes[j].nodeType === 3 && nodes[j].textContent.trim()) return nodes[j];
+    }
+
+    return null;
+  };
+
+  // Mirrors the section you're currently reading. Passing null restores the
+  // resting label.
+  Dropdown.prototype.setLabel = function (text) {
+    if (!this.label) return;
+    var next = text || this.defaultLabel;
+    if (this.label.textContent !== next) this.label.textContent = next;
+  };
 
   // The CSS decides whether it animates height or max-height; follow its lead
   // so both the current and the legacy stylesheets work untouched.
@@ -239,6 +317,8 @@
   function Spy(wrap) {
     this.links = [].slice.call(wrap.querySelectorAll(SELECTORS.link));
     this.sections = this.links.map(targetOf);
+    this.active = null; // null (not -1) so the first update always reports
+    this.onChange = null;
   }
 
   Spy.prototype.update = function () {
@@ -257,6 +337,11 @@
 
     for (var j = 0; j < this.links.length; j++) {
       this.links[j].classList.toggle("w--current", j === active);
+    }
+
+    if (active !== this.active) {
+      this.active = active;
+      if (this.onChange) this.onChange(active > -1 ? this.links[active] : null);
     }
   };
 
@@ -284,7 +369,12 @@
       dropdown.init();
       dropdowns.push(dropdown);
 
+      // The collapsed trigger doubles as a "you are here" readout: it shows the
+      // current section's TOC text, falling back to its own markup label.
       var spy = new Spy(wrap);
+      spy.onChange = function (link) {
+        dropdown.setLabel(link ? link.textContent.trim() : null);
+      };
       spy.init();
       spies.push(spy);
     });

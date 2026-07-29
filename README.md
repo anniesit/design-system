@@ -136,22 +136,67 @@ block **before** `all.js` loads to override defaults for a specific project or p
 ## Table of contents (toc-scrollto)
 
 `toc-scroll-to.js` owns the whole TOC pattern — offset scrolling for **every**
-in-page hash link, scroll-spy highlighting, and the mobile dropdown. It replaces
+in-page hash link, scroll-spy highlighting, the mobile dropdown, and the live
+trigger label. It replaces
 the old `utils/toc-scrollto-offset.js` plus the per-page scroll-spy snippets that
 used to live in page footer code; those ran as competing handlers and needed
 `stopPropagation` hacks to stop double-scrolling.
 
-Markup (classes shown are the defaults — `data-toc`, `data-toc-trigger`,
-`data-toc-list` and `data-toc-icon` work as overrides):
+### Hooks
+
+Every element resolves **data-attribute first, class second** — use either.
+Prefer `data-*` for behaviour and leave classes for styling, so renaming a class
+in Webflow's Style panel (or letting Webflow clean up an "unused" one) can't
+silently break the JS. Never use `id` here: it must be unique per page, so a
+second TOC on one page would break, and IDs are already doing real work as your
+section anchors.
+
+| Element | `data-*` hook | Class fallback | Needed for |
+|---|---|---|---|
+| Sticky nav | `data-toc-nav` | `.nav` | scroll offset |
+| TOC root | `data-toc` | `.toc-wrap` | everything |
+| Trigger button | `data-toc-trigger` | `.toc-trigger`, `.toc_trigger` | dropdown |
+| The list | `data-toc-list` | `.toc`, `.toc_list` | dropdown |
+| TOC links | `data-toc-link` | `a.toc-link`, `a.link_subnav` | scroll-spy + label |
+| Caret icon | `data-toc-icon` | `.icon_toc_trigger`, `[class*="caret"]` | caret rotation |
+| Trigger label | `data-toc-label` | `.toc-trigger-label` | live label |
+
+Everything except the TOC root is optional — the script degrades feature by
+feature rather than failing. No nav found means a zero offset; no trigger or
+list means a plain static TOC; no links means no scroll-spy. Offset scrolling
+for loose hash links works even on pages with no TOC at all.
+
+In Webflow, add these via Element Settings → Custom Attributes (leave the value
+blank — presence is all that's checked).
+
+Markup (classes shown are the defaults; any hook above can replace them):
 
 ```html
 <nav class="toc-wrap" aria-label="On this page">
-  <button class="toc-trigger">Table of Contents <i class="ph ph-caret-down"></i></button>
+  <button class="toc-trigger">
+    <div>Table of Contents</div>        <!-- becomes the live label -->
+    <i class="ph ph-caret-down"></i>
+  </button>
   <ul class="toc is-closed">
     <li class="toc-item"><a href="#section-id" class="toc-link">Section</a></li>
   </ul>
 </nav>
 ```
+
+### Live trigger label
+
+While collapsed, the trigger shows the section you're currently reading rather
+than a static "Table of Contents" — the same scroll-spy that highlights the TOC
+link rewrites the trigger text. Above the first section it reverts to whatever
+the markup says, so that text is your resting label.
+
+The label element is detected automatically: the first child of the trigger that
+isn't the caret. If your trigger has a more complex structure, put
+`data-toc-label` on the element that should hold the text.
+
+Because section titles are longer than "Table of Contents", give the label
+`min-width: 0` (it's a flex child) plus `white-space: nowrap; overflow: hidden;
+text-overflow: ellipsis` if you'd rather truncate than wrap.
 
 The CSS stays in the project (Webflow), and the script expects three rules:
 
