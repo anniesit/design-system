@@ -198,6 +198,29 @@ Because section titles are longer than "Table of Contents", give the label
 `min-width: 0` (it's a flex child) plus `white-space: nowrap; overflow: hidden;
 text-overflow: ellipsis` if you'd rather truncate than wrap.
 
+### Scroll stability
+
+Expanding or collapsing the list reflows everything below it, which causes two
+problems the component handles for you:
+
+- **Opening must not move the page.** While the sticky bar is pinned, the reflow
+  happens above the reader and the article would jump by the list's full height.
+  A per-frame hold pins it. It tracks an anchor element's *observed drift*, not
+  the list's height, because Chrome sometimes absorbs the reflow itself via
+  scroll anchoring while Safari never does — so "scroll by the height change"
+  is correct on some browsers and doubles the error on others. When the TOC is
+  on screen in its natural position, the article is still pushed down normally;
+  that's what a dropdown should do.
+- **Clicking a link must land in the right place.** The dropdown collapses
+  *instantly* rather than animating, so layout has settled before the scroll
+  destination is measured. Smooth scrolling locks its destination in up front,
+  so a still-animating collapse would drag the section up under the nav.
+
+Note that `global/normalized.css` sets `html { scroll-behavior: smooth }`. Any
+scroll correction in this system therefore has to pass `behavior: "instant"`
+explicitly — a bare `scrollBy()` gets animated, and repeated calls cancel each
+other, landing about a third of the intended distance.
+
 The CSS stays in the project (Webflow), and the script expects three rules:
 
 | Class | Desktop | At/below `tocBreakpoint` |

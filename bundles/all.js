@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-07-29 11:46:21
+ * Built: 2026-07-29 12:48:39
  * ============================================================ */
 
 
@@ -1468,6 +1468,20 @@ window.initSkipLink = initSkipLink;
  *   4. Live label     — the collapsed trigger shows the section you're reading
  *                       instead of a static "Table of Contents".
  *
+ * Opening or closing the list reflows everything below it, which is why two
+ * things here look more defensive than they should need to be:
+ *
+ *   - While the sticky bar is pinned, the reflow happens above the reader, so
+ *     the article would jump by the full height of the list. A per-frame hold
+ *     pins it. It corrects an anchor element's observed drift rather than the
+ *     list's height, because Chrome sometimes absorbs the reflow via scroll
+ *     anchoring and Safari never does — so "scroll by the height change" is
+ *     right on some browsers and doubles the error on others.
+ *   - A TOC link collapses the list instantly rather than animating, so layout
+ *     has settled before the scroll destination is measured. Smooth scrolling
+ *     locks its destination in up front; a still-animating collapse would drag
+ *     the target up past the nav after we had aimed at it.
+ *
  * Replaces components/utils/toc-scrollto-offset.js and the per-page footer
  * scroll-spy snippets. Those ran as separate handlers and fought each other:
  * the page snippet had to use capture-phase + stopPropagation just to stop the
@@ -1561,6 +1575,18 @@ window.initSkipLink = initSkipLink;
     return window.innerWidth < BREAKPOINT;
   }
 
+  // global/normalized.css sets `html { scroll-behavior: smooth }`, so a bare
+  // scrollBy() gets animated — and a per-frame correction would cancel its own
+  // previous animation each frame, landing about a third of the distance.
+  // Corrections must say "instant" explicitly.
+  function scrollByInstant(delta) {
+    try {
+      window.scrollBy({ top: delta, left: 0, behavior: "instant" });
+    } catch (err) {
+      window.scrollBy(0, delta); // browsers predating the "instant" keyword
+    }
+  }
+
   /* ---------------------------------------------------------------- offsets */
 
   function navHeight() {
@@ -1587,9 +1613,10 @@ window.initSkipLink = initSkipLink;
     return offset + GAP;
   }
 
+  // Measured a frame late so any dropdown collapsing on the same click has
+  // already been committed to layout — smooth scrolling locks in its
+  // destination up front, so the target must not still be moving.
   function scrollToTarget(target) {
-    // Deferred a frame: a TOC collapsing on the same click changes page height,
-    // so measure after the layout settles.
     requestAnimationFrame(function () {
       var top = target.getBoundingClientRect().top + window.scrollY - scrollOffset();
       window.scrollTo({
@@ -1616,6 +1643,7 @@ window.initSkipLink = initSkipLink;
     this.trigger = wrap.querySelector(SELECTORS.trigger);
     this.list = wrap.querySelector(SELECTORS.list);
     this.icon = this.trigger && this.trigger.querySelector(SELECTORS.icon);
+    this.releaseHold = null;
     this.label = this.findLabel();
     // Whatever the label says in the markup ("Table of Contents") becomes the
     // resting state, shown above the first section and at the top of the page.
@@ -1660,6 +1688,66 @@ window.initSkipLink = initSkipLink;
     if (this.label.textContent !== next) this.label.textContent = next;
   };
 
+  Dropdown.prototype.height = function () {
+    return this.list.getBoundingClientRect().height;
+  };
+
+  // True while the sticky wrap is pinned — the page has scrolled past its
+  // natural position, so the list's flow box sits above the viewport.
+  Dropdown.prototype.isStuck = function () {
+    var cs = getComputedStyle(this.wrap);
+    if (cs.position !== "sticky") return false;
+    return this.wrap.getBoundingClientRect().top <= (parseFloat(cs.top) || 0) + 0.5;
+  };
+
+  // Opening or closing the list reflows everything after it. While the bar is
+  // pinned that reflow happens *above* the reader, so the article slides out
+  // from under them by the full height of the list. Follow the height frame by
+  // frame and scroll by the same delta to hold the reading position still.
+  //
+  // Only while pinned: if the TOC is on screen in its natural spot, pushing the
+  // article down is exactly what a dropdown should do. Returns a stop function.
+  Dropdown.prototype.holdScroll = function () {
+    if (!this.isStuck()) return null;
+
+    // Hold a real element still rather than tracking the list's height. Chrome's
+    // scroll anchoring sometimes absorbs the reflow on its own and Safari never
+    // does, so "scroll by however much the list grew" is right only on some
+    // browsers. Correcting the anchor's observed drift is right on all of them:
+    // whatever else moved the page, we only fix what's left over.
+    var anchor = this.wrap.nextElementSibling || this.wrap.parentElement;
+    if (!anchor) return null;
+
+    var hold = anchor.getBoundingClientRect().top;
+    var live = true;
+
+    (function frame() {
+      if (!live) return;
+
+      var drift = anchor.getBoundingClientRect().top - hold;
+      if (Math.abs(drift) >= 0.5) {
+        var before = window.scrollY;
+        scrollByInstant(drift);
+        // Hit the top or bottom of the document — accept the new position
+        // instead of retrying the same correction every frame.
+        if (window.scrollY === before) hold = anchor.getBoundingClientRect().top;
+      }
+
+      requestAnimationFrame(frame);
+    })();
+
+    return function () {
+      live = false;
+    };
+  };
+
+  Dropdown.prototype.stopHold = function () {
+    if (this.releaseHold) {
+      this.releaseHold();
+      this.releaseHold = null;
+    }
+  };
+
   // The CSS decides whether it animates height or max-height; follow its lead
   // so both the current and the legacy stylesheets work untouched.
   Dropdown.prototype.animProp = function () {
@@ -1689,7 +1777,9 @@ window.initSkipLink = initSkipLink;
 
     if (prefersReducedMotion()) {
       list.style[prop] = to;
-      if (done) done();
+      // One frame's grace so any active scroll hold sees the instant jump
+      // before it is released.
+      if (done) requestAnimationFrame(done);
       return;
     }
 
@@ -1703,26 +1793,52 @@ window.initSkipLink = initSkipLink;
     }, duration + 50);
   };
 
-  Dropdown.prototype.open = function () {
+  // opts.compensate — pass false when the caller is deliberately moving the
+  // page (a TOC link click), so the hold doesn't fight the scroll.
+  Dropdown.prototype.open = function (opts) {
+    var self = this;
     var list = this.list;
     var prop = this.animProp();
+
+    this.stopHold();
+    if (!opts || opts.compensate !== false) this.releaseHold = this.holdScroll();
 
     list.classList.remove(CLOSED);
     this.animate("0px", list.scrollHeight + "px", function () {
       // Back to auto so the list can reflow if its content or width changes.
       list.style[prop] = "";
+      self.stopHold();
     });
 
     if (this.trigger) this.trigger.setAttribute("aria-expanded", "true");
     this.setIcon(true);
   };
 
-  Dropdown.prototype.close = function () {
+  // opts.instant — collapse with no transition, layout settled before we
+  // return. Used when the caller needs to measure the page straight after.
+  Dropdown.prototype.close = function (opts) {
+    var self = this;
     var list = this.list;
-    list.classList.add(CLOSED);
+
+    this.stopHold();
+
     // The inline 0px stays put: legacy stylesheets have no `.is-closed` rule to
     // hold the collapsed state, and on desktop reset() clears it anyway.
-    this.animate(list.scrollHeight + "px", "0px");
+    if (opts && opts.instant) {
+      clearTimeout(this.timer);
+      var previous = list.style.transition;
+      list.style.transition = "none";
+      list.classList.add(CLOSED);
+      list.style[this.animProp()] = "0px";
+      void list.offsetHeight; // commit the collapse before the transition returns
+      list.style.transition = previous;
+    } else {
+      if (!opts || opts.compensate !== false) this.releaseHold = this.holdScroll();
+      list.classList.add(CLOSED);
+      this.animate(list.scrollHeight + "px", "0px", function () {
+        self.stopHold();
+      });
+    }
 
     if (this.trigger) this.trigger.setAttribute("aria-expanded", "false");
     this.setIcon(false);
@@ -1852,11 +1968,15 @@ window.initSkipLink = initSkipLink;
         e.preventDefault();
         e.stopPropagation();
 
-        // A TOC link on mobile collapses the dropdown as it jumps.
+        // A TOC link on mobile collapses the dropdown as it jumps. Collapse it
+        // instantly and without the scroll hold, so the page has already
+        // settled — including any scroll anchoring the browser applied — before
+        // scrollToTarget measures. Animating here instead would leave the
+        // target moving while the smooth scroll aimed at a stale position.
         if (isMobile() && link.matches(SELECTORS.link)) {
           dropdowns.forEach(function (dropdown) {
             if (dropdown.list && dropdown.list.contains(link) && dropdown.isOpen()) {
-              dropdown.close();
+              dropdown.close({ compensate: false, instant: true });
             }
           });
         }
