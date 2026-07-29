@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-07-29 12:48:39
+ * Built: 2026-07-29 17:35:35
  * ============================================================ */
 
 
@@ -997,22 +997,25 @@ window.initSkipLink = initSkipLink;
 
 
 /* Reset mobile nav state when crossing the desktop breakpoint */
-// Fixes: layout stays stuck in mobile mode after resizing from <992 back to >=992
-// Wrapped in IIFE to avoid re-declaring let wasDesktop if the inline Webflow
-// nav script has already declared it in the global lexical scope.
-(function () {
-  const navBreakpoint = (window.DS_CONFIG && window.DS_CONFIG.navBreakpoint) || 992;
-  let wasDesktop = window.innerWidth >= navBreakpoint;
-  window.addEventListener('resize', () => {
-    const isDesktop = window.innerWidth >= navBreakpoint;
-    if (isDesktop !== wasDesktop) {
-      // Crossed the breakpoint — close any open mobile nav
-      const navButton = document.querySelector('.w-nav-button.w--open');
-      if (navButton) navButton.click(); // triggers Webflow's built-in close logic
-      wasDesktop = isDesktop;
-    }
-  });
-})();
+//
+// DELIBERATELY EMPTY — do NOT re-add a `navButton.click()` resize handler here.
+//
+// Webflow's own navbar already closes the mobile menu on resize: its resize
+// handler checks whether `.w-nav-button` is still displayed, and when it isn't
+// (i.e. we're back on desktop) it runs an immediate close — menu moved back out
+// of `.w-nav-overlay`, overlay style cleared, aria-expanded reset.
+//
+// Clicking the button from our own resize listener RACES that close and loses:
+// Webflow's toggle is debounced, so our click executes *after* Webflow has
+// already closed the menu. The toggle then sees `open === false` and re-OPENS
+// the menu at desktop width, which re-appends it into `.w-nav-overlay`
+// (position:absolute; top:100% of the navbar). Result: the desktop menu renders
+// displaced below the nav bar, `aria-expanded` is left `true` while `w--open` is
+// gone, and the hamburger then needs two clicks to reopen.
+//
+// Verified against the published site (800px -> 1400px with the menu open):
+// with the click removed the menu returns to `.container.cc-nav` at the correct
+// desktop position and the overlay is hidden.
 /* ---- components/slider/slider.js ---- */
 /* Slider JS */
 /* Source: https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/slider.min.js */
