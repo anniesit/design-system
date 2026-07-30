@@ -21,21 +21,18 @@
   transform: translateY(calc(-100% - var(--nav-bar-gap))) rotate(-45deg);
 }
 /* When a nav dropdown is open.. */
-/* ..Rotate arrow (the transition has to sit on the resting state, not on
-   .w--open, or it only eases on the way back) */
-.nav-dropdown_arrow {
-  transition: transform .3s cubic-bezier(.165, .84, .44, 1);
-}
+/* ..Rotate arrow */
 .nav-link.w--open .nav-dropdown_arrow {
   transform: rotate(180deg);
 }
-/* Dropdown open/close transition */
-.nav-dropdown_content {
-    transition: max-height .25s ease, opacity .2s ease, padding .25s ease;
-}
-.nav-dropdown_content.w--open {
-    transition: max-height .25s ease, opacity .2s ease, padding .25s ease;
-}
+/* NOTE: the arrow's and the dropdown panel's TRANSITIONS are deliberately not
+   here — they live on the Webflow styles .nav-dropdown_arrow and
+   .nav-dropdown_content (Style panel → Effects → Transitions), so speed and
+   easing stay tunable in the Designer. They cannot live in both places: this
+   stylesheet is linked from the Custom Code component in the <body>, i.e.
+   AFTER Webflow's own <head> stylesheet, so at equal specificity a rule here
+   silently overrides the Designer control. Set the transition in Webflow when
+   forking; only the .w--open transform (a state Webflow can't reach) is ours. */
 
 /* ..Show overlay on desktop */
 @media (min-width: 992px) {
