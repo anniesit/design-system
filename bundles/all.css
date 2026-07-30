@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-07-29 17:35:35
+ * Built: 2026-07-29 18:28:41
  * ============================================================ */
 
 
@@ -1196,18 +1196,31 @@ dialog::-webkit-scrollbar-thumb:window-inactive {
 /* Nav */
 
 /* Mobile menu button animation */
+/* The two outer bars have to travel exactly their own height + the gap between
+   bars, otherwise the two strokes cross off-centre and the X reads as blurred
+   or doubled. A hardcoded 9px only works while the bars are 1px tall.
+   translateY(100%) resolves against the bar's OWN height, so this stays correct
+   at any stroke thickness — only --nav-bar-gap has to match the top/bottom
+   margin on .cc-middle in the Webflow style. */
+.nav-menu_btn-bar {
+  --nav-bar-gap: 8px;
+}
 .nav-menu_btn.w--open .cc-top {
-  transform: translateY(9px) rotate(45deg);
+  transform: translateY(calc(100% + var(--nav-bar-gap))) rotate(45deg);
 }
 .nav-menu_btn.w--open .cc-middle {
   opacity: 0;
   transform: translateY(0);
 }
 .nav-menu_btn.w--open .cc-bottom {
-  transform: translateY(-9px) rotate(-45deg);
+  transform: translateY(calc(-100% - var(--nav-bar-gap))) rotate(-45deg);
 }
 /* When a nav dropdown is open.. */
-/* ..Rotate narrow */
+/* ..Rotate arrow (the transition has to sit on the resting state, not on
+   .w--open, or it only eases on the way back) */
+.nav-dropdown_arrow {
+  transition: transform .3s cubic-bezier(.165, .84, .44, 1);
+}
 .nav-link.w--open .nav-dropdown_arrow {
   transform: rotate(180deg);
 }
