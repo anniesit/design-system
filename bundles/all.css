@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-07-30 11:20:33
+ * Built: 2026-07-31 11:14:51
  * ============================================================ */
 
 
@@ -270,8 +270,8 @@ body {
   -o-font-smoothing: antialiased;
 }
 /* Ensure column stack on increased default browser font size (for accessibility) */
-body.font-size-increased .row { 
-  container-type: inline-size; 
+body.font-size-increased .row {
+  container-type: inline-size;
 }
 body.font-size-increased {
   @container (max-width: 40rem) {
@@ -282,7 +282,7 @@ body.font-size-increased {
   }
 }
 /* Rich text modifiers */
-.w-richtext>:first-child {
+.w-richtext > :first-child {
   margin-top: 0;
 }
 /* Line clamp modifiers */
@@ -302,7 +302,7 @@ body.font-size-increased {
 .row.row-gap-0 .col {
   --_layout---grid--gap-main: 0;
 }
-.row.row-gap-0:has( .col[class*="contain"]) .col {
+.row.row-gap-0:has(.col[class*="contain"]) .col {
   --_layout---grid--gap-main: 1px;
 }
 .row.row-gap-md .col {
@@ -328,12 +328,12 @@ body.font-size-increased {
 .slot.cc-column > .eyebrow-component {
   align-self: start;
 }
-.card:has(>.u-link-cover:focus-visible) {
+.card:has(> .u-link-cover:focus-visible) {
   outline: 2px solid var(--primary--accent);
   outline-offset: 2px;
 }
-.section:has( > .container > .slot > [data-wf--image--settings-aspect-ratio="background"]),
-.page-wrapper:has( [data-wf--image--settings-aspect-ratio="background"]) {
+.section:has(> .container > .slot > [data-wf--image--settings-aspect-ratio="background"]),
+.page-wrapper:has([data-wf--image--settings-aspect-ratio="background"]) {
   background: transparent !important;
   z-index: 1;
 }
@@ -347,6 +347,18 @@ body.font-size-increased {
 html:not(.wf-design-mode) [data-animate="stagger-children"] > * {
   opacity: 0;
   visibility: hidden;
+}
+html {
+  /* Chromium 121+, Edge 121+, Firefox 64+ — i.e. effectively all of Windows
+     and desktop Linux, which is the entire target. Older Chromium ignores
+     both lines and keeps the default scrollbar, which is a clean fallback. */
+  scrollbar-width: thin;
+
+  /* <thumb> <track>. A transparent track is what removes the solid channel;
+     the translucent thumb then reads correctly over any section background,
+     the same trick the native macOS overlay thumb uses. Swap in a token here
+     if you'd rather, but a solid colour will band against some sections. */
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
 }
 
 /* ---- components/accordion/accordion.css ---- */
