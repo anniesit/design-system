@@ -56,8 +56,10 @@ design-system/
 │   ├── cjk-setting.css          # Typography token TEMPLATE. Duplicate this per project
 │   │                            # and customise (fonts, heading sizes, line heights, etc.)
 │   ├── component-loader.js      # Loads shared nav/footer partials at runtime
-│   └── table-rowlink.js         # Clickable table rows that still scroll on iPad —
-│                                # see the file's header for the markup + CSS contract
+│   ├── table-rowlink.js         # Clickable table rows that still scroll on iPad —
+│   │                            # see the file's header for the markup + CSS contract
+│   └── nav-scroll.{js,css}      # Background slide-down for a transparent-over-hero nav —
+│                                # requires a one-time setup step, see the JS file's header
 ├── dev-tool/                    # NEVER shipped to a real project — dev-only checks
 │   ├── verify.js                # paste into the console (or load temporarily) to
 │   │                            # catch structural/a11y bugs by script
