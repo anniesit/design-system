@@ -4,7 +4,7 @@
  * To make changes, edit the source files in /global or /components,
  * then run: bash build.sh
  *
- * Built: 2026-07-31 11:14:51
+ * Built: 2026-08-13 15:48:26
  * ============================================================ */
 
 
@@ -50,6 +50,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Nav links + footer logo — same pathname logic
   document.querySelectorAll('nav a[href], .footer-logo_link').forEach(function(link) {
+    // Same-page anchors are NOT "the current page". A bare "#" (and any
+    // "#section" link) resolves to the current pathname, so without this guard
+    // every placeholder link inside a <nav> gets flagged — e.g. an unwired
+    // pagination (<nav aria-label="Pagination"> with href="#") had a screen
+    // reader announcing "current page" on Previous, 2, 3, 4, 38 and Next.
+    const raw = link.getAttribute('href');
+    if (!raw || raw.charAt(0) === '#') return;
+
     try {
       const linkPath = new URL(link.href, currentOrigin).pathname;
       if (linkPath === currentPath) {

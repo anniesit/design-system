@@ -39,6 +39,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Nav links + footer logo — same pathname logic
   document.querySelectorAll('nav a[href], .footer-logo_link').forEach(function(link) {
+    // Same-page anchors are NOT "the current page". A bare "#" (and any
+    // "#section" link) resolves to the current pathname, so without this guard
+    // every placeholder link inside a <nav> gets flagged — e.g. an unwired
+    // pagination (<nav aria-label="Pagination"> with href="#") had a screen
+    // reader announcing "current page" on Previous, 2, 3, 4, 38 and Next.
+    const raw = link.getAttribute('href');
+    if (!raw || raw.charAt(0) === '#') return;
+
     try {
       const linkPath = new URL(link.href, currentOrigin).pathname;
       if (linkPath === currentPath) {
