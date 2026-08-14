@@ -88,17 +88,26 @@ before proceeding.
 
 ## Linking the files
 
-Always use a version tag, never `@main`. Tagged URLs are permanently cached on
-jsDelivr and never need purging. `@main` can serve stale content for up to 7 days.
+A project moves through two phases, and each uses a different link.
+
+### While building — the live bundle
+
+`design-system.anniesit.link` is a Vercel deployment of this repo that
+redeploys on every push to `main` and serves the whole repo
+(`/bundles/all.css`, `/bundles/all.js`, `/component-loader.js`,
+`/cjk-setting.css`). It revalidates on every request
+(`Cache-Control: public, max-age=0, must-revalidate`), so a design-system fix
+reaches every in-progress project straight away — nothing to republish, no
+cache to purge.
 
 ```html
 <!-- In Webflow Project Settings → Custom Code → Head -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/anniesit/design-system@0.2.0/bundles/all.css">
+<link rel="stylesheet" href="https://design-system.anniesit.link/bundles/all.css">
 
 <!-- In Webflow Project Settings → Custom Code → Before </body> -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/anniesit/design-system@0.2.0/bundles/all.js" defer></script>
+<script src="https://design-system.anniesit.link/bundles/all.js" defer></script>
 ```
 
 For the Webflow designer to load styles, also add these inside a `w-embed` block
@@ -107,8 +116,31 @@ in the canvas (e.g. inside the `custom-code-component`):
 ```html
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/anniesit/design-system@0.2.0/bundles/all.css">
+<link rel="stylesheet" href="https://design-system.anniesit.link/bundles/all.css">
 ```
+
+**The trade-off:** a project on the live link tracks *every* design-system
+change, including ones made while working on a different project. That is what
+you want during a build — but it also means a finished-looking project can keep
+shifting until it is frozen. Freeze it as soon as the build is signed off.
+
+### At export / handoff — freeze it
+
+When a project is done, copy the bundles into the project's own repo and relink,
+so the delivered site has no external design-system dependency at all:
+
+```bash
+cp bundles/all.css  <project>/css/design-system.css
+cp bundles/all.js   <project>/js/design-system.js
+```
+
+Then point the exported pages at the local files instead of the CDN —
+`css/design-system.css` and `js/design-system.js`, with `../` in front on pages
+that sit in a subfolder.
+
+**This copy is the version pin.** The project keeps exactly the bundle it was
+tested against, later design-system changes cannot reach it, and the handoff has
+one less third-party host to depend on. Nothing else is needed to lock a version.
 
 ## Per-project configuration (DS_CONFIG)
 
@@ -267,14 +299,36 @@ Every time you change source files and want them live:
 bash build.sh
 
 # 2. Commit source files and bundles together
-git add -A
+git add global components bundles
 git commit -m "your message"
 git push
-
-# 3. Tag the release
-git tag -a v1.0.0 -m "First stable release: accessibility audit complete, tested across projects"
-git push origin v1.0.0
 ```
 
-Then in Webflow, update the version number in all CDN links (`@0.2.0` → `@0.3.0`)
-and republish the site. Each project can be updated independently on its own schedule.
+**The push is the deploy.** `design-system.anniesit.link` redeploys from `main`
+automatically, so every project still on the live link picks the change up within
+seconds — no Webflow republish, no link edits. Projects that have already been
+frozen (bundles copied into their own repo) are unaffected; re-copy the two files
+if you want the change in one of them.
+
+> This repo has **no `.gitignore`** and `.DS_Store` is tracked, so prefer naming
+> the paths over a blanket `git add -A`.
+
+### Tagging (optional)
+
+Tags are kept as rollback markers and release history — they are not the delivery
+mechanism, and no project needs one:
+
+```bash
+git tag -a v0.4.6 -m "Short summary of what changed"
+git push origin v0.4.6
+```
+
+A tagged jsDelivr URL is immutable and never needs purging, so it is there if a
+project ever has to pin to a CDN instead of freezing a local copy:
+
+```
+https://cdn.jsdelivr.net/gh/anniesit/design-system@v0.4.6/bundles/all.js
+```
+
+Note the real tags carry a `v` prefix. Never link `@main` on jsDelivr — it can
+serve stale content for up to 7 days; that is what the Vercel domain is for.
