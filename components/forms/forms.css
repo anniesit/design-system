@@ -189,7 +189,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /* --- Open state --- */
 .dropdown.is-open .dropdown-list {
   opacity: 1;
-  max-height: max(70svh, 14rem);
+  max-height: max(55svh, 14rem);
   overflow: auto;
   pointer-events: auto;
 }
