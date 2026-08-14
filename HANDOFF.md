@@ -325,6 +325,63 @@ Row 1 (anchor, no operator) → row 2 → row 3. Empty `keyword_3=` means "no co
 
 ---
 
+## Integration contract (the general pattern)
+
+The **Backend contract** above is this system's forms-specific instance of a
+pattern worth using on **every** project handoff, not just forms — whenever a
+backend developer, CMS, or future maintainer needs to fill in, wire up, or
+render data into markup this design system produced. Getting the shape of
+that handoff right the first time is cheaper than debugging a mismatch after
+the fact.
+
+**1. One element is the single source of truth for each piece of dynamic
+data.** If a row has both a wrapper and an inner link that could plausibly
+carry the destination URL, say explicitly which one does — and never write
+it to the other. Duplicated sources of truth drift apart silently.
+
+```html
+<!-- The href on THIS element is the row's destination. Nothing else on
+     the row carries it — don't also set a click handler or a second href. -->
+<a class="u-link-cover" href="#">…</a>
+```
+
+**2. Content slots use `data-field`, not a bare class.** A class can be
+renamed by a "clean up unused styles" pass in Webflow's Designer or CSS
+tooling without anyone realizing it was also a JS/backend hook. A `data-*`
+attribute survives that.
+
+```html
+<li class="result-row">
+  <span data-field="title">Sample Title</span>
+  <span data-field="date">2026</span>
+</li>
+```
+
+**3. IDs that back `aria-*` references must stay unique per instance.**
+`aria-labelledby`, `aria-controls`, `aria-describedby` all break silently
+(no console error — the assistive-tech connection just doesn't fire) if two
+rows share an id. State this explicitly in the handoff; it's easy to miss
+when a template is repeated by a loop.
+
+**4. State the consequence, not just the instruction.** "Include width and
+height on the image" gets skipped under deadline pressure if the reason
+isn't attached. "Include width and height — the drawer measures its own
+height once, on open; an image that finishes loading afterward pops the
+layout" survives contact with a rushed implementer, because now skipping it
+has a cost the implementer can picture.
+
+**5. Where practical, ship a way to verify the contract was followed** — a
+short script the integrator (or CI) can run that checks the real DOM against
+the rules above, rather than relying on a document being read carefully.
+
+A full worked example of this pattern applied to a real handoff — a
+`HANDOFF-NOTES.md` written for a backend integrator with no access to this
+conversation — lives in the French Harpsichord project's export. The
+`integration-contract` skill (`~/.claude/skills/integration-contract/`)
+carries the reusable templates and a sample verification script.
+
+---
+
 ## Known trade-offs
 
 - **Native date input rendering varies by OS.** Calendar UI differs across browsers/devices. Accepted in exchange for accessibility and zero JS.
