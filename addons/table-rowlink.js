@@ -11,11 +11,10 @@
  * horizontally scrollable table swallows the swipe gesture on iPadOS WebKit
  * (Safari and Chrome — both are WebKit there), so the table can't be
  * scrolled sideways, even though the identical setup scrolls fine on desktop
- * and iPhone. The fix is `.table-cell .u-link-cover { pointer-events: none }`
- * (add this in the project's own CSS/Webflow custom code — it is NOT in this
- * file, because it must be scoped to *this project's* table markup) — which
- * restores scrolling but also disables the link's own click and screen-reader
- * name.
+ * and iPhone. The fix is `.table-cell .u-link-cover { pointer-events: none }`,
+ * which ships next to this file as **addons/table-rowlink.css** — that
+ * restores scrolling but also disables the link's own click and
+ * screen-reader name, which is what the rest of this script is for.
  *
  * This script restores both, without reintroducing an interactive overlay:
  *
@@ -43,11 +42,15 @@
  *     .table-cell (first)  > p         — the row's identifying text
  *     .table-cell a.u-link-cover[href] — carries the destination + gets named
  *
- * Required CSS (add in the consuming project, not here):
- *   .table-cell .u-link-cover { pointer-events: none; }
- * Scope it to `.table-cell` specifically — a global `.u-link-cover { … }`
- * rule will also disable any other link reusing that class elsewhere on the
- * page (e.g. a footer logo link is a common case).
+ * LINK BOTH FILES OR NEITHER. Half-installing fails in a way that is easy
+ * to miss:
+ *   - CSS only, no JS → rows are completely unclickable.
+ *   - JS only, no CSS → rows click fine on desktop and iPhone, and the iPad
+ *                       horizontal-scroll bug is silently back. Nothing
+ *                       errors; you only find out on an actual iPad.
+ * Because that second case is the dangerous one, init() checks the computed
+ * pointer-events of the first cover it finds and warns in the console if the
+ * stylesheet is missing.
  *
  * Handles rows injected after load (e.g. by an API response) via a
  * MutationObserver, so the accessible name is present before a
@@ -168,6 +171,23 @@
     document.addEventListener("click", onClick);
     nameAll(document); // server-rendered rows
     watch(); // rows injected after load
+    warnIfCssMissing();
+  }
+
+  // The JS half works on its own, which is exactly why a missing stylesheet
+  // is dangerous — clicks keep working and only iPad scrolling breaks. Say so
+  // rather than letting it pass silently.
+  function warnIfCssMissing() {
+    var probe = document.querySelector(COVER);
+    if (!probe || !window.getComputedStyle) return;
+    if (window.getComputedStyle(probe).pointerEvents !== "none") {
+      console.warn(
+        "table-rowlink: addons/table-rowlink.css is not applied " +
+          "(.table-cell .u-link-cover should be pointer-events:none). " +
+          "Row clicks will still work, but the table will not scroll " +
+          "horizontally on iPad. Link the stylesheet."
+      );
+    }
   }
 
   window.initTableRowLink = init;

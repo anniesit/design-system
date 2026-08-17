@@ -1,0 +1,33 @@
+/* ============================================================
+ * table-rowlink.css — the CSS half of the clickable-row pattern
+ *
+ * Pairs with addons/table-rowlink.js. Link BOTH or neither — see the
+ * warning in that file's header about what half-installing does.
+ *
+ * WHY THIS RULE EXISTS: a full-row link overlay (a.u-link-cover stretched
+ * with inset:0 inside a .table-cell) sits on top of the table's scroll
+ * surface. On iPadOS WebKit — Safari AND Chrome, since both are WebKit
+ * there — an absolutely positioned LINK captures the touch sequence via
+ * iPad's richer link gesture handling (hover intent, drag-to-preview), so
+ * a horizontal swipe never reaches the scroll container and the table
+ * cannot be scrolled sideways. iPhone gives links only a simple tap
+ * recognizer, which yields to scrolling, so iPhone and desktop look fine
+ * and hide the bug. Removing the link from hit-testing is the only fix
+ * that works: -webkit-user-drag, -webkit-overflow-scrolling and
+ * touch-action were all tested and all failed, because each leaves the
+ * link in the hit-test path.
+ *
+ * This kills the cover's own click too — table-rowlink.js restores that
+ * by reading the cover's href on a delegated row click. Keyboard is
+ * unaffected: pointer-events blocks pointer input only, so Tab + Enter on
+ * the cover still navigates natively.
+ *
+ * SCOPED TO .table-cell ON PURPOSE. A global `.u-link-cover {
+ * pointer-events: none }` also disables every other link reusing that
+ * utility class — the footer home-logo cover is the known casualty, and
+ * it breaks site-wide with no error. Keep the descendant selector.
+ * ============================================================ */
+
+.table-cell .u-link-cover {
+  pointer-events: none;
+}
