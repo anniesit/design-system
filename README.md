@@ -194,6 +194,40 @@ reads a few more options, off unless set:
 | `bilingual` | `false` | Turns on the `[data-lang-switch]` button's href-swapping between `/en` and `/zh` paths. Leave off for single-language projects |
 | `projectBase` | `''` | Only read when `bilingual: true` — the URL folder the whole site is served under (e.g. `'/hkbutimescape'`), stripped off before the language prefix is added |
 
+### Light-only projects
+
+`theme-toggle.js` is in the bundle and runs on **every** page, whether or not the
+project has a toggle. At parse time it puts `u-mode-light` or `u-mode-dark` on
+`<html>`, choosing the stored `themeKey` value if there is one and falling back
+to the visitor's OS `prefers-color-scheme` if there isn't. So a visitor whose
+computer is in dark mode gets `u-mode-dark` on a site that never offered a
+choice.
+
+Those classes set `color-scheme`, and how much that matters depends on how the
+project's colours are built:
+
+- **Tokens defined with the CSS `light-dark()` function** — `color-scheme` *is*
+  the theme switch, so the whole palette flips.
+- **Tokens with no light/dark pairing** — only `color-scheme` itself changes,
+  which still restyles form controls, scrollbars and the default canvas.
+
+If a project is deliberately light-only, pin it in the project's own CSS:
+
+```css
+html { color-scheme: light; }
+```
+
+That overrides whatever class the script applies and pins any `light-dark()`
+token to its light value. There is no `DS_CONFIG` option for this on purpose —
+`theme-toggle.js` is unmodified MAST source, and one line of CSS is not worth
+forking it.
+
+Set a unique `themeKey` regardless. `localStorage` is per **origin** (scheme +
+host + port), so projects deployed under one hostname on different paths
+(`example.edu/projectA/`, `example.edu/projectB/`) share one stored value and
+one project's theme choice follows the visitor into the others. Different
+subdomains do not share.
+
 ## Table of contents (toc-scrollto)
 
 `toc-scroll-to.js` owns the whole TOC pattern — offset scrolling for **every**
