@@ -374,8 +374,8 @@ seconds — no Webflow republish, no link edits. Projects that have already been
 frozen (bundles copied into their own repo) are unaffected; re-copy the two files
 if you want the change in one of them.
 
-> This repo has **no `.gitignore`** and `.DS_Store` is tracked, so prefer naming
-> the paths over a blanket `git add -A`.
+> `.gitignore` covers `.DS_Store`, so `git add -A` is safe here. The files stay
+> on disk — they are only untracked.
 
 ### Tagging (optional)
 
