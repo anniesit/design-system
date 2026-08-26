@@ -191,8 +191,9 @@ reads a few more options, off unless set:
 | Option | Default | What it controls |
 |---|---|---|
 | `basePathAnchor` | `'css/normalize.css'` | Filename the loader looks for in a `<link>` on the page to work out how many folders deep it is (so it can prefix `../` correctly on injected nav/footer paths). Override only if a project doesn't ship a stylesheet under this exact name at the site root |
-| `bilingual` | `false` | Turns on the `[data-lang-switch]` button's href-swapping between `/en` and `/zh` paths. Leave off for single-language projects |
-| `projectBase` | `''` | Only read when `bilingual: true` — the URL folder the whole site is served under (e.g. `'/hkbutimescape'`), stripped off before the language prefix is added |
+| `bilingual` | `false` | Turns on the `[data-lang-switch]` button's href-swapping between the primary pages and the secondary-locale folder. Leave off for single-language projects |
+| `localeFolder` | `'zh'` | Folder name the secondary locale lives in, and the value `data-lang-switch` uses to mean "switch to it" |
+| `projectBase` | *derived* | The URL folder the whole site is served under (e.g. `'/hkbutimescape'`). **Normally leave this unset** — the loader works it out from the page's own depth, so the same build runs at a domain root or in any subfolder. Set it only when a deployment rewrites paths (e.g. behind a reverse proxy) and the derivation is wrong |
 
 ### Light-only projects
 

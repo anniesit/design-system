@@ -69,6 +69,25 @@
 
   var BASE = basePath();
 
+  // ---- site root ------------------------------------------------------
+  // The absolute URL folder the whole site is served from: "" at a domain
+  // root, "/SFHO" in a subfolder. DERIVED, not configured — BASE already
+  // says how many levels below the site root this page sits, so dropping
+  // the filename plus that many folders off the current path leaves the
+  // root. That keeps the language switcher working wherever the site is
+  // deployed, instead of hardcoding the folder per project.
+  //
+  // CONFIG.projectBase still wins when set, for a deployment that needs to
+  // override the derivation (e.g. a reverse proxy that rewrites the path).
+  function siteRoot() {
+    if (typeof CONFIG.projectBase === "string") return CONFIG.projectBase;
+    var depth = (BASE.match(/\.\.\//g) || []).length;
+    var segments = location.pathname.split("/");
+    segments.pop(); // the filename — or the empty segment a trailing slash leaves
+    for (var i = 0; i < depth; i++) segments.pop();
+    return segments.join("/"); // "" at a domain root, "/SFHO" in a subfolder
+  }
+
   // ---- path rewriting for injected markup --------------------------------
   // Leave anything already absolute, protocol-relative, anchor-only, or a
   // non-http scheme (mailto:, tel:, data:) exactly as authored.
@@ -131,18 +150,19 @@
     var switchButton = document.querySelector("[data-lang-switch]");
     if (!switchButton) return;
 
+    // The attribute holds the language to switch TO. The secondary locale
+    // lives in a folder named after its code ("zh" unless configured).
     var targetLang = switchButton.getAttribute("data-lang-switch");
-    var projectBase = CONFIG.projectBase || "";
-    var innerPath = location.pathname.replace(projectBase, "");
+    var folder = CONFIG.localeFolder || "zh";
+    var root = siteRoot();
+    var inner = location.pathname.slice(root.length);
 
-    var newInnerPath;
-    if (targetLang === "zh") {
-      newInnerPath = "/zh" + innerPath;
-    } else {
-      newInnerPath = innerPath.replace(/^\/zh/, "");
-    }
+    // Strip any locale folder already present BEFORE deciding, so the toggle
+    // is idempotent — clicking through repeatedly can never build up /zh/zh/.
+    var stripped = inner.replace(new RegExp("^/" + folder + "(?=/|$)"), "");
+    var newInner = targetLang === folder ? "/" + folder + stripped : stripped;
 
-    switchButton.setAttribute("href", projectBase + newInnerPath);
+    switchButton.setAttribute("href", root + newInner || "/");
   }
 
   // ---- loading --------------------------------------------------------
