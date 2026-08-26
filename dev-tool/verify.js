@@ -27,6 +27,54 @@
     return Array.prototype.slice.call((root || document).querySelectorAll(sel));
   }
 
+  // ---- configuration ----------------------------------------------------
+  // Wrong DS_CONFIG values fail quietly rather than erroring, so they survive
+  // a whole build unnoticed. Two shipped projects reached UAT still carrying
+  // the starter's placeholder theme key.
+  function checkDsConfig(fail) {
+    var cfg = window.DS_CONFIG;
+
+    if (!cfg) {
+      fail.push([
+        "DS_CONFIG is not set at all",
+        "every option is falling back to its default, including themeKey='savedTheme'"
+      ]);
+      return;
+    }
+
+    // themeKey must be unique per project. localStorage is shared per origin,
+    // so any two sites on one host that keep a shared value will override each
+    // other's theme.
+    var PLACEHOLDERS = ["CHANGEME-theme", "my-project-theme", "savedTheme"];
+    if (!cfg.themeKey) {
+      fail.push([
+        "DS_CONFIG.themeKey is not set",
+        "falls back to 'savedTheme', shared with every other site on this host"
+      ]);
+    } else if (PLACEHOLDERS.indexOf(cfg.themeKey) !== -1) {
+      fail.push(["DS_CONFIG.themeKey is still a placeholder", cfg.themeKey]);
+    }
+
+    // navBreakpoint must match the Webflow navbar's own collapse setting, or
+    // the mobile menu resets at the wrong width on resize — the symptom is a
+    // displaced desktop menu after widening the window.
+    var navbar = document.querySelector("[data-collapse]");
+    if (navbar) {
+      var COLLAPSE_AT = { medium: 992, small: 768, tiny: 480 };
+      var collapse = navbar.getAttribute("data-collapse");
+      var expected = COLLAPSE_AT[collapse];
+      var actual = typeof cfg.navBreakpoint === "number" ? cfg.navBreakpoint : 992;
+      // Only judge the values we can map with confidence; anything else is
+      // left for a human to check in the Designer.
+      if (expected && actual !== expected) {
+        fail.push([
+          'DS_CONFIG.navBreakpoint does not match data-collapse="' + collapse + '"',
+          "is " + actual + ", should be " + expected
+        ]);
+      }
+    }
+  }
+
   // ---- generic checks (any page) ----------------------------------------
 
   function checkDuplicateIds(fail) {
@@ -202,6 +250,8 @@
 
   function run() {
     var fail = [];
+
+    checkDsConfig(fail);
 
     checkDuplicateIds(fail);
     checkDanglingAriaRefs(fail);
