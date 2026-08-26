@@ -42,6 +42,19 @@
  *     .table-cell (first)  > p         — the row's identifying text
  *     .table-cell a.u-link-cover[href] — carries the destination + gets named
  *
+ * Naming the row link, in priority order:
+ *   1. An aria-label (or a working aria-labelledby) already on the cover is
+ *      left alone — an author's own name always wins.
+ *   2. Any element in the row marked [data-rowlink-label]. Use this when the
+ *      first cell would make a useless name: a row number, a checkbox, an
+ *      icon. Put it on the cell that actually identifies the row.
+ *   3. Otherwise the FIRST cell's <p> — note "first cell", not "the cell
+ *      holding the cover". Those are the same cell by convention, but the
+ *      script always looks in the first one.
+ *   4. Otherwise the first cell itself.
+ * A row whose chosen target has no text is left unnamed rather than named
+ * with an empty string.
+ *
  * LINK BOTH FILES OR NEITHER. Half-installing fails in a way that is easy
  * to miss:
  *   - CSS only, no JS → rows are completely unclickable.
@@ -89,12 +102,26 @@
     var cover = row.querySelector(COVER);
     if (!cover) return;
 
-    var cell = row.querySelector(".table-cell");
-    if (!cell) return;
+    // Never override a name the author set on purpose. aria-labelledby
+    // outranks aria-label in the accessible-name order, so writing ours
+    // would silently beat an aria-label the author put there.
+    if (cover.hasAttribute("aria-label")) return;
+    var existing = cover.getAttribute("aria-labelledby");
+    if (existing && document.getElementById(existing)) return;
 
-    // Prefer the text <p>, never the <td> — the <td> may also contain the
-    // cover anchor, and labelling by an ancestor of the cover risks a cycle.
-    var target = cell.querySelector("p") || cell;
+    // Which element supplies the name:
+    //   1. an element the author marked [data-rowlink-label] — use this when
+    //      the first cell is a poor name (a row number, a checkbox, an icon);
+    //   2. otherwise the first cell's <p>;
+    //   3. otherwise the first cell itself.
+    // Prefer the <p> over the <td>: the <td> may also contain the cover
+    // anchor, and labelling by an ancestor of the cover risks a cycle.
+    var target = row.querySelector("[data-rowlink-label]");
+    if (!target) {
+      var cell = row.querySelector(".table-cell");
+      if (!cell) return;
+      target = cell.querySelector("p") || cell;
+    }
     if (!target.textContent || !target.textContent.trim()) return;
 
     if (!target.id) target.id = uniqueId();

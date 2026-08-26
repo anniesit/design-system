@@ -6,18 +6,18 @@ A custom-coded, framework-agnostic form component system. Drop-in via `<link>` a
 
 ## What's in the box
 
-- `all.css` — styles for all components and utilities.
-- `all.js` — component behavior.
+- `design-system.css` — styles for all components and utilities.
+- `design-system.js` — component behavior.
 
 Each project holds its **own copy** of these two files. There is no live shared dependency — updates propagate by re-copying when desired. This intentionally trades auto-propagation for stability: each project pins its own known-good version.
 
 ## Installation
 
-Copy `all.css` and `all.js` into the project and include them in the document:
+Copy `design-system.css` and `design-system.js` into the project and include them in the document:
 
 ```html
-<link rel="stylesheet" href="all.css">
-<script src="all.js" defer></script>
+<link rel="stylesheet" href="design-system.css">
+<script src="design-system.js" defer></script>
 ```
 
 **Do not** use `@import` with cascade layers — that has caused conflicts in Webflow.
@@ -393,7 +393,7 @@ carries the reusable templates and a sample verification script.
 
 ## Pre-flight checklist for a new project
 
-- [ ] `all.css` and `all.js` copied into the project and included via `<link>` / `<script>`.
+- [ ] `design-system.css` and `design-system.js` copied into the project and included via `<link>` / `<script>`.
 - [ ] All single-select dropdown markup uses `data-dropdown-option` and `data-dropdown-option-label` (not class selectors). JS queries by data attribute — markup that selects options only by class will throw.
 - [ ] All `name` attributes confirmed with the backend.
 - [ ] Date range `min` and `max` set to the project's actual date bounds.
