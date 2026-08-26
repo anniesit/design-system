@@ -38,12 +38,6 @@ echo "Version $VERSION"
 CSS_OUT="bundles/design-system.css"
 JS_OUT="bundles/design-system.js"
 
-# DEPRECATED aliases. The bundles used to be called all.css / all.js, and live
-# projects still link those URLs. They are written as identical copies so
-# nothing breaks mid-switch. Delete these two lines — and the copies at the
-# bottom of this script — once every project has been relinked. See README.
-CSS_ALIAS="bundles/all.css"
-JS_ALIAS="bundles/all.js"
 
 # ============================================================
 # Build $CSS_OUT
@@ -143,13 +137,6 @@ for dir in components/*/; do
 done
 
 # ============================================================
-# Deprecated aliases — see the note near the top of this file
-# ============================================================
-
-cp $CSS_OUT $CSS_ALIAS
-cp $JS_OUT $JS_ALIAS
-
-# ============================================================
 # Done
 # ============================================================
 
@@ -157,6 +144,5 @@ echo ""
 echo "Done!"
 echo "  $CSS_OUT ($(wc -l < $CSS_OUT) lines)"
 echo "  $JS_OUT  ($(wc -l < $JS_OUT) lines)"
-echo "  + $CSS_ALIAS / $JS_ALIAS (deprecated aliases)"
 echo ""
 echo "Don't forget to commit both the source files AND the regenerated bundles."
