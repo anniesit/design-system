@@ -42,16 +42,19 @@
  *     .table-cell (first)  > p         — the row's identifying text
  *     .table-cell a.u-link-cover[href] — carries the destination + gets named
  *
- * Naming the row link, in priority order:
+ * Naming the row link:
  *   1. An aria-label (or a working aria-labelledby) already on the cover is
- *      left alone — an author's own name always wins.
- *   2. Any element in the row marked [data-rowlink-label]. Use this when the
- *      first cell would make a useless name: a row number, a checkbox, an
- *      icon. Put it on the cell that actually identifies the row.
- *   3. Otherwise the FIRST cell's <p> — note "first cell", not "the cell
- *      holding the cover". Those are the same cell by convention, but the
- *      script always looks in the first one.
- *   4. Otherwise the first cell itself.
+ *      left alone. An author's own name always wins.
+ *   2. Otherwise pick the naming cell: one marked [data-rowlink-label], else
+ *      the FIRST cell. Note "first cell", not "the cell holding the cover" —
+ *      they are the same cell by convention, but the script always looks in
+ *      the first one unless you mark another.
+ *   3. Inside that cell, prefer a <p> over the cell itself.
+ * So the <p> belongs in whichever cell supplies the name. It is strictly
+ * required only when that cell also holds the cover, because naming a link
+ * after one of its own ancestors risks a cycle. When the naming cell has no
+ * cover in it, the cell alone works — the <p> is still tidier, since it
+ * isolates the identifying text from any icon or badge in the same cell.
  * A row whose chosen target has no text is left unnamed rather than named
  * with an empty string.
  *
@@ -109,19 +112,17 @@
     var existing = cover.getAttribute("aria-labelledby");
     if (existing && document.getElementById(existing)) return;
 
-    // Which element supplies the name:
-    //   1. an element the author marked [data-rowlink-label] — use this when
-    //      the first cell is a poor name (a row number, a checkbox, an icon);
-    //   2. otherwise the first cell's <p>;
-    //   3. otherwise the first cell itself.
-    // Prefer the <p> over the <td>: the <td> may also contain the cover
-    // anchor, and labelling by an ancestor of the cover risks a cycle.
-    var target = row.querySelector("[data-rowlink-label]");
-    if (!target) {
-      var cell = row.querySelector(".table-cell");
-      if (!cell) return;
-      target = cell.querySelector("p") || cell;
-    }
+    // Which cell supplies the name: one the author marked, else the first.
+    // Mark a cell when the first one would read badly — a row number, a
+    // checkbox, an icon.
+    var target = row.querySelector("[data-rowlink-label]") || row.querySelector(".table-cell");
+    if (!target) return;
+
+    // Then prefer a <p> inside it over the cell itself. The cell may also
+    // contain the cover anchor, and naming a link after one of its own
+    // ancestors risks a cycle. Marking the <p> directly works too — it has
+    // no <p> inside it, so it stays the target.
+    target = target.querySelector("p") || target;
     if (!target.textContent || !target.textContent.trim()) return;
 
     if (!target.id) target.id = uniqueId();
