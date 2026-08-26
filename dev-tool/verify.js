@@ -32,7 +32,11 @@
   function checkDuplicateIds(fail) {
     var seen = {};
     $all("[id]").forEach(function (el) {
-      var id = el.id;
+      // Webflow emits id="" on some elements (icon wrappers, for one).
+      // An empty id is not a duplicate — without this guard every one of
+      // them collides with every other and the report fills with noise.
+      var id = el.getAttribute("id");
+      if (!id) return;
       if (seen[id]) {
         fail.push(["duplicate id", id, el]);
       }
@@ -66,11 +70,23 @@
     });
   }
 
+  // A control can get its name from its own text, an aria-* attribute, the
+  // alt text of an image inside it, or an <svg><title>. Checking only text
+  // and aria-* reports every icon link as broken.
+  function hasAccessibleName(el) {
+    if (el.textContent && el.textContent.trim().length > 0) return true;
+    if (el.hasAttribute("aria-label") || el.hasAttribute("aria-labelledby")) return true;
+    if (el.querySelector('img[alt]:not([alt=""])')) return true;
+    if (el.querySelector("svg title")) return true;
+    return false;
+  }
+
   function checkUnnamedControls(fail) {
     $all("a[href], button").forEach(function (el) {
-      var hasText = el.textContent && el.textContent.trim().length > 0;
-      var hasLabel = el.hasAttribute("aria-label") || el.hasAttribute("aria-labelledby");
-      if (!hasText && !hasLabel) {
+      // Webflow's own "Made in Webflow" badge is injected on free/staging
+      // hosting and is gone from an export. Not the author's to fix.
+      if (el.classList.contains("w-webflow-badge")) return;
+      if (!hasAccessibleName(el)) {
         fail.push(["link/button has no accessible name", el]);
       }
     });
