@@ -207,31 +207,3 @@ samp {
     scroll-behavior: auto !important;
   }
 }
-
-/* ============================================================
-   WEBFLOW COMPATIBILITY CLASSES
-
-   These replicate the handful of auto-applied Webflow classes
-   so exported HTML works without webflow.css.
-   You can remove this section once you fully depart from
-   Webflow exports.
-   ============================================================ */
-
-.w-inline-block {
-  display: inline-block;
-  max-width: 100%;
-}
-
-.w-list-unstyled {
-  padding-left: 0;
-  list-style: none;
-}
-
-.w-embed::before,
-.w-embed::after {
-  content: "";
-  display: table;
-}
-.w-embed::after {
-  clear: both;
-}
