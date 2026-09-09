@@ -25,7 +25,8 @@ design-system/
 │   │   └── marquee.css
 │   ├── accordion/
 │   │   ├── accordion.css
-│   │   └── accordion.js         # MAST original, minified, unmodified
+│   │   └── accordion.js         # custom build — tablet-close attr +
+│   │                            # window.MastAccordion.init() re-scan hook
 │   ├── btn-totop/
 │   │   └── btn-totop.js         # custom — scroll-to-top w/ circular progress indicator
 │   ├── modal/
@@ -79,8 +80,15 @@ the grouping that appears in Webflow's Global Custom Code panel.
 
 All component JS has been extracted from MAST's CDN and committed directly
 into this repo. The source for each component is in its folder alongside the CSS.
-The `tabs.js` file is a custom build with accessibility improvements over the
-original MAST source.
+Two files are custom builds rather than MAST's minified originals:
+
+- **`tabs.js`** — accessibility improvements over the original MAST source.
+- **`accordion.js`** — de-minified so its two additions are legible:
+  `data-accordion-tablet-close="true"`, and `window.MastAccordion.init()`.
+  Call `init()` after building accordions from data at runtime — the open/close
+  animation is a pair of JS listeners, not CSS, and `cloneNode()` does not copy
+  listeners, so cloned accordions are otherwise left with no transition. The
+  file's header comment carries the full rules for cloning a template.
 
 ## External dependencies (not forked)
 
