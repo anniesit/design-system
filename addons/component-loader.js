@@ -1,8 +1,8 @@
 /* ============================================================
  * component-loader.js — loads the shared nav + footer partials
  *
- * Not bundled into all.js — link this separately after Webflow export,
- * after all.css/all.js:
+ * Not bundled into design-system.js — link this separately after Webflow export,
+ * after design-system.css/design-system.js:
  *   <div id="header-container" data-header=""></div>
  *   <div id="footer-container" data-footer=""></div>
  *   <script src="js/component-loader.js" defer></script>
@@ -195,17 +195,11 @@
     var loadedHeader = false;
 
     if (header) {
-      loadedHeader = await loadComponent(
-        header,
-        BASE + "components/nav" + header.getAttribute("data-header") + ".html"
-      );
+      loadedHeader = await loadComponent(header, BASE + "components/nav" + header.getAttribute("data-header") + ".html");
     }
 
     if (footer) {
-      await loadComponent(
-        footer,
-        BASE + "components/footer" + footer.getAttribute("data-footer") + ".html"
-      );
+      await loadComponent(footer, BASE + "components/footer" + footer.getAttribute("data-footer") + ".html");
     }
 
     if (!loadedHeader) return;

@@ -1,7 +1,7 @@
 /* ============================================================
  * verify.js — DEV-ONLY smoke checks. Do NOT ship this to production.
  *
- * Not bundled into all.js, not linked by any project's <script> tag.
+ * Not bundled into design-system.js, not linked by any project's <script> tag.
  * Paste this whole file into the browser console on a page you're
  * checking, or load it temporarily while testing:
  *
@@ -35,10 +35,7 @@
     var cfg = window.DS_CONFIG;
 
     if (!cfg) {
-      fail.push([
-        "DS_CONFIG is not set at all",
-        "every option is falling back to its default, including themeKey='savedTheme'"
-      ]);
+      fail.push(["DS_CONFIG is not set at all", "every option is falling back to its default, including themeKey='savedTheme'"]);
       return;
     }
 
@@ -47,10 +44,7 @@
     // other's theme.
     var PLACEHOLDERS = ["CHANGEME-theme", "my-project-theme", "savedTheme"];
     if (!cfg.themeKey) {
-      fail.push([
-        "DS_CONFIG.themeKey is not set",
-        "falls back to 'savedTheme', shared with every other site on this host"
-      ]);
+      fail.push(["DS_CONFIG.themeKey is not set", "falls back to 'savedTheme', shared with every other site on this host"]);
     } else if (PLACEHOLDERS.indexOf(cfg.themeKey) !== -1) {
       fail.push(["DS_CONFIG.themeKey is still a placeholder", cfg.themeKey]);
     }
@@ -67,10 +61,7 @@
       // Only judge the values we can map with confidence; anything else is
       // left for a human to check in the Designer.
       if (expected && actual !== expected) {
-        fail.push([
-          'DS_CONFIG.navBreakpoint does not match data-collapse="' + collapse + '"',
-          "is " + actual + ", should be " + expected
-        ]);
+        fail.push(['DS_CONFIG.navBreakpoint does not match data-collapse="' + collapse + '"', "is " + actual + ", should be " + expected]);
       }
     }
   }

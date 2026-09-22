@@ -1,7 +1,7 @@
 /* ============================================================
  * table-rowlink.js — clickable + accessibly-named table rows
  *
- * Not bundled into all.js — an opt-in add-on, link it separately only on
+ * Not bundled into design-system.js — an opt-in add-on, link it separately only on
  * pages that have a clickable-row table.
  *
  * THE PROBLEM THIS SOLVES: the natural way to make a whole table row
@@ -213,7 +213,7 @@
         "table-rowlink: addons/table-rowlink.css is not applied " +
           "(.table-cell .u-link-cover should be pointer-events:none). " +
           "Row clicks will still work, but the table will not scroll " +
-          "horizontally on iPad. Link the stylesheet."
+          "horizontally on iPad. Link the stylesheet.",
       );
     }
   }

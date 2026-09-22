@@ -78,7 +78,7 @@
  *   .toc                  overflow:hidden + a transition on height (or max-height)
  *   .toc.is-closed        height:0 at/below the breakpoint
  *
- * Config (window.DS_CONFIG, set before all.js loads):
+ * Config (window.DS_CONFIG, set before design-system.js loads):
  *   tocBreakpoint   992   px width below which the TOC becomes a dropdown
  *   tocScrollGap      8   px breathing room between the nav and the target
  */
@@ -102,12 +102,10 @@
     list: "[data-toc-list], .toc, .toc_list",
     link: "[data-toc-link], a.toc-link, a.link_subnav",
     icon: "[data-toc-icon], .icon_toc_trigger, [class*='caret']",
-    label: "[data-toc-label], .toc-trigger-label"
+    label: "[data-toc-label], .toc-trigger-label",
   };
 
-  var reduceMotion = window.matchMedia
-    ? window.matchMedia("(prefers-reduced-motion: reduce)")
-    : null;
+  var reduceMotion = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
 
   function prefersReducedMotion() {
     return !!(reduceMotion && reduceMotion.matches);
@@ -163,7 +161,7 @@
       var top = target.getBoundingClientRect().top + window.scrollY - scrollOffset();
       window.scrollTo({
         top: top < 0 ? 0 : top,
-        behavior: prefersReducedMotion() ? "auto" : "smooth"
+        behavior: prefersReducedMotion() ? "auto" : "smooth",
       });
     });
   }
@@ -525,7 +523,7 @@
 
         scrollToTarget(target);
       },
-      true
+      true,
     );
 
     var ticking = false;
@@ -557,7 +555,7 @@
         }
         onScroll();
       },
-      { passive: true }
+      { passive: true },
     );
   }
 

@@ -1,7 +1,7 @@
 /* ============================================================
  * nav-scroll.js — navbar background slide-down on scroll
  *
- * Not bundled into all.js — an opt-in add-on. Only relevant to a nav that
+ * Not bundled into design-system.js — an opt-in add-on. Only relevant to a nav that
  * sits TRANSPARENT over a hero image/video at the top of the page. Once the
  * page scrolls past a threshold, a background panel slides down into the
  * navbar and stays; scroll back to the top and it slides back up. Skip this
@@ -48,10 +48,10 @@
 
   var DEFAULT_THRESHOLD = 80;
 
-  var bg = null;          // the background panel we toggle
-  var sentinel = null;    // zero-size marker at the top of the document
-  var observer = null;    // IntersectionObserver watching the sentinel
-  var pending = null;     // MutationObserver waiting for a late-injected nav
+  var bg = null; // the background panel we toggle
+  var sentinel = null; // zero-size marker at the top of the document
+  var observer = null; // IntersectionObserver watching the sentinel
+  var pending = null; // MutationObserver waiting for a late-injected nav
 
   function threshold() {
     var v = window.DS_CONFIG && window.DS_CONFIG.navScrollThreshold;
@@ -84,10 +84,7 @@
   function makeSentinel() {
     var el = document.createElement("div");
     el.setAttribute("aria-hidden", "true");
-    el.style.cssText =
-      "position:absolute;top:0;left:0;width:1px;height:" +
-      Math.max(1, threshold()) +
-      "px;pointer-events:none;visibility:hidden;";
+    el.style.cssText = "position:absolute;top:0;left:0;width:1px;height:" + Math.max(1, threshold()) + "px;pointer-events:none;visibility:hidden;";
     document.body.insertBefore(el, document.body.firstChild);
     return el;
   }
