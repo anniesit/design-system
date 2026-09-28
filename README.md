@@ -181,7 +181,8 @@ block **before** `design-system.js` loads to override defaults for a specific pr
     themeKey:      'my-project-theme',  // localStorage key for dark/light mode
     navBreakpoint: 992,                 // mobile nav reset breakpoint in px
     tocBreakpoint: 992,                 // breakpoint at which TOC becomes a dropdown
-    tocScrollGap:  8                    // px gap between the nav and a scroll target
+    tocScrollGap:  8,                   // px gap between the nav and a scroll target
+    tocTabFade:    180                  // ms per half of a tabbed-TOC panel switch
   };
 </script>
 ```
@@ -192,6 +193,7 @@ block **before** `design-system.js` loads to override defaults for a specific pr
 | `navBreakpoint` | `992` | Pixel width at which the mobile nav state resets on window resize |
 | `tocBreakpoint` | `992` | Pixel width below which the TOC becomes a dropdown, adding its height to scroll-to-anchor offset calculations |
 | `tocScrollGap` | `8` | Pixel breathing room left between the sticky nav and the top of a scroll-to-anchor target |
+| `tocTabFade` | `180` | Tabbed-mode TOC only: milliseconds for each half of a panel switch (old panel fades out, new one fades in, ease-in-out). `0` swaps instantly; reduced-motion users always get an instant swap |
 
 `component-loader.js` (linked separately, not part of the bundle — see above)
 reads a few more options, off unless set:
@@ -337,6 +339,68 @@ The CSS stays in the project (Webflow), and the script expects three rules:
 attached, so the TOC just renders normally. The script animates `max-height`
 instead of `height` if that's what your transition declares, so older stylesheets
 work unchanged.
+
+### Tabbed mode
+
+For long pages split into panels (a user guide), the TOC can work at two levels:
+the top level **switches which panel is shown**, the level under it scrolls
+within the visible panel. It switches on only when the page has a
+`[data-toc-tab]`, so ordinary TOC pages are untouched.
+
+```html
+<nav class="toc-wrap" data-toc aria-label="On this page">
+  <button class="toc-trigger">…</button>
+  <ul class="toc is-closed" id="toc-list">
+    <li class="toc-group">
+      <button data-toc-tab="reading">刊物閱覽</button>        <!-- tab -->
+      <ul class="toc-sub">
+        <li><a href="#book-page" class="toc-link">單冊頁面</a></li>  <!-- scroll-to -->
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+<section id="reading" data-toc-panel>
+  <h2>刊物閱覽</h2>
+  <section id="book-page">…</section>
+</section>
+```
+
+| Element | Hook | Notes |
+|---|---|---|
+| Tab button | `data-toc-tab="panel-id"` | A `<button>`. Its value is the panel's `id` |
+| Tab group | `data-toc-group` or `.toc-group` | Wraps a tab and its sub-list; gets `.is-active` while its panel shows |
+| Sub-list | `data-toc-sub` or `.toc-sub` | Only the active tab's sub-list is shown (`hidden` on the rest) |
+| Panel | `data-toc-panel` + `id` | One per tab; only the active one is shown |
+| Sub-links | the usual `a.toc-link` | Scroll-spy + live label, as on any TOC |
+
+What the script does:
+
+- **Tab click** — fades the old panel out, swaps panels, scrolls to the new
+  panel's top, fades it in, and pushes `#panel-id` to the address bar (so Back
+  works). On mobile it also closes the dropdown: choosing a tab is a
+  destination in itself.
+- **Any link or URL hash into a hidden panel** — switches to that panel first and
+  scrolls only once it is visible (a hidden target has no position to aim at),
+  then updates the address bar to the target's `#id`. Deep links like
+  `guide#book-page` open the right panel on load.
+- **Scroll-spy** — ignores headings with no layout, i.e. those in hidden panels.
+  (This fix applies to every TOC page.)
+- **Live label** — above the first sub-section, the collapsed trigger shows the
+  active tab's name instead of the markup's resting label.
+- **Without JavaScript** every panel stays visible, stacked in order — readable,
+  indexable, and easy to edit on the Webflow canvas.
+
+Accessibility: tab buttons get `aria-controls`, `aria-current="true"` on the
+active one, and `aria-expanded` when they have a sub-list; panels become labelled
+`role="region"`s. This is deliberately **not** the ARIA tabs pattern, which
+cannot contain the nested links.
+
+Panels and sub-lists are hidden with the `hidden` attribute, which
+`global/normalized.css` enforces with `display: none !important` — so a Webflow
+class that sets `display` on a panel can't accidentally un-hide it. Style the
+active tab through `.toc-group.is-active` (or `[aria-current]` on the button);
+the fades need no CSS at all (Web Animations API).
 
 **Setting per page in Webflow:** each page has its own Page Settings → Custom Code
 fields. Put the `DS_CONFIG` script there to override settings on specific pages

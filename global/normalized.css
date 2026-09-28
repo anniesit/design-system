@@ -141,9 +141,12 @@ table {
 }
 
 /* 12. Hidden attribute.
-   Some browsers don't apply display: none to [hidden] by default. */
+   Some browsers don't apply display: none to [hidden] by default.
+   !important because a class that sets display (flex, grid…) would otherwise
+   win and un-hide the element — scripts that toggle `hidden` (the tabbed TOC,
+   for one) rely on it always meaning "not shown". */
 [hidden] {
-  display: none;
+  display: none !important;
 }
 
 /* 13. sub/sup positioning.
