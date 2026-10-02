@@ -62,6 +62,14 @@
  * no links means no spy. Offset scrolling for loose hash links works even on
  * pages with no TOC at all.
  *
+ * Language: every TOC link gets an hreflang (it is what stops Webflow's own
+ * "current link" script competing with the spy). The value is the language of
+ * the section the link points to — the nearest [lang] on or above it, else
+ * <html lang> — so EN, TC and bilingual pages need no setting. On a bilingual
+ * page, put lang="en" (or "zh-HK") on each section or panel in the other
+ * language. To force a value, add an hreflang custom attribute to the link in
+ * the Designer; the script never overwrites one.
+ *
  * The label is auto-detected (first child of the trigger that isn't the caret,
  * or a bare text node), so `data-toc-label` is only needed for more complex
  * trigger markup. Its markup text is the resting label, restored above the
@@ -107,7 +115,7 @@
  *   - Shows one panel at a time (the `hidden` attribute on the others) and
  *     opens only the active group's sub-list. The active group also gets
  *     `.is-active` for styling. Tab buttons get aria-controls, aria-current
- *     and (when they have a sub-list) aria-expanded; panels become labelled
+ *     and aria-expanded (whether their panel is shown); panels become labelled
  *     regions. This is deliberately NOT the ARIA tabs pattern — that pattern
  *     cannot contain the nested links.
  *   - A tab click shows its panel, scrolls to the panel top, closes the mobile
@@ -534,8 +542,22 @@
 
     // Opt these links out of Webflow's built-in (viewport-middle) "current"
     // detection so this top-anchored spy is the single source of truth.
-    this.links.forEach(function (link) {
-      link.setAttribute("hreflang", "en");
+    // Webflow's links module skips any link that HAS an hreflang, whatever its
+    // value. The value is still read as "the language of the link's target",
+    // so each link takes the language of the section it points to: the
+    // nearest [lang] on or above that section, which falls back to <html lang>.
+    // EN, TC and bilingual pages all come out right with no setting — on a
+    // bilingual page, tag the English sections lang="en" and their links
+    // follow. An hreflang set on the link in the Designer always wins.
+    // "und" (undetermined) is the valid value when nothing declares one.
+    var sections = this.sections;
+    this.links.forEach(function (link, i) {
+      if (link.hasAttribute("hreflang")) return;
+      var target = sections[i];
+      var owner = target && target.closest("[lang]");
+      var lang = (owner && owner.getAttribute("lang")) ||
+        document.documentElement.getAttribute("lang") || "und";
+      link.setAttribute("hreflang", lang);
     });
 
     this.update();
@@ -631,10 +653,10 @@
       var sub = this.subOf(t);
 
       if (group && group !== t) group.classList.toggle("is-active", on);
-      if (sub) {
-        sub.hidden = !on;
-        t.setAttribute("aria-expanded", on ? "true" : "false");
-      }
+      if (sub) sub.hidden = !on;
+      // Every tab shows or hides its panel (and its sub-list, if any), so
+      // every tab that has a panel reports it — not only tabs with a sub-list.
+      if (sub || this.panelOf(t)) t.setAttribute("aria-expanded", on ? "true" : "false");
       if (on) t.setAttribute("aria-current", "true");
       else t.removeAttribute("aria-current");
     }

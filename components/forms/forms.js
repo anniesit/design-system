@@ -702,14 +702,23 @@ function initKeywordFields(container) {
 
   const rows = () => Array.from(container.querySelectorAll("[data-keyword-row]"));
 
-  // Re-index submitting names + refresh add/remove disabled states.
-  // Runs after any add/delete so indices stay contiguous (1-based).
+  // Re-index submitting names + accessible names, and refresh add/remove
+  // disabled states. Runs after any add/delete so indices stay contiguous
+  // (1-based).
+  // Every row is a copy of the same markup, so without the index each row's
+  // controls would be announced with identical names ("Keyword", "Keyword").
+  // The authored aria-label is kept in data-base-label and the row number is
+  // appended to it: "Keyword 1", "Keyword 2".
   function renumber() {
     const all = rows();
     all.forEach((row, i) => {
       const index = i + 1;
       row.querySelectorAll("[data-name]").forEach((field) => {
         field.name = `${field.dataset.name}_${index}`;
+      });
+      row.querySelectorAll("[aria-label]").forEach((el) => {
+        if (el.dataset.baseLabel === undefined) el.dataset.baseLabel = el.getAttribute("aria-label");
+        el.setAttribute("aria-label", `${el.dataset.baseLabel} ${index}`);
       });
     });
     const count = all.length;

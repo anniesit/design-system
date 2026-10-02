@@ -34,6 +34,35 @@
    silently overrides the Designer control. Set the transition in Webflow when
    forking; only the .w--open transform (a state Webflow can't reach) is ours. */
 
+/* ..Keep a CLOSED dropdown out of the Tab order.
+   .nav-dropdown_content overrides Webflow's closed `display: none` so it can
+   animate (opacity + max-height). That leaves the closed menu's links
+   invisible but still focusable: keyboard focus vanishes into them.
+   `visibility: hidden` removes them from the Tab order and the accessibility
+   tree. On close it must wait for the fade-out, but the transition belongs to
+   the Designer (see NOTE above), so a separate ANIMATION holds the panel
+   visible for --nav-dropdown-close, then lets `hidden` apply. Match it to the
+   longest closing transition on .nav-dropdown_content. */
+.nav-dropdown_content {
+  --nav-dropdown-close: 0.25s;
+}
+.nav-dropdown_content:not(.w--open) {
+  visibility: hidden;
+  animation: ds-nav-dropdown-close var(--nav-dropdown-close);
+}
+@keyframes ds-nav-dropdown-close {
+  from, to { visibility: visible; }
+}
+
+/* ..Give the dropdown links a visible focus ring. Webflow's base CSS sets
+   `.w-dropdown-link:focus { outline: 0 }`, which zeroes outline-style, so a
+   focus-visible state that sets only colour and width in the Designer still
+   draws nothing. Colour/width/offset stay in the Designer; this adds the
+   style only. */
+.nav-dropdown_content .w-dropdown-link:focus-visible {
+  outline-style: solid;
+}
+
 /* ..Show overlay on desktop */
 @media (min-width: 992px) {
   .nav-menu:has(.nav-link.w--open) .nav-dropdown_overlay {
