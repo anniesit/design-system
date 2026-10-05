@@ -596,6 +596,16 @@ function initInputClear(button) {
   }
 
   sync(); // initial state
+
+  // Re-check after values set by code, which fire no `input` event: a page
+  // script that refills the field from the URL on load, or the browser
+  // restoring form state when the page comes back from the back/forward cache.
+  // DOMContentLoaded fires after every deferred script has run.
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", sync);
+  }
+  window.addEventListener("load", sync);
+  window.addEventListener("pageshow", sync);
 }
 
 document.querySelectorAll("[data-input-clear]").forEach(initInputClear);
